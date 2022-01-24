@@ -1,0 +1,871 @@
+{
+  "title": "BasketryExample",
+  "majorVersion": 1,
+  "interfaces": [
+    {
+      "name": "gizmo",
+      "methods": [
+        {
+          "name": "getGizmos",
+          "parameters": [
+            {
+              "name": "search",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            }
+          ],
+          "description": "Only has a summary",
+          "returnType": {
+            "typeName": "gizmosResponse",
+            "isUnknown": false,
+            "isLocal": true,
+            "isArray": false,
+            "rules": []
+          }
+        },
+        {
+          "name": "createGizmo",
+          "parameters": [
+            {
+              "name": "size",
+              "description": "Anonymous enum",
+              "typeName": "createGizmoSize",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": false,
+              "rules": [
+                {
+                  "id": "string-enum",
+                  "values": ["small", "medium", "big", "XL"]
+                }
+              ]
+            }
+          ],
+          "description": [
+            "Has a summary in addition to a description",
+            "Has a description in addition to a summary"
+          ],
+          "returnType": {
+            "typeName": "gizmo",
+            "isUnknown": false,
+            "isLocal": true,
+            "isArray": false,
+            "rules": []
+          }
+        },
+        {
+          "name": "updateGizmo",
+          "parameters": [
+            {
+              "name": "factors",
+              "description": "array of primitive",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": [
+                { "id": "array-max-items", "max": 6 },
+                { "id": "array-min-items", "min": 2 },
+                { "id": "string-pattern", "pattern": "[0-9a-fA-F]+" }
+              ]
+            }
+          ],
+          "returnType": {
+            "typeName": "gizmo",
+            "isUnknown": false,
+            "isLocal": true,
+            "isArray": false,
+            "rules": []
+          }
+        }
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/gizmos",
+            "methods": [
+              {
+                "name": "getGizmos",
+                "verb": "get",
+                "parameters": [{ "name": "search", "in": "query" }],
+                "successCode": 200
+              },
+              {
+                "name": "createGizmo",
+                "verb": "post",
+                "parameters": [{ "name": "size", "in": "query" }],
+                "successCode": 201
+              },
+              {
+                "name": "updateGizmo",
+                "verb": "put",
+                "parameters": [
+                  { "name": "factors", "in": "query", "array": "csv" }
+                ],
+                "successCode": 200
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "widget",
+      "methods": [
+        {
+          "name": "getWidgets",
+          "parameters": [],
+          "returnType": {
+            "typeName": "widget",
+            "isUnknown": false,
+            "isLocal": true,
+            "isArray": false,
+            "rules": []
+          }
+        },
+        {
+          "name": "createWidget",
+          "parameters": [
+            {
+              "name": "body",
+              "description": "The new widget",
+              "typeName": "createWidgetBody",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": false,
+              "rules": []
+            }
+          ]
+        },
+        { "name": "putWidget", "parameters": [] },
+        {
+          "name": "getWidgetFoo",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The widget ID",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [
+                { "id": "required" },
+                { "id": "string-max-length", "length": 30 }
+              ]
+            }
+          ],
+          "returnType": {
+            "typeName": "widget",
+            "isUnknown": false,
+            "isLocal": true,
+            "isArray": false,
+            "rules": []
+          }
+        },
+        {
+          "name": "deleteWidgetFoo",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The widget ID",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [
+                { "id": "required" },
+                { "id": "string-max-length", "length": 30 }
+              ]
+            }
+          ]
+        }
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/widgets",
+            "methods": [
+              {
+                "name": "getWidgets",
+                "verb": "get",
+                "parameters": [],
+                "successCode": 200
+              },
+              {
+                "name": "createWidget",
+                "verb": "post",
+                "parameters": [{ "name": "body", "in": "body" }],
+                "successCode": 204
+              },
+              {
+                "name": "putWidget",
+                "verb": "put",
+                "parameters": [],
+                "successCode": 200
+              }
+            ]
+          },
+          {
+            "path": "/widgets/{id}/foo",
+            "methods": [
+              {
+                "name": "getWidgetFoo",
+                "verb": "get",
+                "parameters": [{ "name": "id", "in": "path" }],
+                "successCode": 200
+              },
+              {
+                "name": "deleteWidgetFoo",
+                "verb": "delete",
+                "parameters": [{ "name": "id", "in": "path" }],
+                "successCode": 204
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "exhaustive",
+      "methods": [
+        {
+          "name": "exhaustiveParams",
+          "parameters": [
+            {
+              "name": "query-string",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "query-enum",
+              "typeName": "exhaustiveParamsQueryEnum",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": false,
+              "rules": [
+                { "id": "string-enum", "values": ["one", "two", "three"] }
+              ]
+            },
+            {
+              "name": "query-number",
+              "typeName": "number",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "query-integer",
+              "typeName": "integer",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "query-boolean",
+              "typeName": "boolean",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "query-string-array",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "query-enum-array",
+              "typeName": "exhaustiveParamsQueryEnumArray",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": true,
+              "rules": [
+                { "id": "string-enum", "values": ["one", "two", "three"] }
+              ]
+            },
+            {
+              "name": "query-number-array",
+              "typeName": "number",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "query-integer-array",
+              "typeName": "integer",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "query-boolean-array",
+              "typeName": "boolean",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "path-string",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-enum",
+              "typeName": "exhaustiveParamsPathEnum",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": false,
+              "rules": [
+                { "id": "required" },
+                { "id": "string-enum", "values": ["one", "two", "three"] }
+              ]
+            },
+            {
+              "name": "path-number",
+              "typeName": "number",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-integer",
+              "typeName": "integer",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-boolean",
+              "typeName": "boolean",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-string-array",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-enum-array",
+              "typeName": "exhaustiveParamsPathEnumArray",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": true,
+              "rules": [
+                { "id": "required" },
+                { "id": "string-enum", "values": ["one", "two", "three"] }
+              ]
+            },
+            {
+              "name": "path-number-array",
+              "typeName": "number",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-integer-array",
+              "typeName": "integer",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "path-boolean-array",
+              "typeName": "boolean",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": [{ "id": "required" }]
+            },
+            {
+              "name": "header-string",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "header-enum",
+              "typeName": "exhaustiveParamsHeaderEnum",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": false,
+              "rules": [
+                { "id": "string-enum", "values": ["one", "two", "three"] }
+              ]
+            },
+            {
+              "name": "header-number",
+              "typeName": "number",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "header-integer",
+              "typeName": "integer",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "header-boolean",
+              "typeName": "boolean",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": []
+            },
+            {
+              "name": "header-string-array",
+              "typeName": "string",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "header-enum-array",
+              "typeName": "exhaustiveParamsHeaderEnumArray",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": true,
+              "rules": [
+                { "id": "string-enum", "values": ["one", "two", "three"] }
+              ]
+            },
+            {
+              "name": "header-number-array",
+              "typeName": "number",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "header-integer-array",
+              "typeName": "integer",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "header-boolean-array",
+              "typeName": "boolean",
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": true,
+              "rules": []
+            },
+            {
+              "name": "body",
+              "typeName": "exhaustiveParamsBody",
+              "isUnknown": false,
+              "isLocal": true,
+              "isArray": false,
+              "rules": []
+            }
+          ]
+        }
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array}",
+            "methods": [
+              {
+                "name": "exhaustiveParams",
+                "verb": "get",
+                "parameters": [
+                  { "name": "query-string", "in": "query" },
+                  { "name": "query-enum", "in": "query" },
+                  { "name": "query-number", "in": "query" },
+                  { "name": "query-integer", "in": "query" },
+                  { "name": "query-boolean", "in": "query" },
+                  {
+                    "name": "query-string-array",
+                    "in": "query",
+                    "array": "csv"
+                  },
+                  { "name": "query-enum-array", "in": "query", "array": "csv" },
+                  {
+                    "name": "query-number-array",
+                    "in": "query",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "query-integer-array",
+                    "in": "query",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "query-boolean-array",
+                    "in": "query",
+                    "array": "csv"
+                  },
+                  { "name": "path-string", "in": "path" },
+                  { "name": "path-enum", "in": "path" },
+                  { "name": "path-number", "in": "path" },
+                  { "name": "path-integer", "in": "path" },
+                  { "name": "path-boolean", "in": "path" },
+                  { "name": "path-string-array", "in": "path", "array": "csv" },
+                  { "name": "path-enum-array", "in": "path", "array": "csv" },
+                  { "name": "path-number-array", "in": "path", "array": "csv" },
+                  {
+                    "name": "path-integer-array",
+                    "in": "path",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "path-boolean-array",
+                    "in": "path",
+                    "array": "csv"
+                  },
+                  { "name": "header-string", "in": "header" },
+                  { "name": "header-enum", "in": "header" },
+                  { "name": "header-number", "in": "header" },
+                  { "name": "header-integer", "in": "header" },
+                  { "name": "header-boolean", "in": "header" },
+                  {
+                    "name": "header-string-array",
+                    "in": "header",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "header-enum-array",
+                    "in": "header",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "header-number-array",
+                    "in": "header",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "header-integer-array",
+                    "in": "header",
+                    "array": "csv"
+                  },
+                  {
+                    "name": "header-boolean-array",
+                    "in": "header",
+                    "array": "csv"
+                  },
+                  { "name": "body", "in": "body" }
+                ],
+                "successCode": 204
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "gizmo",
+      "properties": [
+        {
+          "name": "id",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "string-max-length", "length": 30 }]
+        },
+        {
+          "name": "name",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": []
+        },
+        {
+          "name": "size",
+          "typeName": "productSize",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": [
+            { "id": "string-enum", "values": ["small", "medium", "large"] }
+          ]
+        }
+      ],
+      "rules": []
+    },
+    {
+      "name": "widget",
+      "properties": [
+        {
+          "name": "id",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [
+            { "id": "required" },
+            { "id": "string-max-length", "length": 30 }
+          ]
+        },
+        {
+          "name": "name",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [
+            { "id": "string-max-length", "length": 30 },
+            { "id": "string-pattern", "pattern": "[0-9a-fA-F]+" }
+          ]
+        },
+        {
+          "name": "fiz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 3 }]
+        },
+        {
+          "name": "buzz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 5 }]
+        },
+        {
+          "name": "fizbuzz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 15 }]
+        },
+        {
+          "name": "foo",
+          "typeName": "widgetFoo",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": []
+        },
+        {
+          "name": "size",
+          "typeName": "productSize",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": [
+            { "id": "string-enum", "values": ["small", "medium", "large"] }
+          ]
+        }
+      ],
+      "rules": [{ "id": "object-additional-properties", "forbidden": true }]
+    },
+    {
+      "name": "newWidget",
+      "properties": [
+        {
+          "name": "name",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [
+            { "id": "string-max-length", "length": 30 },
+            { "id": "string-pattern", "pattern": "[0-9a-fA-F]+" }
+          ]
+        },
+        {
+          "name": "fiz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 3 }]
+        },
+        {
+          "name": "buzz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 5 }]
+        },
+        {
+          "name": "fizbuzz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "number-multiple-of", "value": 15 }]
+        },
+        {
+          "name": "foo",
+          "typeName": "newWidgetFoo",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": []
+        },
+        {
+          "name": "size",
+          "typeName": "productSize",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": true,
+          "rules": [
+            { "id": "string-enum", "values": ["small", "medium", "large"] }
+          ]
+        }
+      ],
+      "rules": []
+    },
+    {
+      "name": "gizmosResponse",
+      "properties": [
+        {
+          "name": "data",
+          "typeName": "gizmo",
+          "isUnknown": false,
+          "isArray": true,
+          "isLocal": true,
+          "rules": [{ "id": "required" }]
+        }
+      ],
+      "rules": []
+    },
+    {
+      "name": "createWidgetBody",
+      "properties": [
+        {
+          "name": "name",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "required" }]
+        }
+      ],
+      "rules": [{ "id": "object-additional-properties", "forbidden": true }]
+    },
+    {
+      "name": "exhaustiveParamsBody",
+      "properties": [
+        {
+          "name": "foo",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": []
+        },
+        {
+          "name": "bar",
+          "typeName": "string",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": []
+        }
+      ],
+      "rules": []
+    },
+    {
+      "name": "widgetFoo",
+      "properties": [
+        {
+          "name": "fiz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": []
+        },
+        {
+          "name": "buzz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "required" }]
+        }
+      ],
+      "rules": []
+    },
+    {
+      "name": "newWidgetFoo",
+      "properties": [
+        {
+          "name": "fiz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": []
+        },
+        {
+          "name": "buzz",
+          "typeName": "number",
+          "isUnknown": false,
+          "isArray": false,
+          "isLocal": false,
+          "rules": [{ "id": "required" }]
+        }
+      ],
+      "rules": []
+    }
+  ],
+  "enums": [
+    { "name": "createGizmoSize", "values": ["small", "medium", "big", "XL"] },
+    { "name": "exhaustiveParamsQueryEnum", "values": ["one", "two", "three"] },
+    {
+      "name": "exhaustiveParamsQueryEnumArray",
+      "values": ["one", "two", "three"]
+    },
+    { "name": "exhaustiveParamsPathEnum", "values": ["one", "two", "three"] },
+    {
+      "name": "exhaustiveParamsPathEnumArray",
+      "values": ["one", "two", "three"]
+    },
+    { "name": "exhaustiveParamsHeaderEnum", "values": ["one", "two", "three"] },
+    {
+      "name": "exhaustiveParamsHeaderEnumArray",
+      "values": ["one", "two", "three"]
+    },
+    { "name": "productSize", "values": ["small", "medium", "large"] }
+  ]
+}
