@@ -21,6 +21,8 @@ import * as validators from './validators';
 export function gizmoRoutes(service: types.GizmoService, router?: Router) {
   const r = router || Router();
 
+  // TODO: Auth
+
   r.route('/gizmos')
     .get(async (req, res, next) => {
       try {
@@ -81,6 +83,8 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
 }
 export function widgetRoutes(service: types.WidgetService, router?: Router) {
   const r = router || Router();
+
+  // TODO: Auth
 
   r.route('/widgets')
     .get(async (req, res, next) => {
@@ -172,6 +176,8 @@ export function exhaustiveRoutes(
   router?: Router,
 ) {
   const r = router || Router();
+
+  // TODO: Auth
 
   r.route(
     '/exhaustive/:path-string/:path-enum/:path-number/:path-integer/:path-boolean/:path-string-array/:path-enum-array/:path-number-array/:path-integer-array/:path-boolean-array',
