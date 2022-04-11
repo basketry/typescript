@@ -80,18 +80,22 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
         ...method.parameters.filter((p) => isRequired(p)),
         ...method.parameters.filter((p) => !isRequired(p)),
       ];
-      const paramString = sortedParams.length
-        ? `{${sortedParams.map((p) => camel(p.name)).join(', ')}}`
-        : '';
+      const paramString = methodSpec.parameters.length ? 'params' : '';
 
       yield `    .${methodSpec.verb.toLocaleLowerCase()}(async (req, res, next) => {`;
       yield `      try {`;
 
-      for (const paramSpec of methodSpec.parameters) {
-        const param = method.parameters.find((p) => p.name === paramSpec.name);
-        if (!param) continue;
+      if (methodSpec.parameters.length) {
+        yield `      const params = {`;
+        for (const paramSpec of methodSpec.parameters) {
+          const param = method.parameters.find(
+            (p) => p.name === paramSpec.name,
+          );
+          if (!param) continue;
 
-        yield* buildParam(param, paramSpec);
+          yield* buildParam(param, paramSpec);
+        }
+        yield `      };`;
       }
 
       if (method.parameters.length) {
@@ -158,57 +162,57 @@ function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
   if (param.isArray) {
     if (param.isLocal) {
       if (isEnum(param)) {
-        yield `const ${name} = Array.isArray(${source}) ? ${source} as types.${pascal(
+        yield `'${name}': Array.isArray(${source}) ? ${source} as types.${pascal(
           param.typeName,
         )}[] : typeof ${source} === 'string' ? ${source}.split('${
           buildArraySeprarator(spec) || ','
-        }') as types.${pascal(param.typeName)}[] : (${source} as never);`;
+        }') as types.${pascal(param.typeName)}[] : (${source} as never),`;
       } else {
-        yield `const ${name} = tryParse(${source});`;
+        yield `'${name}': tryParse(${source}),`;
       }
     } else {
       switch (param.typeName) {
         case 'string':
-          yield `const ${name} = Array.isArray(${source}) ? ${source} as string[] : typeof ${source} === 'string' ? ${source}.split('${
+          yield `'${name}': Array.isArray(${source}) ? ${source} as string[] : typeof ${source} === 'string' ? ${source}.split('${
             buildArraySeprarator(spec) || ','
-          }') as string[] : (${source} as never);`;
+          }') as string[] : (${source} as never),`;
           break;
         case 'number':
         case 'integer':
-          yield `const ${name} = Array.isArray(${source}) ? ${source}.map((x:any)=> Number(\`\${x}\`)) : typeof ${source} === 'string' ? ${source}.split('${
+          yield `'${name}': Array.isArray(${source}) ? ${source}.map((x:any)=> Number(\`\${x}\`)) : typeof ${source} === 'string' ? ${source}.split('${
             buildArraySeprarator(spec) || ','
-          }').map((x:any)=> Number(\`\${x}\`)) : (${source} as never);`;
+          }').map((x:any)=> Number(\`\${x}\`)) : (${source} as never),`;
           break;
         case 'boolean':
-          yield `const ${name} = Array.isArray(${source}) ? ${source}.map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : typeof ${source} === 'string' ? ${source}.split('${
+          yield `'${name}': Array.isArray(${source}) ? ${source}.map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : typeof ${source} === 'string' ? ${source}.split('${
             buildArraySeprarator(spec) || ','
-          }').map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : (${source} as never);`;
+          }').map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : (${source} as never),`;
           break;
         default:
-          yield `const ${name} = tryParse(${source});`;
+          yield `'${name}': tryParse(${source}),`;
       }
     }
   } else {
     if (param.isLocal) {
       if (isEnum(param)) {
-        yield `const ${name} = ${source} as types.${pascal(param.typeName)};`;
+        yield `'${name}': ${source} as types.${pascal(param.typeName)},`;
       } else {
-        yield `const ${name} = tryParse(${source});`;
+        yield `'${name}': tryParse(${source}),`;
       }
     } else {
       switch (param.typeName) {
         case 'string':
-          yield `const ${name} = ${source} as string;`;
+          yield `'${name}': ${source} as string,`;
           break;
         case 'number':
         case 'integer':
-          yield `const ${name} = Number(\`\${${source}}\`);`;
+          yield `'${name}': Number(\`\${${source}}\`),`;
           break;
         case 'boolean':
-          yield `const ${name} = typeof ${source} !== 'undefined' && \`\${${source}}\`.toLowerCase() !== 'false';`;
+          yield `'${name}': typeof ${source} !== 'undefined' && \`\${${source}}\`.toLowerCase() !== 'false',`;
           break;
         default:
-          yield `const ${name} = tryParse(${source});`;
+          yield `'${name}': tryParse(${source}),`;
       }
     }
   }

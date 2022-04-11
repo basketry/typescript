@@ -26,46 +26,52 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
   r.route('/gizmos')
     .get(async (req, res, next) => {
       try {
-        const search = req.query.search as string;
+        const params = {
+          search: req.query.search as string,
+        };
 
-        const errors = validators.validateGetGizmosParams({ search });
+        const errors = validators.validateGetGizmosParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getGizmos({ search }));
+        return res.status(200).json(await service.getGizmos(params));
       } catch (ex) {
         return next(ex);
       }
     })
     .post(async (req, res, next) => {
       try {
-        const size = req.query.size as types.CreateGizmoSize;
+        const params = {
+          size: req.query.size as types.CreateGizmoSize,
+        };
 
-        const errors = validators.validateCreateGizmoParams({ size });
+        const errors = validators.validateCreateGizmoParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(201).json(await service.createGizmo({ size }));
+        return res.status(201).json(await service.createGizmo(params));
       } catch (ex) {
         return next(ex);
       }
     })
     .put(async (req, res, next) => {
       try {
-        const factors = Array.isArray(req.query.factors)
-          ? (req.query.factors as string[])
-          : typeof req.query.factors === 'string'
-          ? (req.query.factors.split(',') as string[])
-          : (req.query.factors as never);
+        const params = {
+          factors: Array.isArray(req.query.factors)
+            ? (req.query.factors as string[])
+            : typeof req.query.factors === 'string'
+            ? (req.query.factors.split(',') as string[])
+            : (req.query.factors as never),
+        };
 
-        const errors = validators.validateUpdateGizmoParams({ factors });
+        const errors = validators.validateUpdateGizmoParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.updateGizmo({ factors }));
+        return res.status(200).json(await service.updateGizmo(params));
       } catch (ex) {
         return next(ex);
       }
@@ -98,14 +104,16 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
     })
     .post(async (req, res, next) => {
       try {
-        const body = tryParse(req.body);
+        const params = {
+          body: tryParse(req.body),
+        };
 
-        const errors = validators.validateCreateWidgetParams({ body });
+        const errors = validators.validateCreateWidgetParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.createWidget({ body });
+        await service.createWidget(params);
         return res.status(204).send();
       } catch (ex) {
         return next(ex);
@@ -133,28 +141,32 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
   r.route('/widgets/:id/foo')
     .get(async (req, res, next) => {
       try {
-        const id = req.params.id as string;
+        const params = {
+          id: req.params.id as string,
+        };
 
-        const errors = validators.validateGetWidgetFooParams({ id });
+        const errors = validators.validateGetWidgetFooParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getWidgetFoo({ id }));
+        return res.status(200).json(await service.getWidgetFoo(params));
       } catch (ex) {
         return next(ex);
       }
     })
     .delete(async (req, res, next) => {
       try {
-        const id = req.params.id as string;
+        const params = {
+          id: req.params.id as string,
+        };
 
-        const errors = validators.validateDeleteWidgetFooParams({ id });
+        const errors = validators.validateDeleteWidgetFooParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.deleteWidgetFoo({ id });
+        await service.deleteWidgetFoo(params);
         return res.status(204).send();
       } catch (ex) {
         return next(ex);
@@ -184,246 +196,179 @@ export function exhaustiveRoutes(
   )
     .get(async (req, res, next) => {
       try {
-        const queryString = req.query['query-string'] as string;
-        const queryEnum = req.query[
-          'query-enum'
-        ] as types.ExhaustiveParamsQueryEnum;
-        const queryNumber = Number(`${req.query['query-number']}`);
-        const queryInteger = Number(`${req.query['query-integer']}`);
-        const queryBoolean =
-          typeof req.query['query-boolean'] !== 'undefined' &&
-          `${req.query['query-boolean']}`.toLowerCase() !== 'false';
-        const queryStringArray = Array.isArray(req.query['query-string-array'])
-          ? (req.query['query-string-array'] as string[])
-          : typeof req.query['query-string-array'] === 'string'
-          ? (req.query['query-string-array'].split(',') as string[])
-          : (req.query['query-string-array'] as never);
-        const queryEnumArray = Array.isArray(req.query['query-enum-array'])
-          ? (req.query[
-              'query-enum-array'
-            ] as types.ExhaustiveParamsQueryEnumArray[])
-          : typeof req.query['query-enum-array'] === 'string'
-          ? (req.query['query-enum-array'].split(
-              ',',
-            ) as types.ExhaustiveParamsQueryEnumArray[])
-          : (req.query['query-enum-array'] as never);
-        const queryNumberArray = Array.isArray(req.query['query-number-array'])
-          ? req.query['query-number-array'].map((x: any) => Number(`${x}`))
-          : typeof req.query['query-number-array'] === 'string'
-          ? req.query['query-number-array']
-              .split(',')
-              .map((x: any) => Number(`${x}`))
-          : (req.query['query-number-array'] as never);
-        const queryIntegerArray = Array.isArray(
-          req.query['query-integer-array'],
-        )
-          ? req.query['query-integer-array'].map((x: any) => Number(`${x}`))
-          : typeof req.query['query-integer-array'] === 'string'
-          ? req.query['query-integer-array']
-              .split(',')
-              .map((x: any) => Number(`${x}`))
-          : (req.query['query-integer-array'] as never);
-        const queryBooleanArray = Array.isArray(
-          req.query['query-boolean-array'],
-        )
-          ? req.query['query-boolean-array'].map(
-              (x: any) =>
-                typeof x !== 'undefined' && `${x}`.toLowerCase() !== 'false',
-            )
-          : typeof req.query['query-boolean-array'] === 'string'
-          ? req.query['query-boolean-array']
-              .split(',')
-              .map(
+        const params = {
+          queryString: req.query['query-string'] as string,
+          queryEnum: req.query['query-enum'] as types.ExhaustiveParamsQueryEnum,
+          queryNumber: Number(`${req.query['query-number']}`),
+          queryInteger: Number(`${req.query['query-integer']}`),
+          queryBoolean:
+            typeof req.query['query-boolean'] !== 'undefined' &&
+            `${req.query['query-boolean']}`.toLowerCase() !== 'false',
+          queryStringArray: Array.isArray(req.query['query-string-array'])
+            ? (req.query['query-string-array'] as string[])
+            : typeof req.query['query-string-array'] === 'string'
+            ? (req.query['query-string-array'].split(',') as string[])
+            : (req.query['query-string-array'] as never),
+          queryEnumArray: Array.isArray(req.query['query-enum-array'])
+            ? (req.query[
+                'query-enum-array'
+              ] as types.ExhaustiveParamsQueryEnumArray[])
+            : typeof req.query['query-enum-array'] === 'string'
+            ? (req.query['query-enum-array'].split(
+                ',',
+              ) as types.ExhaustiveParamsQueryEnumArray[])
+            : (req.query['query-enum-array'] as never),
+          queryNumberArray: Array.isArray(req.query['query-number-array'])
+            ? req.query['query-number-array'].map((x: any) => Number(`${x}`))
+            : typeof req.query['query-number-array'] === 'string'
+            ? req.query['query-number-array']
+                .split(',')
+                .map((x: any) => Number(`${x}`))
+            : (req.query['query-number-array'] as never),
+          queryIntegerArray: Array.isArray(req.query['query-integer-array'])
+            ? req.query['query-integer-array'].map((x: any) => Number(`${x}`))
+            : typeof req.query['query-integer-array'] === 'string'
+            ? req.query['query-integer-array']
+                .split(',')
+                .map((x: any) => Number(`${x}`))
+            : (req.query['query-integer-array'] as never),
+          queryBooleanArray: Array.isArray(req.query['query-boolean-array'])
+            ? req.query['query-boolean-array'].map(
                 (x: any) =>
                   typeof x !== 'undefined' && `${x}`.toLowerCase() !== 'false',
               )
-          : (req.query['query-boolean-array'] as never);
-        const pathString = req.params['path-string'] as string;
-        const pathEnum = req.params[
-          'path-enum'
-        ] as types.ExhaustiveParamsPathEnum;
-        const pathNumber = Number(`${req.params['path-number']}`);
-        const pathInteger = Number(`${req.params['path-integer']}`);
-        const pathBoolean =
-          typeof req.params['path-boolean'] !== 'undefined' &&
-          `${req.params['path-boolean']}`.toLowerCase() !== 'false';
-        const pathStringArray = Array.isArray(req.params['path-string-array'])
-          ? (req.params['path-string-array'] as string[])
-          : typeof req.params['path-string-array'] === 'string'
-          ? (req.params['path-string-array'].split(',') as string[])
-          : (req.params['path-string-array'] as never);
-        const pathEnumArray = Array.isArray(req.params['path-enum-array'])
-          ? (req.params[
-              'path-enum-array'
-            ] as types.ExhaustiveParamsPathEnumArray[])
-          : typeof req.params['path-enum-array'] === 'string'
-          ? (req.params['path-enum-array'].split(
-              ',',
-            ) as types.ExhaustiveParamsPathEnumArray[])
-          : (req.params['path-enum-array'] as never);
-        const pathNumberArray = Array.isArray(req.params['path-number-array'])
-          ? req.params['path-number-array'].map((x: any) => Number(`${x}`))
-          : typeof req.params['path-number-array'] === 'string'
-          ? req.params['path-number-array']
-              .split(',')
-              .map((x: any) => Number(`${x}`))
-          : (req.params['path-number-array'] as never);
-        const pathIntegerArray = Array.isArray(req.params['path-integer-array'])
-          ? req.params['path-integer-array'].map((x: any) => Number(`${x}`))
-          : typeof req.params['path-integer-array'] === 'string'
-          ? req.params['path-integer-array']
-              .split(',')
-              .map((x: any) => Number(`${x}`))
-          : (req.params['path-integer-array'] as never);
-        const pathBooleanArray = Array.isArray(req.params['path-boolean-array'])
-          ? req.params['path-boolean-array'].map(
-              (x: any) =>
-                typeof x !== 'undefined' && `${x}`.toLowerCase() !== 'false',
-            )
-          : typeof req.params['path-boolean-array'] === 'string'
-          ? req.params['path-boolean-array']
-              .split(',')
-              .map(
+            : typeof req.query['query-boolean-array'] === 'string'
+            ? req.query['query-boolean-array']
+                .split(',')
+                .map(
+                  (x: any) =>
+                    typeof x !== 'undefined' &&
+                    `${x}`.toLowerCase() !== 'false',
+                )
+            : (req.query['query-boolean-array'] as never),
+          pathString: req.params['path-string'] as string,
+          pathEnum: req.params['path-enum'] as types.ExhaustiveParamsPathEnum,
+          pathNumber: Number(`${req.params['path-number']}`),
+          pathInteger: Number(`${req.params['path-integer']}`),
+          pathBoolean:
+            typeof req.params['path-boolean'] !== 'undefined' &&
+            `${req.params['path-boolean']}`.toLowerCase() !== 'false',
+          pathStringArray: Array.isArray(req.params['path-string-array'])
+            ? (req.params['path-string-array'] as string[])
+            : typeof req.params['path-string-array'] === 'string'
+            ? (req.params['path-string-array'].split(',') as string[])
+            : (req.params['path-string-array'] as never),
+          pathEnumArray: Array.isArray(req.params['path-enum-array'])
+            ? (req.params[
+                'path-enum-array'
+              ] as types.ExhaustiveParamsPathEnumArray[])
+            : typeof req.params['path-enum-array'] === 'string'
+            ? (req.params['path-enum-array'].split(
+                ',',
+              ) as types.ExhaustiveParamsPathEnumArray[])
+            : (req.params['path-enum-array'] as never),
+          pathNumberArray: Array.isArray(req.params['path-number-array'])
+            ? req.params['path-number-array'].map((x: any) => Number(`${x}`))
+            : typeof req.params['path-number-array'] === 'string'
+            ? req.params['path-number-array']
+                .split(',')
+                .map((x: any) => Number(`${x}`))
+            : (req.params['path-number-array'] as never),
+          pathIntegerArray: Array.isArray(req.params['path-integer-array'])
+            ? req.params['path-integer-array'].map((x: any) => Number(`${x}`))
+            : typeof req.params['path-integer-array'] === 'string'
+            ? req.params['path-integer-array']
+                .split(',')
+                .map((x: any) => Number(`${x}`))
+            : (req.params['path-integer-array'] as never),
+          pathBooleanArray: Array.isArray(req.params['path-boolean-array'])
+            ? req.params['path-boolean-array'].map(
                 (x: any) =>
                   typeof x !== 'undefined' && `${x}`.toLowerCase() !== 'false',
               )
-          : (req.params['path-boolean-array'] as never);
-        const headerString = req.header('header-string') as any as string;
-        const headerEnum = req.header(
-          'header-enum',
-        ) as any as types.ExhaustiveParamsHeaderEnum;
-        const headerNumber = Number(`${req.header('header-number') as any}`);
-        const headerInteger = Number(`${req.header('header-integer') as any}`);
-        const headerBoolean =
-          typeof (req.header('header-boolean') as any) !== 'undefined' &&
-          `${req.header('header-boolean') as any}`.toLowerCase() !== 'false';
-        const headerStringArray = Array.isArray(
-          req.header('header-string-array') as any,
-        )
-          ? (req.header('header-string-array') as any as string[])
-          : typeof (req.header('header-string-array') as any) === 'string'
-          ? ((req.header('header-string-array') as any).split(',') as string[])
-          : (req.header('header-string-array') as any as never);
-        const headerEnumArray = Array.isArray(
-          req.header('header-enum-array') as any,
-        )
-          ? (req.header(
-              'header-enum-array',
-            ) as any as types.ExhaustiveParamsHeaderEnumArray[])
-          : typeof (req.header('header-enum-array') as any) === 'string'
-          ? ((req.header('header-enum-array') as any).split(
-              ',',
-            ) as types.ExhaustiveParamsHeaderEnumArray[])
-          : (req.header('header-enum-array') as any as never);
-        const headerNumberArray = Array.isArray(
-          req.header('header-number-array') as any,
-        )
-          ? (req.header('header-number-array') as any).map((x: any) =>
-              Number(`${x}`),
-            )
-          : typeof (req.header('header-number-array') as any) === 'string'
-          ? (req.header('header-number-array') as any)
-              .split(',')
-              .map((x: any) => Number(`${x}`))
-          : (req.header('header-number-array') as any as never);
-        const headerIntegerArray = Array.isArray(
-          req.header('header-integer-array') as any,
-        )
-          ? (req.header('header-integer-array') as any).map((x: any) =>
-              Number(`${x}`),
-            )
-          : typeof (req.header('header-integer-array') as any) === 'string'
-          ? (req.header('header-integer-array') as any)
-              .split(',')
-              .map((x: any) => Number(`${x}`))
-          : (req.header('header-integer-array') as any as never);
-        const headerBooleanArray = Array.isArray(
-          req.header('header-boolean-array') as any,
-        )
-          ? (req.header('header-boolean-array') as any).map(
-              (x: any) =>
-                typeof x !== 'undefined' && `${x}`.toLowerCase() !== 'false',
-            )
-          : typeof (req.header('header-boolean-array') as any) === 'string'
-          ? (req.header('header-boolean-array') as any)
-              .split(',')
-              .map(
+            : typeof req.params['path-boolean-array'] === 'string'
+            ? req.params['path-boolean-array']
+                .split(',')
+                .map(
+                  (x: any) =>
+                    typeof x !== 'undefined' &&
+                    `${x}`.toLowerCase() !== 'false',
+                )
+            : (req.params['path-boolean-array'] as never),
+          headerString: req.header('header-string') as any as string,
+          headerEnum: req.header(
+            'header-enum',
+          ) as any as types.ExhaustiveParamsHeaderEnum,
+          headerNumber: Number(`${req.header('header-number') as any}`),
+          headerInteger: Number(`${req.header('header-integer') as any}`),
+          headerBoolean:
+            typeof (req.header('header-boolean') as any) !== 'undefined' &&
+            `${req.header('header-boolean') as any}`.toLowerCase() !== 'false',
+          headerStringArray: Array.isArray(
+            req.header('header-string-array') as any,
+          )
+            ? (req.header('header-string-array') as any as string[])
+            : typeof (req.header('header-string-array') as any) === 'string'
+            ? ((req.header('header-string-array') as any).split(
+                ',',
+              ) as string[])
+            : (req.header('header-string-array') as any as never),
+          headerEnumArray: Array.isArray(req.header('header-enum-array') as any)
+            ? (req.header(
+                'header-enum-array',
+              ) as any as types.ExhaustiveParamsHeaderEnumArray[])
+            : typeof (req.header('header-enum-array') as any) === 'string'
+            ? ((req.header('header-enum-array') as any).split(
+                ',',
+              ) as types.ExhaustiveParamsHeaderEnumArray[])
+            : (req.header('header-enum-array') as any as never),
+          headerNumberArray: Array.isArray(
+            req.header('header-number-array') as any,
+          )
+            ? (req.header('header-number-array') as any).map((x: any) =>
+                Number(`${x}`),
+              )
+            : typeof (req.header('header-number-array') as any) === 'string'
+            ? (req.header('header-number-array') as any)
+                .split(',')
+                .map((x: any) => Number(`${x}`))
+            : (req.header('header-number-array') as any as never),
+          headerIntegerArray: Array.isArray(
+            req.header('header-integer-array') as any,
+          )
+            ? (req.header('header-integer-array') as any).map((x: any) =>
+                Number(`${x}`),
+              )
+            : typeof (req.header('header-integer-array') as any) === 'string'
+            ? (req.header('header-integer-array') as any)
+                .split(',')
+                .map((x: any) => Number(`${x}`))
+            : (req.header('header-integer-array') as any as never),
+          headerBooleanArray: Array.isArray(
+            req.header('header-boolean-array') as any,
+          )
+            ? (req.header('header-boolean-array') as any).map(
                 (x: any) =>
                   typeof x !== 'undefined' && `${x}`.toLowerCase() !== 'false',
               )
-          : (req.header('header-boolean-array') as any as never);
-        const body = tryParse(req.body);
+            : typeof (req.header('header-boolean-array') as any) === 'string'
+            ? (req.header('header-boolean-array') as any)
+                .split(',')
+                .map(
+                  (x: any) =>
+                    typeof x !== 'undefined' &&
+                    `${x}`.toLowerCase() !== 'false',
+                )
+            : (req.header('header-boolean-array') as any as never),
+          body: tryParse(req.body),
+        };
 
-        const errors = validators.validateExhaustiveParamsParams({
-          pathString,
-          pathEnum,
-          pathNumber,
-          pathInteger,
-          pathBoolean,
-          pathStringArray,
-          pathEnumArray,
-          pathNumberArray,
-          pathIntegerArray,
-          pathBooleanArray,
-          queryString,
-          queryEnum,
-          queryNumber,
-          queryInteger,
-          queryBoolean,
-          queryStringArray,
-          queryEnumArray,
-          queryNumberArray,
-          queryIntegerArray,
-          queryBooleanArray,
-          headerString,
-          headerEnum,
-          headerNumber,
-          headerInteger,
-          headerBoolean,
-          headerStringArray,
-          headerEnumArray,
-          headerNumberArray,
-          headerIntegerArray,
-          headerBooleanArray,
-          body,
-        });
+        const errors = validators.validateExhaustiveParamsParams(params);
         if (errors.length) return next(errors);
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.exhaustiveParams({
-          pathString,
-          pathEnum,
-          pathNumber,
-          pathInteger,
-          pathBoolean,
-          pathStringArray,
-          pathEnumArray,
-          pathNumberArray,
-          pathIntegerArray,
-          pathBooleanArray,
-          queryString,
-          queryEnum,
-          queryNumber,
-          queryInteger,
-          queryBoolean,
-          queryStringArray,
-          queryEnumArray,
-          queryNumberArray,
-          queryIntegerArray,
-          queryBooleanArray,
-          headerString,
-          headerEnum,
-          headerNumber,
-          headerInteger,
-          headerBoolean,
-          headerStringArray,
-          headerEnumArray,
-          headerNumberArray,
-          headerIntegerArray,
-          headerBooleanArray,
-          body,
-        });
+        await service.exhaustiveParams(params);
         return res.status(204).send();
       } catch (ex) {
         return next(ex);
