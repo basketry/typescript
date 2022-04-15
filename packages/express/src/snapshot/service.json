@@ -7,6 +7,26 @@
       "methods": [
         {
           "name": "getGizmos",
+          "security": [
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      {
+                        "name": "read:gizmos",
+                        "description": "Access gizmo data"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "search",
@@ -28,6 +48,26 @@
         },
         {
           "name": "createGizmo",
+          "security": [
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      {
+                        "name": "write:gizmos",
+                        "description": "Write gizmo data"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "size",
@@ -58,6 +98,27 @@
         },
         {
           "name": "updateGizmo",
+          "security": [
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      {
+                        "name": "write:gizmos",
+                        "description": "Write gizmo data"
+                      },
+                      { "name": "admin:gizmos", "description": "Manage gizmos" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "factors",
@@ -117,6 +178,16 @@
       "methods": [
         {
           "name": "getWidgets",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [],
           "returnType": {
             "typeName": "widget",
@@ -128,6 +199,16 @@
         },
         {
           "name": "createWidget",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "body",
@@ -140,9 +221,32 @@
             }
           ]
         },
-        { "name": "putWidget", "parameters": [] },
+        {
+          "name": "putWidget",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
+          "parameters": []
+        },
         {
           "name": "getWidgetFoo",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "id",
@@ -167,6 +271,16 @@
         },
         {
           "name": "deleteWidgetFoo",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "id",
@@ -233,6 +347,7 @@
       "methods": [
         {
           "name": "exhaustiveParams",
+          "security": [],
           "parameters": [
             {
               "name": "query-string",

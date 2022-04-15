@@ -14,50 +14,238 @@ function tryParse(obj: any): any {
   }
 }
 
-import { Router } from 'express';
+import {
+  type NextFunction,
+  type Request,
+  type RequestHandler,
+  type Response,
+  Router,
+} from 'express';
+import * as auth from './auth';
 import * as types from './types';
 import * as validators from './validators';
 
-export function gizmoRoutes(service: types.GizmoService, router?: Router) {
-  const r = router || Router();
+export type BasicStrategy = (
+  username: string | null | undefined,
+  password: string | null | undefined,
+) => Promise<{ isAuthenticated: boolean; scopes: Set<string> }>;
 
-  // TODO: Auth
+export type ApiKeyStrategy = (
+  key: string | null | undefined,
+) => Promise<{ isAuthenticated: boolean; scopes: Set<string> }>;
+
+export type OAuth2Strategy = (
+  accessToken: string | null | undefined,
+) => Promise<{ isAuthenticated: boolean; scopes: Set<string> }>;
+
+class ExpressAuthService implements auth.AuthService {
+  constructor(
+    private readonly results: Record<
+      string,
+      { isAuthenticated: boolean; scopes?: Set<string> }
+    >,
+  ) {}
+
+  isAuthenticated(scheme: string): boolean {
+    return this.results[scheme]?.isAuthenticated === true;
+  }
+  hasScope(scheme: string, scope: string): boolean {
+    return this.results[scheme]?.scopes?.has(scope) === true;
+  }
+}
+
+export interface Strategies {
+  oauth2Auth: OAuth2Strategy;
+  apiKeyAuth: ApiKeyStrategy;
+}
+
+export const authentication: (strategies: Strategies) => RequestHandler =
+  (strategies) => (req, _res, next) => {
+    const [a, b] = req.headers.authorization?.split(' ') || [];
+    const accessToken = a === 'Bearer' ? b : undefined;
+    Promise.all([
+      strategies['oauth2Auth'](accessToken),
+      strategies['apiKeyAuth'](req.get('x-apikey')), // TODO: also support query and cookie
+    ])
+      .then((results) => {
+        req.basketry = {
+          context: new ExpressAuthService({
+            oauth2Auth: results[0],
+            apiKeyAuth: results[1],
+          }),
+        };
+        next();
+      })
+      .catch((error) => next(error));
+  };
+
+/** Standard error (based on JSON API Error: https://jsonapi.org/format/#errors) */
+export type StandardError = {
+  /** The HTTP status code applicable to this problem. */
+  status: number;
+  /** An application-specific error code, expressed as a string value. */
+  code: string;
+  /** A short, human-readable summary of the problem that **SHOULD NOT** change from occurrence to occurrence of the problem, except for purposes of localization. */
+  title: string;
+  /** A human-readable explanation specific to this occurrence of the problem. Like `title`, this field’s value can be localized. */
+  detail?: string;
+  /** A meta object containing non-standard meta-information about the error. */
+  meta?: any;
+};
+
+function build401(detail?: string): StandardError {
+  const error: StandardError = {
+    status: 401,
+    code: 'UNAUTHORIZED',
+    title:
+      'The client request has not been completed because it lacks valid authentication credentials for the requested resource.',
+  };
+
+  if (typeof detail === 'string') error.detail = detail;
+
+  return error;
+}
+
+export function build403(detail?: string): StandardError {
+  const error: StandardError = {
+    status: 403,
+    code: 'FORBIDDEN',
+    title: 'The server understands the request but refuses to authorize it.',
+  };
+
+  if (typeof detail === 'string') error.detail = detail;
+
+  return error;
+}
+
+function build400(detail?: string): StandardError {
+  const error: StandardError = {
+    status: 400,
+    code: 'BAD_REQUEST',
+    title:
+      'The server cannot or will not process the request due to something that is perceived to be a client error.',
+  };
+
+  if (typeof detail === 'string') error.detail = detail;
+
+  return error;
+}
+
+function build500(detail?: string): StandardError {
+  const error: StandardError = {
+    status: 500,
+    code: 'INTERNAL_SERVICE_ERROR',
+    title:
+      'The server encountered an unexpected condition that prevented it from fulfilling the request.',
+  };
+
+  if (typeof detail === 'string') error.detail = detail;
+
+  return error;
+}
+
+export function gizmoRoutes(
+  service: types.GizmoService | ((req: Request) => types.GizmoService),
+  router?: Router,
+) {
+  const r = router || Router();
+  const contextProvider = (req: Request) => req.basketry?.context;
 
   r.route('/gizmos')
     .get(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeGetGizmos(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for getGizmos.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call getGizmos.',
+              ),
+            );
+        }
+
         const params = {
           search: req.query.search as string,
         };
 
         const errors = validators.validateGetGizmosParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getGizmos(params));
+        const svc = typeof service === 'function' ? service(req) : service;
+        return res.status(200).json(await svc.getGizmos(params));
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .post(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeCreateGizmo(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for createGizmo.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call createGizmo.',
+              ),
+            );
+        }
+
         const params = {
           size: req.query.size as types.CreateGizmoSize,
         };
 
         const errors = validators.validateCreateGizmoParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(201).json(await service.createGizmo(params));
+        const svc = typeof service === 'function' ? service(req) : service;
+        return res.status(201).json(await svc.createGizmo(params));
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .put(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeUpdateGizmo(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for updateGizmo.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call updateGizmo.',
+              ),
+            );
+        }
+
         const params = {
           factors: Array.isArray(req.query.factors)
             ? (req.query.factors as string[])
@@ -67,13 +255,22 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
         };
 
         const errors = validators.validateUpdateGizmoParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.updateGizmo(params));
+        const svc = typeof service === 'function' ? service(req) : service;
+        return res.status(200).json(await svc.updateGizmo(params));
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .options((req, res) => {
@@ -84,49 +281,139 @@ export function gizmoRoutes(service: types.GizmoService, router?: Router) {
       res.set({ allow: 'GET, POST, PUT, HEAD, OPTIONS' });
       return res.status(405).send();
     });
+  r.use(
+    (
+      err: StandardError | StandardError[],
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => {
+      if (!res.headersSent) {
+        if (Array.isArray(err)) {
+          const status = err.reduce(
+            (max, item) => (item.status > max ? item.status : max),
+            Number.MIN_SAFE_INTEGER,
+          );
+
+          res.status(status).json({ errors: err });
+        } else {
+          res.status(err.status).json({ errors: [err] });
+        }
+      }
+
+      next(err);
+    },
+  );
 
   return r;
 }
-export function widgetRoutes(service: types.WidgetService, router?: Router) {
+export function widgetRoutes(
+  service: types.WidgetService | ((req: Request) => types.WidgetService),
+  router?: Router,
+) {
   const r = router || Router();
-
-  // TODO: Auth
+  const contextProvider = (req: Request) => req.basketry?.context;
 
   r.route('/widgets')
     .get(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeGetWidgets(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for getWidgets.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call getWidgets.',
+              ),
+            );
+        }
+
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getWidgets());
+        const svc = typeof service === 'function' ? service(req) : service;
+        return res.status(200).json(await svc.getWidgets());
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .post(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeCreateWidget(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for createWidget.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call createWidget.',
+              ),
+            );
+        }
+
         const params = {
           body: tryParse(req.body),
         };
 
         const errors = validators.validateCreateWidgetParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.createWidget(params);
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.createWidget(params);
         return res.status(204).send();
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .put(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizePutWidget(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for putWidget.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call putWidget.',
+              ),
+            );
+        }
+
         // TODO: validate return value
         // TODO: consider response headers
-        await service.putWidget();
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.putWidget();
         return res.status(204).send();
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .options((req, res) => {
@@ -141,35 +428,83 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
   r.route('/widgets/:id/foo')
     .get(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeGetWidgetFoo(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401('No authentication scheme supplied for getWidgetFoo.'),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call getWidgetFoo.',
+              ),
+            );
+        }
+
         const params = {
           id: req.params.id as string,
         };
 
         const errors = validators.validateGetWidgetFooParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        return res.status(200).json(await service.getWidgetFoo(params));
+        const svc = typeof service === 'function' ? service(req) : service;
+        return res.status(200).json(await svc.getWidgetFoo(params));
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .delete(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeDeleteWidgetFoo(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401(
+                'No authentication scheme supplied for deleteWidgetFoo.',
+              ),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call deleteWidgetFoo.',
+              ),
+            );
+        }
+
         const params = {
           id: req.params.id as string,
         };
 
         const errors = validators.validateDeleteWidgetFooParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.deleteWidgetFoo(params);
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.deleteWidgetFoo(params);
         return res.status(204).send();
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .options((req, res) => {
@@ -180,22 +515,62 @@ export function widgetRoutes(service: types.WidgetService, router?: Router) {
       res.set({ allow: 'GET, DELETE, HEAD, OPTIONS' });
       return res.status(405).send();
     });
+  r.use(
+    (
+      err: StandardError | StandardError[],
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => {
+      if (!res.headersSent) {
+        if (Array.isArray(err)) {
+          const status = err.reduce(
+            (max, item) => (item.status > max ? item.status : max),
+            Number.MIN_SAFE_INTEGER,
+          );
+
+          res.status(status).json({ errors: err });
+        } else {
+          res.status(err.status).json({ errors: [err] });
+        }
+      }
+
+      next(err);
+    },
+  );
 
   return r;
 }
 export function exhaustiveRoutes(
-  service: types.ExhaustiveService,
+  service:
+    | types.ExhaustiveService
+    | ((req: Request) => types.ExhaustiveService),
   router?: Router,
 ) {
   const r = router || Router();
-
-  // TODO: Auth
+  const contextProvider = (req: Request) => req.basketry?.context;
 
   r.route(
     '/exhaustive/:path-string/:path-enum/:path-number/:path-integer/:path-boolean/:path-string-array/:path-enum-array/:path-number-array/:path-integer-array/:path-boolean-array',
   )
     .get(async (req, res, next) => {
       try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeExhaustiveParams(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401(
+                'No authentication scheme supplied for exhaustiveParams.',
+              ),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call exhaustiveParams.',
+              ),
+            );
+        }
+
         const params = {
           queryString: req.query['query-string'] as string,
           queryEnum: req.query['query-enum'] as types.ExhaustiveParamsQueryEnum,
@@ -364,14 +739,23 @@ export function exhaustiveRoutes(
         };
 
         const errors = validators.validateExhaustiveParamsParams(params);
-        if (errors.length) return next(errors);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
 
         // TODO: validate return value
         // TODO: consider response headers
-        await service.exhaustiveParams(params);
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.exhaustiveParams(params);
         return res.status(204).send();
       } catch (ex) {
-        return next(ex);
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
       }
     })
     .options((req, res) => {
@@ -382,6 +766,29 @@ export function exhaustiveRoutes(
       res.set({ allow: 'GET, HEAD, OPTIONS' });
       return res.status(405).send();
     });
+  r.use(
+    (
+      err: StandardError | StandardError[],
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => {
+      if (!res.headersSent) {
+        if (Array.isArray(err)) {
+          const status = err.reduce(
+            (max, item) => (item.status > max ? item.status : max),
+            Number.MIN_SAFE_INTEGER,
+          );
+
+          res.status(status).json({ errors: err });
+        } else {
+          res.status(err.status).json({ errors: [err] });
+        }
+      }
+
+      next(err);
+    },
+  );
 
   return r;
 }

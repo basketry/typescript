@@ -1,6 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import generateTypes from '@basketry/typescript';
+import generateAuth from '@basketry/typescript-auth';
 import generateValidators from '@basketry/typescript-validators';
 import { ExpressRouterFactory } from '../express-factory';
 
@@ -12,6 +13,7 @@ const service = require('./service.json');
 
 const snapshotFiles = [
   ...generateTypes(service),
+  ...generateAuth(service),
   ...generateValidators(service),
   ...new ExpressRouterFactory().build(service),
 ];
