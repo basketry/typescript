@@ -705,6 +705,103 @@
           }
         ]
       }
+    },
+    {
+      "name": "authPermutation",
+      "methods": [
+        {
+          "name": "all-auth-schemes",
+          "security": [
+            [{ "type": "basic", "name": "basicAuth" }],
+            [{ "type": "basic", "name": "alternate-basic-auth" }],
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ],
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      { "name": "admin:gizmos", "description": "Manage gizmos" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
+          "parameters": []
+        },
+        {
+          "name": "combo-auth-schemes",
+          "security": [
+            [
+              { "type": "basic", "name": "basicAuth" },
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ],
+            [
+              { "type": "basic", "name": "basicAuth" },
+              {
+                "type": "apiKey",
+                "name": "alternateApiKeyAuth",
+                "parameter": "apikey",
+                "in": "query"
+              }
+            ],
+            [
+              { "type": "basic", "name": "alternate-basic-auth" },
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      { "name": "admin:gizmos", "description": "Manage gizmos" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
+          "parameters": []
+        }
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/authPermutations",
+            "methods": [
+              {
+                "name": "all-auth-schemes",
+                "verb": "get",
+                "parameters": [],
+                "successCode": 200
+              },
+              {
+                "name": "combo-auth-schemes",
+                "verb": "put",
+                "parameters": [],
+                "successCode": 200
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "types": [

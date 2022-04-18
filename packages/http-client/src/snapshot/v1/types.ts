@@ -94,6 +94,12 @@ export interface ExhaustiveService {
   }): Promise<void>;
 }
 
+export interface AuthPermutationService {
+  allAuthSchemes(): Promise<void>;
+
+  comboAuthSchemes(): Promise<void>;
+}
+
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
 
 export type ExhaustiveParamsQueryEnum = 'one' | 'two' | 'three';

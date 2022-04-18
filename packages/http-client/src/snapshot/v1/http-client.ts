@@ -46,9 +46,6 @@ export class HttpGizmoService implements types.GizmoService {
     if (typeof params?.search !== 'undefined') {
       query.push(`search=${encodeURIComponent(params.search)}`);
     }
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
 
     const path = [`/gizmos`, query.join('&')].join('?');
 
@@ -93,9 +90,6 @@ export class HttpGizmoService implements types.GizmoService {
     if (typeof params?.size !== 'undefined') {
       query.push(`size=${encodeURIComponent(params.size)}`);
     }
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
 
     const path = [`/gizmos`, query.join('&')].join('?');
 
@@ -137,9 +131,6 @@ export class HttpGizmoService implements types.GizmoService {
       query.push(
         `factors=${params.factors}.map(encodeURIComponent).join(',')}`,
       );
-    }
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
     }
 
     const path = [`/gizmos`, query.join('&')].join('?');
@@ -407,7 +398,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     if (typeof params.headerBooleanArray !== 'undefined') {
       headers['header-boolean-array'] = params.headerBooleanArray
         .map(encodeURIComponent)
-        .join('	');
+        .join('\t');
     }
 
     const query: string[] = [];
@@ -464,7 +455,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
         .map(encodeURIComponent)
         .join(' ')}/${params.pathIntegerArray
         .map(encodeURIComponent)
-        .join('	')}/${params.pathBooleanArray
+        .join('\t')}/${params.pathBooleanArray
         .map(encodeURIComponent)
         .join(',')}`,
       query.join('&'),
@@ -479,6 +470,100 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     });
 
     if (status !== 204) {
+      throw new Error('Invalid response code');
+    }
+  }
+}
+
+export class HttpAuthPermutationService
+  implements types.AuthPermutationService
+{
+  constructor(
+    private readonly fetch: Fetch,
+    private readonly auth: {
+      basicAuth?: { username: string; password: string };
+      'alternate-basic-auth'?: { username: string; password: string };
+      apiKeyAuth?: { key: string };
+      oauth2Auth?: { accessToken: string };
+      alternateApiKeyAuth?: { key: string };
+    },
+  ) {}
+
+  async allAuthSchemes(): Promise<void> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.basicAuth) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
+      )}`;
+    }
+    if (this.auth['alternate-basic-auth']) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
+      )}`;
+    }
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+    if (this.auth.oauth2Auth) {
+      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+    }
+
+    const query: string[] = [];
+    if (this.auth.alternateApiKeyAuth) {
+      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+    }
+
+    const path = [`/authPermutations`, query.join('&')].join('?');
+
+    const { status } = await this.fetch(path, {
+      headers,
+    });
+
+    if (status !== 200) {
+      throw new Error('Invalid response code');
+    }
+  }
+
+  async comboAuthSchemes(): Promise<void> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.basicAuth) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
+      )}`;
+    }
+    if (this.auth['alternate-basic-auth']) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
+      )}`;
+    }
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+    if (this.auth.oauth2Auth) {
+      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+    }
+
+    const query: string[] = [];
+    if (this.auth.alternateApiKeyAuth) {
+      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+    }
+
+    const path = [`/authPermutations`, query.join('&')].join('?');
+
+    const { status } = await this.fetch(path, {
+      method: 'PUT',
+      headers,
+    });
+
+    if (status !== 200) {
       throw new Error('Invalid response code');
     }
   }

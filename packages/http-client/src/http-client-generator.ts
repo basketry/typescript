@@ -132,7 +132,7 @@ function sep(paramSpec: ParameterSpec): string {
     case 'ssv':
       return ' ';
     case 'tsv':
-      return '\t';
+      return '\\t';
     default:
       return '';
   }
@@ -326,7 +326,12 @@ class MethodFactory {
           break;
         }
         case 'basic': {
-          // TODO
+          yield `if(this.auth${safe(scheme.name)}) {`;
+          yield `// TODO: remove deprecated method for node targets`;
+          yield `  headers.authorization = \`Basic $\{ btoa(\`$\{this.auth${safe(
+            scheme.name,
+          )}.username\}:$\{this.auth${safe(scheme.name)}.password\}\`) \}\``;
+          yield '}';
           break;
         }
         case 'oauth2': {
@@ -342,8 +347,6 @@ class MethodFactory {
   }
 
   private *buildQuery(): Iterable<string> {
-    // TODO: include auth if needed
-
     const queryParams = this.methodSpec.parameters.filter(
       (p) => p.in === 'query',
     );
@@ -385,23 +388,11 @@ class MethodFactory {
         case 'apiKey': {
           if (scheme.in === 'query') {
             yield `if(this.auth${safe(scheme.name)}) {`;
-            yield `  query.push['${safe(scheme.parameter)}, = this.auth${safe(
+            yield `  query.push(\`${scheme.parameter}=$\{this.auth${safe(
               scheme.name,
-            )}.key];`;
+            )}.key\}\`);`;
             yield '}';
           }
-          break;
-        }
-        case 'basic': {
-          // TODO
-          break;
-        }
-        case 'oauth2': {
-          yield `if(this.auth${safe(scheme.name)}) {`;
-          yield `  headers.authorization = \`Bearer $\{ this.auth${safe(
-            scheme.name,
-          )}.accessToken \}\``;
-          yield '}';
           break;
         }
       }

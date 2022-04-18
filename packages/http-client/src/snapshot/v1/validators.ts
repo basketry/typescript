@@ -635,6 +635,20 @@ export function validateExhaustiveParamsParams(params: {
   return errors;
 }
 
+/**
+ * Validates input parameters for the allAuthSchemes() method.
+ */
+export function validateAllAuthSchemesParams(): ValidationError[] {
+  return [];
+}
+
+/**
+ * Validates input parameters for the comboAuthSchemes() method.
+ */
+export function validateComboAuthSchemesParams(): ValidationError[] {
+  return [];
+}
+
 export function validateGizmo(params: types.Gizmo): ValidationError[] {
   const errors: ValidationError[] = [];
   if (typeof params.id !== 'undefined' && typeof params.id !== 'string') {
