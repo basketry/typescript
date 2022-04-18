@@ -7,6 +7,26 @@
       "methods": [
         {
           "name": "getGizmos",
+          "security": [
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      {
+                        "name": "read:gizmos",
+                        "description": "Access gizmo data"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "search",
@@ -28,6 +48,26 @@
         },
         {
           "name": "createGizmo",
+          "security": [
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      {
+                        "name": "write:gizmos",
+                        "description": "Write gizmo data"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "size",
@@ -58,6 +98,27 @@
         },
         {
           "name": "updateGizmo",
+          "security": [
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      {
+                        "name": "write:gizmos",
+                        "description": "Write gizmo data"
+                      },
+                      { "name": "admin:gizmos", "description": "Manage gizmos" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "factors",
@@ -117,6 +178,16 @@
       "methods": [
         {
           "name": "getWidgets",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [],
           "returnType": {
             "typeName": "widget",
@@ -128,6 +199,16 @@
         },
         {
           "name": "createWidget",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "body",
@@ -140,9 +221,32 @@
             }
           ]
         },
-        { "name": "putWidget", "parameters": [] },
+        {
+          "name": "putWidget",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
+          "parameters": []
+        },
         {
           "name": "getWidgetFoo",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "id",
@@ -167,6 +271,16 @@
         },
         {
           "name": "deleteWidgetFoo",
+          "security": [
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ]
+          ],
           "parameters": [
             {
               "name": "id",
@@ -233,6 +347,7 @@
       "methods": [
         {
           "name": "exhaustiveParams",
+          "security": [],
           "parameters": [
             {
               "name": "query-string",
@@ -540,12 +655,12 @@
                   { "name": "path-integer", "in": "path" },
                   { "name": "path-boolean", "in": "path" },
                   { "name": "path-string-array", "in": "path", "array": "csv" },
-                  { "name": "path-enum-array", "in": "path", "array": "csv" },
-                  { "name": "path-number-array", "in": "path", "array": "csv" },
+                  { "name": "path-enum-array", "in": "path", "array": "pipes" },
+                  { "name": "path-number-array", "in": "path", "array": "ssv" },
                   {
                     "name": "path-integer-array",
                     "in": "path",
-                    "array": "csv"
+                    "array": "tsv"
                   },
                   {
                     "name": "path-boolean-array",
@@ -570,21 +685,118 @@
                   {
                     "name": "header-number-array",
                     "in": "header",
-                    "array": "csv"
+                    "array": "pipes"
                   },
                   {
                     "name": "header-integer-array",
                     "in": "header",
-                    "array": "csv"
+                    "array": "ssv"
                   },
                   {
                     "name": "header-boolean-array",
                     "in": "header",
-                    "array": "csv"
+                    "array": "tsv"
                   },
                   { "name": "body", "in": "body" }
                 ],
                 "successCode": 204
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "authPermutation",
+      "methods": [
+        {
+          "name": "all-auth-schemes",
+          "security": [
+            [{ "type": "basic", "name": "basicAuth" }],
+            [{ "type": "basic", "name": "alternate-basic-auth" }],
+            [
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ],
+            [
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      { "name": "admin:gizmos", "description": "Manage gizmos" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
+          "parameters": []
+        },
+        {
+          "name": "combo-auth-schemes",
+          "security": [
+            [
+              { "type": "basic", "name": "basicAuth" },
+              {
+                "type": "apiKey",
+                "name": "apiKeyAuth",
+                "parameter": "x-apikey",
+                "in": "header"
+              }
+            ],
+            [
+              { "type": "basic", "name": "basicAuth" },
+              {
+                "type": "apiKey",
+                "name": "alternateApiKeyAuth",
+                "parameter": "apikey",
+                "in": "query"
+              }
+            ],
+            [
+              { "type": "basic", "name": "alternate-basic-auth" },
+              {
+                "type": "oauth2",
+                "name": "oauth2Auth",
+                "flows": [
+                  {
+                    "type": "implicit",
+                    "authorizationUrl": "https://example.com/auth",
+                    "scopes": [
+                      { "name": "admin:gizmos", "description": "Manage gizmos" }
+                    ]
+                  }
+                ]
+              }
+            ]
+          ],
+          "parameters": []
+        }
+      ],
+      "protocols": {
+        "http": [
+          {
+            "path": "/authPermutations",
+            "methods": [
+              {
+                "name": "all-auth-schemes",
+                "verb": "get",
+                "parameters": [],
+                "successCode": 200
+              },
+              {
+                "name": "combo-auth-schemes",
+                "verb": "put",
+                "parameters": [],
+                "successCode": 200
               }
             ]
           }
@@ -656,7 +868,10 @@
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
-          "rules": [{ "id": "number-multiple-of", "value": 3 }]
+          "rules": [
+            { "id": "required" },
+            { "id": "number-multiple-of", "value": 3 }
+          ]
         },
         {
           "name": "buzz",
@@ -715,7 +930,10 @@
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
-          "rules": [{ "id": "number-multiple-of", "value": 3 }]
+          "rules": [
+            { "id": "required" },
+            { "id": "number-multiple-of", "value": 3 }
+          ]
         },
         {
           "name": "buzz",
