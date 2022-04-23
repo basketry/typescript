@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { InterfaceFactory } from './interface-factory';
+import { generateTypes } from './interface-factory';
 
 const pkg = require('../package.json');
 const withVersion = `${pkg.name}@${pkg.version}`;
@@ -14,7 +14,7 @@ describe('InterfaceFactory', () => {
     );
 
     // ACT
-    const int = new InterfaceFactory().build(service);
+    const int = generateTypes(service);
 
     // ASSERT
     for (const file of [...int]) {

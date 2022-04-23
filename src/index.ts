@@ -1,8 +1,11 @@
-import { Generator } from 'basketry';
-import { InterfaceFactory } from './interface-factory';
+import { generateTypes } from './interface-factory';
 
-const generate: Generator = (service) => {
-  return new InterfaceFactory().build(service);
-};
+export {
+  buildDescription,
+  buildMethodParams,
+  buildParamsType,
+} from './interface-factory';
 
-export default generate;
+export * from './name-factory';
+
+export default generateTypes;

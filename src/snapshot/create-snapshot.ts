@@ -1,6 +1,6 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { InterfaceFactory } from '../interface-factory';
+import { generateTypes } from '../interface-factory';
 
 const pkg = require('../../package.json');
 const withVersion = `${pkg.name}@${pkg.version}`;
@@ -8,7 +8,7 @@ const withoutVersion = `${pkg.name}@{{version}}`;
 
 const service = require('./service.json');
 
-const snapshotFiles = [...new InterfaceFactory().build(service)];
+const snapshotFiles = [...generateTypes(service)];
 
 for (const file of snapshotFiles) {
   const path = file.path.slice(0, file.path.length - 1);
