@@ -1,7 +1,7 @@
-import { camel, pascal } from 'case';
 import { format as prettier } from 'prettier';
 import {
   Generator,
+  hasRequiredParameters,
   Interface,
   isRequired,
   Method,
@@ -13,6 +13,20 @@ import {
   Service,
 } from 'basketry';
 import { warning } from './warning';
+import {
+  buildDescription,
+  buildInterfaceName,
+  buildMethodName,
+  buildMethodParams,
+  buildMethodReturnType,
+  buildParameterName,
+  buildTypeName,
+} from '@basketry/typescript';
+import { buildHttpClientName } from './name-factory';
+import {
+  buildParamsValidatorName,
+  buildTypeValidatorName,
+} from '@basketry/typescript-validators';
 
 function format(contents: string): string {
   return prettier(contents, {
@@ -95,9 +109,9 @@ function* buildClasses(service: Service): Iterable<string> {
 }
 
 function* buildClass(int: Interface): Iterable<string> {
-  yield `export class ${pascal(
-    `http_${int.name}_service`,
-  )} implements types.${pascal(`${int.name}_service`)} {`;
+  yield `export class ${buildHttpClientName(
+    int,
+  )} implements ${buildInterfaceName(int, 'types')} {`;
   yield `constructor(`;
   yield `private readonly fetch: Fetch,`;
   yield* buildAuth(int);
@@ -136,68 +150,6 @@ function sep(paramSpec: ParameterSpec): string {
     default:
       return '';
   }
-}
-
-function* buildDescription(
-  description: string | string[] | undefined,
-  indent: number = 0,
-): Iterable<string> {
-  const s = ' '.repeat(indent);
-
-  if (description) {
-    yield ``;
-    yield `${s}/**`;
-
-    if (description) {
-      if (typeof description === 'string') {
-        yield `${s} * ${description}`;
-      } else {
-        for (const line of description) {
-          yield `${s} * ${line}`;
-        }
-      }
-    }
-
-    yield `${s} */`;
-  }
-}
-
-function buildTypeName(type: {
-  typeName: string;
-  isUnknown: boolean;
-  enumValues?: string[];
-  isArray: boolean;
-  isLocal: boolean;
-}): string {
-  const arrayify = (n: string) => (type.isArray ? `${n}[]` : n);
-
-  if (type.isUnknown) {
-    return arrayify('any');
-  } else if (type.isLocal) {
-    return arrayify(`types.${pascal(type.typeName)}`);
-  }
-
-  switch (type.typeName) {
-    case 'string':
-      if (type.enumValues) {
-        return arrayify(
-          `(${type.enumValues.map((v) => `'${v}'`).join(' | ')})`,
-        );
-      } else {
-        return arrayify('string');
-      }
-    case 'number':
-    case 'integer':
-      return arrayify('number');
-    case 'boolean':
-      return arrayify('boolean');
-    default:
-      return arrayify('any');
-  }
-}
-
-function hasRequiredParameters(method: Method): boolean {
-  return method.parameters.some((p) => isRequired(p));
 }
 
 function getSecuritySchemes(int: Interface): SecurityScheme[] {
@@ -241,31 +193,15 @@ class MethodFactory {
   }
 
   private *_build(): Iterable<string> {
-    yield* buildDescription(this.method.description, 2);
+    yield* buildDescription(this.method.description);
+    yield `async ${buildMethodName(this.method)}(`;
+    yield* buildMethodParams(this.method, 'types');
+    yield `): ${buildMethodReturnType(this.method, 'types')} {`;
 
-    yield `  async ${camel(this.method.name)}(${
-      this.method.parameters.length
-        ? `params${hasRequiredParameters(this.method) ? '' : '?'}: {`
-        : ''
-    }`;
-
-    for (const param of this.method.parameters) {
-      if (param.description) {
-        yield* buildDescription(param.description, 2);
-      }
-
-      yield `    ${camel(param.name)}${
-        isRequired(param) ? '' : '?'
-      }: ${buildTypeName(param)},`;
-    }
-
-    yield `  ${this.method.parameters.length ? '}' : ''}): Promise<${
-      this.method.returnType ? buildTypeName(this.method.returnType) : 'void'
-    }> {`;
     if (this.method.parameters.length) {
-      yield `  const errors = validators.${camel(
-        `validate_${this.method.name}_params`,
-      )}(params);`;
+      const validatorName = buildParamsValidatorName(this.method, 'validators');
+
+      yield `  const errors = ${validatorName}(params);`;
       yield ` if(errors) throw errors;`;
     }
     yield '';
@@ -305,7 +241,8 @@ class MethodFactory {
           (p) => (p.name = paramSpec.name),
         );
         if (!param || isRequired(param)) continue;
-        yield `if(typeof params.${camel(param.name)} !== 'undefined') {`;
+        const paramName = buildParameterName(param);
+        yield `if(typeof params.${paramName} !== 'undefined') {`;
         yield `headers${safe(paramSpec.name)} = ${this.buildParamValue(
           paramSpec,
         )};`;
@@ -430,7 +367,7 @@ class MethodFactory {
   private *buildFetch(): Iterable<string> {
     const params = this.method.returnType ? `json, status` : `status`;
     const returnType = this.method.returnType
-      ? `<${buildTypeName(this.method.returnType)}>`
+      ? `<${buildTypeName(this.method.returnType, 'types')}>`
       : '';
 
     yield `const { ${params} } = await this.fetch${returnType}(path`;
@@ -449,11 +386,13 @@ class MethodFactory {
     yield ``;
 
     if (this.method.returnType && this.method.returnType.isLocal) {
+      const validatorName = buildTypeValidatorName(
+        this.method.returnType,
+        'validators',
+      );
       yield `const response = await json();`;
       yield ``;
-      yield `  const responseValidationErrors = validators.${camel(
-        `validate_${this.method.returnType.typeName}`,
-      )}(response);`;
+      yield `  const responseValidationErrors = ${validatorName}(response);`;
       yield ` if(responseValidationErrors) throw responseValidationErrors;`;
       yield ``;
 
@@ -462,19 +401,22 @@ class MethodFactory {
   }
 
   private buildParamValue(paramSpec: ParameterSpec): string {
+    const paramName = buildParameterName(paramSpec);
+
     if (paramSpec.array === undefined || paramSpec.array === 'multi') {
-      return `encodeURIComponent(params.${camel(paramSpec.name)})`;
+      return `encodeURIComponent(params.${paramName})`;
     }
 
-    return `params.${camel(paramSpec.name)}.map(encodeURIComponent).join('${sep(
+    return `params.${paramName}.map(encodeURIComponent).join('${sep(
       paramSpec,
     )}')`;
   }
 
   private accessor(param: Parameter, includeOptionalChaining: boolean = true) {
-    return `params${
-      includeOptionalChaining && !hasRequiredParameters(this.method) ? '?' : ''
-    }.${camel(param.name)}`;
+    const paramName = buildParameterName(param);
+    const optionalChain =
+      includeOptionalChaining && !hasRequiredParameters(this.method) ? '?' : '';
+    return `params${optionalChain}.${paramName}`;
   }
 
   private hasBody(): boolean {

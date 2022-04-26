@@ -322,16 +322,6 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
   constructor(private readonly fetch: Fetch) {}
 
   async exhaustiveParams(params: {
-    queryString?: string;
-    queryEnum?: types.ExhaustiveParamsQueryEnum;
-    queryNumber?: number;
-    queryInteger?: number;
-    queryBoolean?: boolean;
-    queryStringArray?: string[];
-    queryEnumArray?: types.ExhaustiveParamsQueryEnumArray[];
-    queryNumberArray?: number[];
-    queryIntegerArray?: number[];
-    queryBooleanArray?: boolean[];
     pathString: string;
     pathEnum: types.ExhaustiveParamsPathEnum;
     pathNumber: number;
@@ -342,6 +332,16 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     pathNumberArray: number[];
     pathIntegerArray: number[];
     pathBooleanArray: boolean[];
+    queryString?: string;
+    queryEnum?: types.ExhaustiveParamsQueryEnum;
+    queryNumber?: number;
+    queryInteger?: number;
+    queryBoolean?: boolean;
+    queryStringArray?: string[];
+    queryEnumArray?: types.ExhaustiveParamsQueryEnumArray[];
+    queryNumberArray?: number[];
+    queryIntegerArray?: number[];
+    queryBooleanArray?: boolean[];
     headerString?: string;
     headerEnum?: types.ExhaustiveParamsHeaderEnum;
     headerNumber?: number;
