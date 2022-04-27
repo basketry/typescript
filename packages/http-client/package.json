@@ -1,6 +1,6 @@
 {
   "name": "@basketry/typescript-http-client",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Basketry generator for generating Express JS routers",
   "main": "./lib/index.js",
   "scripts": {
