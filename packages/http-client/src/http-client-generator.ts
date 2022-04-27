@@ -3,6 +3,9 @@ import {
   Generator,
   hasRequiredParameters,
   Interface,
+  isApiKeyScheme,
+  isBasicScheme,
+  isOAuth2Scheme,
   isRequired,
   Method,
   MethodSpec,
@@ -45,7 +48,7 @@ export const httpClientGenerator: Generator = (service) => {
   const contents = [warning, imports, standardTypes, classes].join('\n\n');
   return [
     {
-      path: [`v${service.majorVersion}`, 'http-client.ts'],
+      path: [`v${service.majorVersion.value}`, 'http-client.ts'],
       contents: format(contents),
     },
   ];
@@ -61,7 +64,7 @@ function* buildStandardTypes(service: Service): Iterable<string> {
     service.interfaces
       .flatMap((int) => int.protocols.http)
       .flatMap((p) => p.methods)
-      .map((m) => `'${m.verb}'`.toUpperCase())
+      .map((m) => `'${m.verb.value}'`.toUpperCase())
       .sort((a, b) => a.localeCompare(b)),
   );
 
@@ -82,19 +85,12 @@ function* buildAuth(int: Interface): Iterable<string> {
   if (schemes.length) {
     yield 'private readonly auth: {';
     for (const scheme of schemes) {
-      switch (scheme.type) {
-        case 'apiKey': {
-          yield `'${scheme.name}'?: {key: string}`;
-          break;
-        }
-        case 'basic': {
-          yield `'${scheme.name}'?: {username: string, password: string}`;
-          break;
-        }
-        case 'oauth2': {
-          yield `'${scheme.name}'?: {accessToken: string}`;
-          break;
-        }
+      if (isApiKeyScheme(scheme)) {
+        yield `'${scheme.name.value}'?: {key: string}`;
+      } else if (isBasicScheme(scheme)) {
+        yield `'${scheme.name.value}'?: {username: string, password: string}`;
+      } else if (isOAuth2Scheme(scheme)) {
+        yield `'${scheme.name.value}'?: {accessToken: string}`;
       }
     }
     yield '}';
@@ -119,15 +115,21 @@ function* buildClass(int: Interface): Iterable<string> {
 
   const methodSpecsByMethodName = int.protocols.http
     .flatMap((p) => p.methods)
-    .reduce((acc, m) => acc.set(m.name, m), new Map<string, MethodSpec>());
+    .reduce(
+      (acc, m) => acc.set(m.name.value, m),
+      new Map<string, MethodSpec>(),
+    );
 
   const pathSpecsByMethodName = int.protocols.http
     .flatMap((p) => p.methods.map<[PathSpec, MethodSpec]>((m) => [p, m]))
-    .reduce((acc, [p, m]) => acc.set(m.name, p), new Map<string, PathSpec>());
+    .reduce(
+      (acc, [p, m]) => acc.set(m.name.value, p),
+      new Map<string, PathSpec>(),
+    );
 
   for (const method of int.methods) {
-    const pathSpec = pathSpecsByMethodName.get(method.name);
-    const methodSpec = methodSpecsByMethodName.get(method.name);
+    const pathSpec = pathSpecsByMethodName.get(method.name.value);
+    const methodSpec = methodSpecsByMethodName.get(method.name.value);
 
     if (!pathSpec || !methodSpec) continue;
     yield ``;
@@ -138,7 +140,7 @@ function* buildClass(int: Interface): Iterable<string> {
 }
 
 function sep(paramSpec: ParameterSpec): string {
-  switch (paramSpec.array) {
+  switch (paramSpec.array?.value) {
     case 'csv':
       return ',';
     case 'pipes':
@@ -158,7 +160,7 @@ function getSecuritySchemes(int: Interface): SecurityScheme[] {
       .flatMap((m) => m.security)
       .flatMap((opt) => opt)
       .reduce(
-        (map, scheme) => map.set(scheme.name, scheme),
+        (map, scheme) => map.set(scheme.name.value, scheme),
         new Map<string, SecurityScheme>(),
       )
       .values(),
@@ -176,11 +178,11 @@ class MethodFactory {
   public static *build(int: Interface, method: Method): Iterable<string> {
     const methodSpec = int.protocols.http
       .flatMap((p) => p.methods)
-      .find((m) => m.name === method.name);
+      .find((m) => m.name.value === method.name.value);
 
     const pathSpec = int.protocols.http
       .flatMap((p) => p.methods.map<[PathSpec, MethodSpec]>((m) => [p, m]))
-      .find(([p, m]) => m.name === method.name)?.[0];
+      .find(([p, m]) => m.name.value === method.name.value)?.[0];
 
     if (methodSpec && pathSpec) {
       yield* new MethodFactory(
@@ -219,7 +221,7 @@ class MethodFactory {
 
   private *buildHeaders(): Iterable<string> {
     const headerParams = this.methodSpec.parameters.filter(
-      (p) => p.in === 'header',
+      (p) => p.in.value === 'header',
     );
 
     yield ' const headers: Record<string, string> = {';
@@ -227,10 +229,12 @@ class MethodFactory {
     if (headerParams.length) {
       for (const paramSpec of headerParams) {
         const param = this.method.parameters.find(
-          (p) => p.name === paramSpec.name,
+          (p) => p.name.value === paramSpec.name.value,
         );
         if (!param || !isRequired(param)) continue;
-        yield `    '${paramSpec.name}': ${this.buildParamValue(paramSpec)},`;
+        yield `    '${paramSpec.name.value}': ${this.buildParamValue(
+          paramSpec,
+        )},`;
       }
     }
     yield ' }';
@@ -238,12 +242,12 @@ class MethodFactory {
     if (headerParams.length) {
       for (const paramSpec of headerParams) {
         const param = this.method.parameters.find(
-          (p) => (p.name = paramSpec.name),
+          (p) => (p.name.value = paramSpec.name.value),
         );
         if (!param || isRequired(param)) continue;
         const paramName = buildParameterName(param);
         yield `if(typeof params.${paramName} !== 'undefined') {`;
-        yield `headers${safe(paramSpec.name)} = ${this.buildParamValue(
+        yield `headers${safe(paramSpec.name.value)} = ${this.buildParamValue(
           paramSpec,
         )};`;
         yield '}';
@@ -251,65 +255,60 @@ class MethodFactory {
     }
 
     for (const scheme of this.schemes) {
-      switch (scheme.type) {
-        case 'apiKey': {
-          if (scheme.in === 'header') {
-            yield `if(this.auth${safe(scheme.name)}) {`;
-            yield `  headers${safe(scheme.parameter)} = this.auth${safe(
-              scheme.name,
-            )}.key`;
-            yield '}';
-          }
-          break;
-        }
-        case 'basic': {
-          yield `if(this.auth${safe(scheme.name)}) {`;
-          yield `// TODO: remove deprecated method for node targets`;
-          yield `  headers.authorization = \`Basic $\{ btoa(\`$\{this.auth${safe(
-            scheme.name,
-          )}.username\}:$\{this.auth${safe(scheme.name)}.password\}\`) \}\``;
+      if (isApiKeyScheme(scheme)) {
+        if (scheme.in.value === 'header') {
+          yield `if(this.auth${safe(scheme.name.value)}) {`;
+          yield `  headers${safe(scheme.parameter.value)} = this.auth${safe(
+            scheme.name.value,
+          )}.key`;
           yield '}';
-          break;
         }
-        case 'oauth2': {
-          yield `if(this.auth${safe(scheme.name)}) {`;
-          yield `  headers.authorization = \`Bearer $\{ this.auth${safe(
-            scheme.name,
-          )}.accessToken \}\``;
-          yield '}';
-          break;
-        }
+      } else if (isBasicScheme(scheme)) {
+        yield `if(this.auth${safe(scheme.name.value)}) {`;
+        yield `// TODO: remove deprecated method for node targets`;
+        yield `  headers.authorization = \`Basic $\{ btoa(\`$\{this.auth${safe(
+          scheme.name.value,
+        )}.username\}:$\{this.auth${safe(
+          scheme.name.value,
+        )}.password\}\`) \}\``;
+        yield '}';
+      } else if (isOAuth2Scheme(scheme)) {
+        yield `if(this.auth${safe(scheme.name.value)}) {`;
+        yield `  headers.authorization = \`Bearer $\{ this.auth${safe(
+          scheme.name.value,
+        )}.accessToken \}\``;
+        yield '}';
       }
     }
   }
 
   private *buildQuery(): Iterable<string> {
     const queryParams = this.methodSpec.parameters.filter(
-      (p) => p.in === 'query',
+      (p) => p.in.value === 'query',
     );
     yield `const query: string[] = [];`;
     for (const paramSpec of queryParams) {
       const param = this.method.parameters.find(
-        (p) => p.name === paramSpec.name,
+        (p) => p.name.value === paramSpec.name.value,
       );
       if (!param) continue;
 
       yield `if(typeof ${this.accessor(param)} !== 'undefined') {`;
-      switch (paramSpec.array) {
+      switch (paramSpec.array?.value) {
         case 'multi': {
           yield `for(const value of ${this.accessor(param, false)}) {`;
-          yield ` query.push(\`${paramSpec.name}=$\{encodeURIComponent(value)\}\`)`;
+          yield ` query.push(\`${paramSpec.name.value}=$\{encodeURIComponent(value)\}\`)`;
           yield `}`;
           break;
         }
         case undefined: {
           yield `query.push(\`${
-            paramSpec.name
+            paramSpec.name.value
           }=$\{encodeURIComponent(${this.accessor(param, false)})\}\`)`;
           break;
         }
         default: {
-          yield `query.push(\`${paramSpec.name}=$\{${this.accessor(
+          yield `query.push(\`${paramSpec.name.value}=$\{${this.accessor(
             param,
             false,
           )}}.map(encodeURIComponent).join('${sep(paramSpec)}')\}\`)`;
@@ -321,28 +320,25 @@ class MethodFactory {
     }
 
     for (const scheme of this.schemes) {
-      switch (scheme.type) {
-        case 'apiKey': {
-          if (scheme.in === 'query') {
-            yield `if(this.auth${safe(scheme.name)}) {`;
-            yield `  query.push(\`${scheme.parameter}=$\{this.auth${safe(
-              scheme.name,
-            )}.key\}\`);`;
-            yield '}';
-          }
-          break;
+      if (isApiKeyScheme(scheme)) {
+        if (scheme.in.value === 'query') {
+          yield `if(this.auth${safe(scheme.name.value)}) {`;
+          yield `  query.push(\`${scheme.parameter.value}=$\{this.auth${safe(
+            scheme.name.value,
+          )}.key\}\`);`;
+          yield '}';
         }
       }
     }
   }
 
   private *buildPath(): Iterable<string> {
-    let path = this.pathSpec.path;
+    let path = this.pathSpec.path.value;
 
     for (const param of this.methodSpec.parameters) {
-      if (param.in === 'path') {
+      if (param.in.value === 'path') {
         path = path.replace(
-          `{${param.name}}`,
+          `{${param.name.value}}`,
           `$\{ ${this.buildParamValue(param)} \}`,
         );
       }
@@ -352,9 +348,11 @@ class MethodFactory {
   }
 
   private *buildBody(): Iterable<string> {
-    const bodyParam = this.methodSpec.parameters.find((p) => p.in === 'body');
+    const bodyParam = this.methodSpec.parameters.find(
+      (p) => p.in.value === 'body',
+    );
     const param = this.method.parameters.find(
-      (p) => p.name === bodyParam?.name,
+      (p) => p.name.value === bodyParam?.name.value,
     );
 
     if (param) {
@@ -373,8 +371,8 @@ class MethodFactory {
     yield `const { ${params} } = await this.fetch${returnType}(path`;
 
     yield `  ,{`;
-    if (this.methodSpec.verb.toUpperCase() !== 'GET') {
-      yield `    method: '${this.methodSpec.verb.toUpperCase()}',`;
+    if (this.methodSpec.verb.value.toUpperCase() !== 'GET') {
+      yield `    method: '${this.methodSpec.verb.value.toUpperCase()}',`;
     }
     yield `  headers,`;
     if (this.hasBody()) yield `  body,`;
@@ -382,7 +380,7 @@ class MethodFactory {
 
     yield `)`;
     yield ``;
-    yield `if(status !== ${this.methodSpec.successCode}) { throw new Error('Invalid response code'); }`;
+    yield `if(status !== ${this.methodSpec.successCode.value}) { throw new Error('Invalid response code'); }`;
     yield ``;
 
     if (this.method.returnType && this.method.returnType.isLocal) {
@@ -403,7 +401,7 @@ class MethodFactory {
   private buildParamValue(paramSpec: ParameterSpec): string {
     const paramName = buildParameterName(paramSpec);
 
-    if (paramSpec.array === undefined || paramSpec.array === 'multi') {
+    if (paramSpec.array === undefined || paramSpec.array?.value === 'multi') {
       return `encodeURIComponent(params.${paramName})`;
     }
 
@@ -420,7 +418,7 @@ class MethodFactory {
   }
 
   private hasBody(): boolean {
-    return this.methodSpec.parameters.some((p) => p.in === 'body');
+    return this.methodSpec.parameters.some((p) => p.in.value === 'body');
   }
 }
 
