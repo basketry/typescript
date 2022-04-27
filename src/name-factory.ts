@@ -23,21 +23,21 @@ export function buildInterfaceName(
 }
 
 export function buildMethodName(method: Method, typeModule?: string): string {
-  return prefix(typeModule, camel(method.name));
+  return prefix(typeModule, camel(method.name.value));
 }
 
 export function buildParameterName(
   parameter: Parameter | ParameterSpec,
   typeModule?: string,
 ): string {
-  return prefix(typeModule, camel(parameter.name));
+  return prefix(typeModule, camel(parameter.name.value));
 }
 
 export function buildPropertyName(
   property: Property,
   typeModule?: string,
 ): string {
-  return prefix(typeModule, camel(property.name));
+  return prefix(typeModule, camel(property.name.value));
 }
 
 /**
@@ -52,9 +52,9 @@ export function buildTypeName(
 ): string {
   if (isType(type) || isEnum(type)) {
     if (typeModule) {
-      return `${typeModule}.${pascal(type.name)}`;
+      return `${typeModule}.${pascal(type.name.value)}`;
     } else {
-      return pascal(type.name);
+      return pascal(type.name.value);
     }
   }
 
@@ -64,13 +64,13 @@ export function buildTypeName(
     return arrayify('any');
   } else if (type.isLocal) {
     if (typeModule) {
-      return `${typeModule}.${arrayify(pascal(type.typeName))}`;
+      return `${typeModule}.${arrayify(pascal(type.typeName.value))}`;
     } else {
-      return arrayify(pascal(type.typeName));
+      return arrayify(pascal(type.typeName.value));
     }
   }
 
-  switch (type.typeName) {
+  switch (type.typeName.value) {
     case 'string':
       return arrayify('string');
     case 'number':
@@ -95,9 +95,9 @@ export function buildRootTypeName(
 ): string {
   if (isType(type) || isEnum(type)) {
     if (typeModule) {
-      return `${typeModule}.${pascal(type.name)}`;
+      return `${typeModule}.${pascal(type.name.value)}`;
     } else {
-      return pascal(type.name);
+      return pascal(type.name.value);
     }
   }
 
@@ -105,13 +105,13 @@ export function buildRootTypeName(
     return 'any';
   } else if (type.isLocal) {
     if (typeModule) {
-      return `${typeModule}.${pascal(type.typeName)}`;
+      return `${typeModule}.${pascal(type.typeName.value)}`;
     } else {
-      return pascal(type.typeName);
+      return pascal(type.typeName.value);
     }
   }
 
-  switch (type.typeName) {
+  switch (type.typeName.value) {
     case 'string':
       return 'string';
     case 'number':
@@ -146,5 +146,5 @@ function isEnum(
 }
 
 export function buildEnumName(e: Enum): string {
-  return pascal(e.name);
+  return pascal(e.name.value);
 }

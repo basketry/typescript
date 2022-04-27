@@ -1,4 +1,11 @@
-import { Generator, Interface, isRequired, Method, Type } from 'basketry';
+import {
+  Generator,
+  Interface,
+  isRequired,
+  Literal,
+  Method,
+  Type,
+} from 'basketry';
 import { format } from 'prettier';
 import {
   buildEnumName,
@@ -25,7 +32,7 @@ export const generateTypes: Generator = (service) => {
     .map(
       (e) =>
         `export type ${buildEnumName(e)} = ${e.values
-          .map((v) => `'${v}'`)
+          .map((v) => `'${v.value}'`)
           .join(' | ')}`,
     )
     .join('\n\n');
@@ -41,7 +48,7 @@ export const generateTypes: Generator = (service) => {
 
   return [
     {
-      path: [`v${service.majorVersion}`, 'types.ts'],
+      path: [`v${service.majorVersion.value}`, 'types.ts'],
       contents: formatted,
     },
   ];
@@ -81,20 +88,20 @@ function* buildType(type: Type): Iterable<string> {
 }
 
 export function* buildDescription(
-  description: string | string[] | undefined,
+  description: string | Literal<string> | Literal<string>[] | undefined,
 ): Iterable<string> {
   if (description) {
     yield ``;
     yield `/**`;
 
-    if (description) {
-      if (typeof description === 'string') {
-        yield ` * ${description}`;
-      } else {
-        for (const line of description) {
-          yield ` * ${line}`;
-        }
+    if (Array.isArray(description)) {
+      for (const line of description) {
+        yield ` * ${line.value}`;
       }
+    } else if (typeof description === 'string') {
+      yield ` * ${description}`;
+    } else {
+      yield ` * ${description.value}`;
     }
 
     yield ` */`;
