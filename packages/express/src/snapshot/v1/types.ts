@@ -94,6 +94,12 @@ export interface ExhaustiveService {
   }): Promise<void>;
 }
 
+export interface AuthPermutationService {
+  allAuthSchemes(): Promise<void>;
+
+  comboAuthSchemes(): Promise<void>;
+}
+
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
 
 export type ExhaustiveParamsQueryEnum = 'one' | 'two' | 'three';
@@ -119,7 +125,7 @@ export type Gizmo = {
 export type Widget = {
   id: string;
   name?: string;
-  fiz?: number;
+  fiz: number;
   buzz?: number;
   fizbuzz?: number;
   foo?: WidgetFoo;
@@ -128,7 +134,7 @@ export type Widget = {
 
 export type NewWidget = {
   name?: string;
-  fiz?: number;
+  fiz: number;
   buzz?: number;
   fizbuzz?: number;
   foo?: NewWidgetFoo;

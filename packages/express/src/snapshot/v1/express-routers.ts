@@ -21,6 +21,7 @@ import {
   type Response,
   Router,
 } from 'express';
+import { URL } from 'url';
 import * as auth from './auth';
 import * as types from './types';
 import * as validators from './validators';
@@ -57,21 +58,31 @@ class ExpressAuthService implements auth.AuthService {
 export interface Strategies {
   oauth2Auth: OAuth2Strategy;
   apiKeyAuth: ApiKeyStrategy;
+  basicAuth: BasicStrategy;
+  'alternate-basic-auth': BasicStrategy;
+  alternateApiKeyAuth: ApiKeyStrategy;
 }
 
 export const authentication: (strategies: Strategies) => RequestHandler =
   (strategies) => (req, _res, next) => {
     const [a, b] = req.headers.authorization?.split(' ') || [];
     const accessToken = a === 'Bearer' ? b : undefined;
+    const { username, password } = new URL(req.url);
     Promise.all([
       strategies['oauth2Auth'](accessToken),
       strategies['apiKeyAuth'](req.get('x-apikey')), // TODO: also support query and cookie
+      strategies['basicAuth'](username, password),
+      strategies['alternate-basic-auth'](username, password),
+      strategies['alternateApiKeyAuth'](req.get('apikey')), // TODO: also support query and cookie
     ])
       .then((results) => {
         req.basketry = {
           context: new ExpressAuthService({
             oauth2Auth: results[0],
             apiKeyAuth: results[1],
+            basicAuth: results[2],
+            'alternate-basic-auth': results[3],
+            alternateApiKeyAuth: results[4],
           }),
         };
         next();
@@ -639,21 +650,21 @@ export function exhaustiveRoutes(
               ] as types.ExhaustiveParamsPathEnumArray[])
             : typeof req.params['path-enum-array'] === 'string'
             ? (req.params['path-enum-array'].split(
-                ',',
+                '|',
               ) as types.ExhaustiveParamsPathEnumArray[])
             : (req.params['path-enum-array'] as never),
           pathNumberArray: Array.isArray(req.params['path-number-array'])
             ? req.params['path-number-array'].map((x: any) => Number(`${x}`))
             : typeof req.params['path-number-array'] === 'string'
             ? req.params['path-number-array']
-                .split(',')
+                .split(' ')
                 .map((x: any) => Number(`${x}`))
             : (req.params['path-number-array'] as never),
           pathIntegerArray: Array.isArray(req.params['path-integer-array'])
             ? req.params['path-integer-array'].map((x: any) => Number(`${x}`))
             : typeof req.params['path-integer-array'] === 'string'
             ? req.params['path-integer-array']
-                .split(',')
+                .split('	')
                 .map((x: any) => Number(`${x}`))
             : (req.params['path-integer-array'] as never),
           pathBooleanArray: Array.isArray(req.params['path-boolean-array'])
@@ -705,7 +716,7 @@ export function exhaustiveRoutes(
               )
             : typeof (req.header('header-number-array') as any) === 'string'
             ? (req.header('header-number-array') as any)
-                .split(',')
+                .split('|')
                 .map((x: any) => Number(`${x}`))
             : (req.header('header-number-array') as any as never),
           headerIntegerArray: Array.isArray(
@@ -716,7 +727,7 @@ export function exhaustiveRoutes(
               )
             : typeof (req.header('header-integer-array') as any) === 'string'
             ? (req.header('header-integer-array') as any)
-                .split(',')
+                .split(' ')
                 .map((x: any) => Number(`${x}`))
             : (req.header('header-integer-array') as any as never),
           headerBooleanArray: Array.isArray(
@@ -728,7 +739,7 @@ export function exhaustiveRoutes(
               )
             : typeof (req.header('header-boolean-array') as any) === 'string'
             ? (req.header('header-boolean-array') as any)
-                .split(',')
+                .split('	')
                 .map(
                   (x: any) =>
                     typeof x !== 'undefined' &&
@@ -764,6 +775,116 @@ export function exhaustiveRoutes(
     })
     .all((req, res) => {
       res.set({ allow: 'GET, HEAD, OPTIONS' });
+      return res.status(405).send();
+    });
+  r.use(
+    (
+      err: StandardError | StandardError[],
+      req: Request,
+      res: Response,
+      next: NextFunction,
+    ) => {
+      if (!res.headersSent) {
+        if (Array.isArray(err)) {
+          const status = err.reduce(
+            (max, item) => (item.status > max ? item.status : max),
+            Number.MIN_SAFE_INTEGER,
+          );
+
+          res.status(status).json({ errors: err });
+        } else {
+          res.status(err.status).json({ errors: [err] });
+        }
+      }
+
+      next(err);
+    },
+  );
+
+  return r;
+}
+export function authPermutationRoutes(
+  service:
+    | types.AuthPermutationService
+    | ((req: Request) => types.AuthPermutationService),
+  router?: Router,
+) {
+  const r = router || Router();
+  const contextProvider = (req: Request) => req.basketry?.context;
+
+  r.route('/authPermutations')
+    .get(async (req, res, next) => {
+      try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeAllAuthSchemes(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401(
+                'No authentication scheme supplied for all-auth-schemes.',
+              ),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call all-auth-schemes.',
+              ),
+            );
+        }
+
+        // TODO: validate return value
+        // TODO: consider response headers
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.allAuthSchemes();
+        return res.status(204).send();
+      } catch (ex) {
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
+      }
+    })
+    .put(async (req, res, next) => {
+      try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeComboAuthSchemes(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401(
+                'No authentication scheme supplied for combo-auth-schemes.',
+              ),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call combo-auth-schemes.',
+              ),
+            );
+        }
+
+        // TODO: validate return value
+        // TODO: consider response headers
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.comboAuthSchemes();
+        return res.status(204).send();
+      } catch (ex) {
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
+      }
+    })
+    .options((req, res) => {
+      res.set({ allow: 'GET, PUT, HEAD, OPTIONS' });
+      return res.status(204).send();
+    })
+    .all((req, res) => {
+      res.set({ allow: 'GET, PUT, HEAD, OPTIONS' });
       return res.status(405).send();
     });
   r.use(

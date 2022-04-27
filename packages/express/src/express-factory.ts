@@ -1,10 +1,12 @@
-import { camel, pascal } from 'case';
 import { format as prettier } from 'prettier';
 import {
   File,
   FileFactory,
   Interface,
+  isApiKeyScheme,
+  isBasicScheme,
   isEnum,
+  isOAuth2Scheme,
   Method,
   Parameter,
   ParameterSpec,
@@ -12,6 +14,15 @@ import {
   Service,
 } from 'basketry';
 import { warning } from './warning';
+import {
+  buildInterfaceName,
+  buildMethodName,
+  buildParameterName,
+  buildTypeName,
+} from '@basketry/typescript';
+import { buildRouterFactoryName } from './name-factory';
+import { buildMethodAuthorizerName } from '@basketry/typescript-auth';
+import { buildParamsValidatorName } from '@basketry/typescript-validators';
 
 function format(contents: string): string {
   return prettier(contents, {
@@ -42,11 +53,11 @@ export class ExpressRouterFactory implements FileFactory {
 
     return [
       {
-        path: [`v${service.majorVersion}`, 'express-routers.ts'],
+        path: [`v${service.majorVersion.value}`, 'express-routers.ts'],
         contents: format(contents),
       },
       {
-        path: [`v${service.majorVersion}`, 'express.d.ts'],
+        path: [`v${service.majorVersion.value}`, 'express.d.ts'],
         contents: format(shim),
       },
     ];
@@ -59,13 +70,13 @@ function* buildStrategyInterface(methods: Method[]): Iterable<string> {
     .reduce((a, b) => a.concat(b), [])
     .reduce((a, b) => a.concat(b), [])
     .reduce(
-      (map, scheme) => map.set(scheme.name, scheme.type),
+      (map, scheme) => map.set(scheme.name.value, scheme.type),
       new Map<string, SecurityScheme['type']>(),
     );
 
   yield 'export interface Strategies {';
   for (const [name, type] of schemeTypesByName) {
-    switch (type) {
+    switch (type.value) {
       case 'basic':
         yield `  '${name}': BasicStrategy`;
         break;
@@ -179,7 +190,7 @@ function* buildMiddleware(methods: Method[]): Iterable<string> {
     .reduce((a, b) => a.concat(b), [])
     .reduce((a, b) => a.concat(b), [])
     .reduce(
-      (map, scheme) => map.set(scheme.name, scheme),
+      (map, scheme) => map.set(scheme.name.value, scheme),
       new Map<string, SecurityScheme>(),
     );
 
@@ -187,31 +198,24 @@ function* buildMiddleware(methods: Method[]): Iterable<string> {
 
   const allSchemes = Array.from(schemes.values());
 
-  if (allSchemes.some((scheme) => scheme.type === 'oauth2')) {
+  if (allSchemes.some(isOAuth2Scheme)) {
     yield `const [a, b] = req.headers.authorization?.split(' ') || [];`;
     yield `const accessToken = a === 'Bearer' ? b : undefined;`;
   }
 
-  if (allSchemes.some((scheme) => scheme.type === 'basic')) {
+  if (allSchemes.some(isBasicScheme)) {
     yield `const { username, password } = new URL(req.url);`;
   }
 
   yield `Promise.all([`;
 
   for (const [name, scheme] of schemes) {
-    switch (scheme.type) {
-      case 'basic': {
-        yield `strategies['${name}'](username, password),`;
-        break;
-      }
-      case 'apiKey': {
-        yield `strategies['${name}'](req.get('${scheme.parameter}')), // TODO: also support query and cookie`;
-        break;
-      }
-      case 'oauth2': {
-        yield `strategies['${name}'](accessToken),`;
-        break;
-      }
+    if (isBasicScheme(scheme)) {
+      yield `strategies['${name}'](username, password),`;
+    } else if (isApiKeyScheme(scheme)) {
+      yield `strategies['${name}'](req.get('${scheme.parameter.value}')), // TODO: also support query and cookie`;
+    } else if (isOAuth2Scheme(scheme)) {
+      yield `strategies['${name}'](accessToken),`;
     }
   }
 
@@ -219,7 +223,7 @@ function* buildMiddleware(methods: Method[]): Iterable<string> {
   yield `  req.basketry = { context: new ExpressAuthService({`;
   yield allSchemes
     .map((scheme, i) => {
-      return `    '${scheme.name}': results[${i}]`;
+      return `    '${scheme.name.value}': results[${i}]`;
     })
     .join(',');
   yield `  }) }`;
@@ -235,6 +239,7 @@ function* buildRouters(service: Service): Iterable<string> {
     .reduce((a, b) => a.concat(b), []);
 
   yield `import { type NextFunction, type Request, type RequestHandler, type Response, Router } from 'express';`;
+  yield `import { URL } from 'url';`;
   yield `import * as auth from './auth';`;
   yield `import * as types from './types';`;
   yield `import * as validators from './validators';`;
@@ -250,27 +255,32 @@ function* buildRouters(service: Service): Iterable<string> {
   yield buildErrorFactories();
   yield '';
   for (const int of service.interfaces) {
-    yield* buildRouter(int, service);
+    yield* buildRouter(int);
   }
 }
 
-function* buildRouter(int: Interface, service: Service): Iterable<string> {
-  yield `export function ${camel(`${int.name}_routes`)}(service: types.${pascal(
-    `${int.name}_service`,
-  )} | ((req: Request) => types.${pascal(
-    `${int.name}_service`,
-  )}), router?: Router) {`;
+function* buildRouter(int: Interface): Iterable<string> {
+  const interfaceName = buildInterfaceName(int, 'types');
+  yield `export function ${buildRouterFactoryName(
+    int,
+  )}(service: ${interfaceName} | ((req: Request) => ${interfaceName}), router?: Router) {`;
   yield '  const r = router || Router();';
   yield `  const contextProvider = (req: Request) => req.basketry?.context;`;
   yield '';
 
   for (const pathSpec of int.protocols.http) {
-    let expressPath = pathSpec.path;
-    while (expressPath.indexOf('{') > -1) {
-      expressPath = expressPath.replace('{', ':').replace('}', '');
+    let expressPath = pathSpec.path.value;
+    try {
+      while (expressPath.indexOf('{') > -1) {
+        expressPath = expressPath.replace('{', ':').replace('}', '');
+      }
+    } catch (ex) {
+      console.error(ex);
     }
 
-    const allow = new Set(pathSpec.methods.map((m) => m.verb.toUpperCase()));
+    const allow = new Set(
+      pathSpec.methods.map((m) => m.verb.value.toUpperCase()),
+    );
     allow.add('HEAD');
     allow.add('OPTIONS');
 
@@ -278,21 +288,22 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
     yield `  r.route('${expressPath}')`;
 
     for (const methodSpec of pathSpec.methods) {
-      const method = int.methods.find((m) => m.name === methodSpec.name);
+      const method = int.methods.find(
+        (m) => m.name.value === methodSpec.name.value,
+      );
       if (!method) continue;
 
       const paramString = methodSpec.parameters.length ? 'params' : '';
+      const methodAuthorizerName = buildMethodAuthorizerName(method, 'auth');
 
-      yield `    .${methodSpec.verb.toLocaleLowerCase()}(async (req, res, next) => {`;
+      yield `    .${methodSpec.verb.value.toLocaleLowerCase()}(async (req, res, next) => {`;
       yield `      try {`;
       yield `        // TODO: generate more specific messages`;
-      yield `        switch (auth.${camel(
-        `authorize_${method.name}`,
-      )}(contextProvider(req))) {`;
+      yield `        switch (${methodAuthorizerName}(contextProvider(req))) {`;
       yield `          case 'unauthenticated':`;
-      yield `            return next(build401('No authentication scheme supplied for ${method.name}.'));`;
+      yield `            return next(build401('No authentication scheme supplied for ${method.name.value}.'));`;
       yield `          case 'unauthorized':`;
-      yield `            return next(build403('The authenticated principal does not have the necessary scopes to call ${method.name}.'));`;
+      yield `            return next(build403('The authenticated principal does not have the necessary scopes to call ${method.name.value}.'));`;
       yield `          }`;
       yield '';
 
@@ -300,7 +311,7 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
         yield `      const params = {`;
         for (const paramSpec of methodSpec.parameters) {
           const param = method.parameters.find(
-            (p) => p.name === paramSpec.name,
+            (p) => p.name.value === paramSpec.name.value,
           );
           if (!param) continue;
 
@@ -310,10 +321,9 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
       }
 
       if (method.parameters.length) {
+        const validatorName = buildParamsValidatorName(method, 'validators');
         yield '';
-        yield `        const errors = validators.${camel(
-          `validate_${methodSpec.name}_params`,
-        )}(${paramString});`;
+        yield `        const errors = ${validatorName}(${paramString});`;
         yield `        if (errors.length) { return next(errors.map(error => build400(error.title))); }`;
       }
 
@@ -324,10 +334,10 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
 
       if (method.returnType) {
         yield `        return res.status(${
-          methodSpec.successCode
-        }).json(await svc.${camel(method.name)}(${paramString}));`;
+          methodSpec.successCode.value
+        }).json(await svc.${buildMethodName(method)}(${paramString}));`;
       } else {
-        yield `        await svc.${camel(method.name)}(${paramString});`;
+        yield `        await svc.${buildMethodName(method)}(${paramString});`;
         yield `        return res.status(204).send();`;
       }
 
@@ -379,7 +389,7 @@ function* buildRouter(int: Interface, service: Service): Iterable<string> {
 }
 
 function buildArraySeprarator(spec: ParameterSpec): string | undefined {
-  switch (spec.array) {
+  switch (spec.array?.value) {
     case 'csv':
       return ',';
     case 'pipes':
@@ -395,61 +405,62 @@ function buildArraySeprarator(spec: ParameterSpec): string | undefined {
 
 function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
   const source = buildSource(spec);
-  const name = camel(param.name);
+  const paramName = buildParameterName(param);
   if (param.isArray) {
     if (param.isLocal) {
       if (isEnum(param)) {
-        yield `'${name}': Array.isArray(${source}) ? ${source} as types.${pascal(
-          param.typeName,
-        )}[] : typeof ${source} === 'string' ? ${source}.split('${
+        yield `'${paramName}': Array.isArray(${source}) ? ${source} as ${buildTypeName(
+          param,
+          'types',
+        )} : typeof ${source} === 'string' ? ${source}.split('${
           buildArraySeprarator(spec) || ','
-        }') as types.${pascal(param.typeName)}[] : (${source} as never),`;
+        }') as ${buildTypeName(param, 'types')} : (${source} as never),`;
       } else {
-        yield `'${name}': tryParse(${source}),`;
+        yield `'${paramName}': tryParse(${source}),`;
       }
     } else {
-      switch (param.typeName) {
+      switch (param.typeName.value) {
         case 'string':
-          yield `'${name}': Array.isArray(${source}) ? ${source} as string[] : typeof ${source} === 'string' ? ${source}.split('${
+          yield `'${paramName}': Array.isArray(${source}) ? ${source} as string[] : typeof ${source} === 'string' ? ${source}.split('${
             buildArraySeprarator(spec) || ','
           }') as string[] : (${source} as never),`;
           break;
         case 'number':
         case 'integer':
-          yield `'${name}': Array.isArray(${source}) ? ${source}.map((x:any)=> Number(\`\${x}\`)) : typeof ${source} === 'string' ? ${source}.split('${
+          yield `'${paramName}': Array.isArray(${source}) ? ${source}.map((x:any)=> Number(\`\${x}\`)) : typeof ${source} === 'string' ? ${source}.split('${
             buildArraySeprarator(spec) || ','
           }').map((x:any)=> Number(\`\${x}\`)) : (${source} as never),`;
           break;
         case 'boolean':
-          yield `'${name}': Array.isArray(${source}) ? ${source}.map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : typeof ${source} === 'string' ? ${source}.split('${
+          yield `'${paramName}': Array.isArray(${source}) ? ${source}.map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : typeof ${source} === 'string' ? ${source}.split('${
             buildArraySeprarator(spec) || ','
           }').map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : (${source} as never),`;
           break;
         default:
-          yield `'${name}': tryParse(${source}),`;
+          yield `'${paramName}': tryParse(${source}),`;
       }
     }
   } else {
     if (param.isLocal) {
       if (isEnum(param)) {
-        yield `'${name}': ${source} as types.${pascal(param.typeName)},`;
+        yield `'${paramName}': ${source} as ${buildTypeName(param, 'types')},`;
       } else {
-        yield `'${name}': tryParse(${source}),`;
+        yield `'${paramName}': tryParse(${source}),`;
       }
     } else {
-      switch (param.typeName) {
+      switch (param.typeName.value) {
         case 'string':
-          yield `'${name}': ${source} as string,`;
+          yield `'${paramName}': ${source} as string,`;
           break;
         case 'number':
         case 'integer':
-          yield `'${name}': Number(\`\${${source}}\`),`;
+          yield `'${paramName}': Number(\`\${${source}}\`),`;
           break;
         case 'boolean':
-          yield `'${name}': typeof ${source} !== 'undefined' && \`\${${source}}\`.toLowerCase() !== 'false',`;
+          yield `'${paramName}': typeof ${source} !== 'undefined' && \`\${${source}}\`.toLowerCase() !== 'false',`;
           break;
         default:
-          yield `'${name}': tryParse(${source}),`;
+          yield `'${paramName}': tryParse(${source}),`;
       }
     }
   }
@@ -458,20 +469,20 @@ function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
 const r = /^[$a-zA-Z_][$a-zA-Z0-9_]*$/;
 
 function buildSource(spec: ParameterSpec): string {
-  switch (spec.in) {
+  switch (spec.in.value) {
     case 'body':
       return `req.body`;
     case 'formData':
       return `req.body`; // TODO: correctly source form data
     case 'header':
-      return `(req.header('${spec.name}') as any)`;
+      return `(req.header('${spec.name.value}') as any)`;
     case 'path':
-      return r.test(spec.name)
-        ? `req.params.${spec.name}`
-        : `req.params['${spec.name}']`;
+      return r.test(spec.name.value)
+        ? `req.params.${spec.name.value}`
+        : `req.params['${spec.name.value}']`;
     case 'query':
-      return r.test(spec.name)
-        ? `req.query.${spec.name}`
-        : `req.query['${spec.name}']`;
+      return r.test(spec.name.value)
+        ? `req.query.${spec.name.value}`
+        : `req.query['${spec.name.value}']`;
   }
 }

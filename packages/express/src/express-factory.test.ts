@@ -1,5 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import generateTypes from '@basketry/typescript';
+import generateAuth from '@basketry/typescript-auth';
+import generateValidators from '@basketry/typescript-validators';
 import { ExpressRouterFactory } from './express-factory';
 
 const pkg = require('../package.json');
@@ -14,10 +17,15 @@ describe('InterfaceFactory', () => {
     );
 
     // ACT
-    const int = new ExpressRouterFactory().build(service);
+    const snapshotFiles = [
+      ...generateTypes(service),
+      ...generateAuth(service),
+      ...generateValidators(service),
+      ...new ExpressRouterFactory().build(service),
+    ];
 
     // ASSERT
-    for (const file of [...int]) {
+    for (const file of snapshotFiles) {
       const path = join('src', 'snapshot', ...file.path);
       const snapshot = readFileSync(path)
         .toString()

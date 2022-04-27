@@ -251,7 +251,7 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     typeof params.queryNumber !== 'undefined' &&
-    typeof params.queryNumber !== 'number'
+    (typeof params.queryNumber !== 'number' || Number.isNaN(params.queryNumber))
   ) {
     errors.push({
       code: 'TYPE',
@@ -261,7 +261,8 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     typeof params.queryInteger !== 'undefined' &&
-    typeof params.queryInteger !== 'number'
+    (typeof params.queryInteger !== 'number' ||
+      Number.isNaN(params.queryInteger))
   ) {
     errors.push({
       code: 'TYPE',
@@ -309,7 +310,9 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     Array.isArray(params.queryNumberArray) &&
-    params.queryNumberArray.some((x) => typeof x !== 'number')
+    params.queryNumberArray.some(
+      (x) => typeof x !== 'number' || Number.isNaN(x),
+    )
   ) {
     errors.push({
       code: 'TYPE',
@@ -319,7 +322,9 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     Array.isArray(params.queryIntegerArray) &&
-    params.queryIntegerArray.some((x) => typeof x !== 'number')
+    params.queryIntegerArray.some(
+      (x) => typeof x !== 'number' || Number.isNaN(x),
+    )
   ) {
     errors.push({
       code: 'TYPE',
@@ -383,7 +388,7 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     typeof params.pathNumber !== 'undefined' &&
-    typeof params.pathNumber !== 'number'
+    (typeof params.pathNumber !== 'number' || Number.isNaN(params.pathNumber))
   ) {
     errors.push({
       code: 'TYPE',
@@ -400,7 +405,7 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     typeof params.pathInteger !== 'undefined' &&
-    typeof params.pathInteger !== 'number'
+    (typeof params.pathInteger !== 'number' || Number.isNaN(params.pathInteger))
   ) {
     errors.push({
       code: 'TYPE',
@@ -476,7 +481,7 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     Array.isArray(params.pathNumberArray) &&
-    params.pathNumberArray.some((x) => typeof x !== 'number')
+    params.pathNumberArray.some((x) => typeof x !== 'number' || Number.isNaN(x))
   ) {
     errors.push({
       code: 'TYPE',
@@ -493,7 +498,9 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     Array.isArray(params.pathIntegerArray) &&
-    params.pathIntegerArray.some((x) => typeof x !== 'number')
+    params.pathIntegerArray.some(
+      (x) => typeof x !== 'number' || Number.isNaN(x),
+    )
   ) {
     errors.push({
       code: 'TYPE',
@@ -543,7 +550,8 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     typeof params.headerNumber !== 'undefined' &&
-    typeof params.headerNumber !== 'number'
+    (typeof params.headerNumber !== 'number' ||
+      Number.isNaN(params.headerNumber))
   ) {
     errors.push({
       code: 'TYPE',
@@ -553,7 +561,8 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     typeof params.headerInteger !== 'undefined' &&
-    typeof params.headerInteger !== 'number'
+    (typeof params.headerInteger !== 'number' ||
+      Number.isNaN(params.headerInteger))
   ) {
     errors.push({
       code: 'TYPE',
@@ -601,7 +610,9 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     Array.isArray(params.headerNumberArray) &&
-    params.headerNumberArray.some((x) => typeof x !== 'number')
+    params.headerNumberArray.some(
+      (x) => typeof x !== 'number' || Number.isNaN(x),
+    )
   ) {
     errors.push({
       code: 'TYPE',
@@ -611,7 +622,9 @@ export function validateExhaustiveParamsParams(params: {
   }
   if (
     Array.isArray(params.headerIntegerArray) &&
-    params.headerIntegerArray.some((x) => typeof x !== 'number')
+    params.headerIntegerArray.some(
+      (x) => typeof x !== 'number' || Number.isNaN(x),
+    )
   ) {
     errors.push({
       code: 'TYPE',
@@ -633,6 +646,20 @@ export function validateExhaustiveParamsParams(params: {
     errors.push(...validateExhaustiveParamsBody(params.body));
   }
   return errors;
+}
+
+/**
+ * Validates input parameters for the allAuthSchemes() method.
+ */
+export function validateAllAuthSchemesParams(): ValidationError[] {
+  return [];
+}
+
+/**
+ * Validates input parameters for the comboAuthSchemes() method.
+ */
+export function validateComboAuthSchemesParams(): ValidationError[] {
+  return [];
 }
 
 export function validateGizmo(params: types.Gizmo): ValidationError[] {
@@ -713,12 +740,14 @@ export function validateWidget(params: types.Widget): ValidationError[] {
       path: 'name',
     });
   }
-  if (typeof params.fiz !== 'undefined' && typeof params.fiz !== 'number') {
-    errors.push({
-      code: 'TYPE',
-      title: '"fiz" must be a number if supplied',
-      path: 'fiz',
-    });
+  if (typeof params.fiz === 'undefined') {
+    errors.push({ code: 'REQUIRED', title: '"fiz" is required', path: 'fiz' });
+  }
+  if (
+    typeof params.fiz !== 'undefined' &&
+    (typeof params.fiz !== 'number' || Number.isNaN(params.fiz))
+  ) {
+    errors.push({ code: 'TYPE', title: '"fiz" must be a number', path: 'fiz' });
   }
   if (typeof params.fiz === 'number' && params.fiz % 3 !== 0) {
     errors.push({
@@ -727,7 +756,10 @@ export function validateWidget(params: types.Widget): ValidationError[] {
       path: 'fiz',
     });
   }
-  if (typeof params.buzz !== 'undefined' && typeof params.buzz !== 'number') {
+  if (
+    typeof params.buzz !== 'undefined' &&
+    (typeof params.buzz !== 'number' || Number.isNaN(params.buzz))
+  ) {
     errors.push({
       code: 'TYPE',
       title: '"buzz" must be a number if supplied',
@@ -743,7 +775,7 @@ export function validateWidget(params: types.Widget): ValidationError[] {
   }
   if (
     typeof params.fizbuzz !== 'undefined' &&
-    typeof params.fizbuzz !== 'number'
+    (typeof params.fizbuzz !== 'number' || Number.isNaN(params.fizbuzz))
   ) {
     errors.push({
       code: 'TYPE',
@@ -803,12 +835,14 @@ export function validateNewWidget(params: types.NewWidget): ValidationError[] {
       path: 'name',
     });
   }
-  if (typeof params.fiz !== 'undefined' && typeof params.fiz !== 'number') {
-    errors.push({
-      code: 'TYPE',
-      title: '"fiz" must be a number if supplied',
-      path: 'fiz',
-    });
+  if (typeof params.fiz === 'undefined') {
+    errors.push({ code: 'REQUIRED', title: '"fiz" is required', path: 'fiz' });
+  }
+  if (
+    typeof params.fiz !== 'undefined' &&
+    (typeof params.fiz !== 'number' || Number.isNaN(params.fiz))
+  ) {
+    errors.push({ code: 'TYPE', title: '"fiz" must be a number', path: 'fiz' });
   }
   if (typeof params.fiz === 'number' && params.fiz % 3 !== 0) {
     errors.push({
@@ -817,7 +851,10 @@ export function validateNewWidget(params: types.NewWidget): ValidationError[] {
       path: 'fiz',
     });
   }
-  if (typeof params.buzz !== 'undefined' && typeof params.buzz !== 'number') {
+  if (
+    typeof params.buzz !== 'undefined' &&
+    (typeof params.buzz !== 'number' || Number.isNaN(params.buzz))
+  ) {
     errors.push({
       code: 'TYPE',
       title: '"buzz" must be a number if supplied',
@@ -833,7 +870,7 @@ export function validateNewWidget(params: types.NewWidget): ValidationError[] {
   }
   if (
     typeof params.fizbuzz !== 'undefined' &&
-    typeof params.fizbuzz !== 'number'
+    (typeof params.fizbuzz !== 'number' || Number.isNaN(params.fizbuzz))
   ) {
     errors.push({
       code: 'TYPE',
@@ -946,7 +983,10 @@ export function isExhaustiveParamsBody(
 
 export function validateWidgetFoo(params: types.WidgetFoo): ValidationError[] {
   const errors: ValidationError[] = [];
-  if (typeof params.fiz !== 'undefined' && typeof params.fiz !== 'number') {
+  if (
+    typeof params.fiz !== 'undefined' &&
+    (typeof params.fiz !== 'number' || Number.isNaN(params.fiz))
+  ) {
     errors.push({
       code: 'TYPE',
       title: '"fiz" must be a number if supplied',
@@ -960,7 +1000,10 @@ export function validateWidgetFoo(params: types.WidgetFoo): ValidationError[] {
       path: 'buzz',
     });
   }
-  if (typeof params.buzz !== 'undefined' && typeof params.buzz !== 'number') {
+  if (
+    typeof params.buzz !== 'undefined' &&
+    (typeof params.buzz !== 'number' || Number.isNaN(params.buzz))
+  ) {
     errors.push({
       code: 'TYPE',
       title: '"buzz" must be a number',
@@ -977,7 +1020,10 @@ export function validateNewWidgetFoo(
   params: types.NewWidgetFoo,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
-  if (typeof params.fiz !== 'undefined' && typeof params.fiz !== 'number') {
+  if (
+    typeof params.fiz !== 'undefined' &&
+    (typeof params.fiz !== 'number' || Number.isNaN(params.fiz))
+  ) {
     errors.push({
       code: 'TYPE',
       title: '"fiz" must be a number if supplied',
@@ -991,7 +1037,10 @@ export function validateNewWidgetFoo(
       path: 'buzz',
     });
   }
-  if (typeof params.buzz !== 'undefined' && typeof params.buzz !== 'number') {
+  if (
+    typeof params.buzz !== 'undefined' &&
+    (typeof params.buzz !== 'number' || Number.isNaN(params.buzz))
+  ) {
     errors.push({
       code: 'TYPE',
       title: '"buzz" must be a number',
