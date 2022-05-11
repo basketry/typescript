@@ -45,7 +45,7 @@
     "@basketry/typescript": "^0.0.6",
     "@basketry/typescript-auth": "^0.0.4",
     "@basketry/typescript-validators": "^0.0.5",
-    "basketry": "^0.0.10",
+    "basketry": "^0.0.11",
     "case": "^1.6.3",
     "prettier": "^2.5.1"
   }
