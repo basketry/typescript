@@ -122,6 +122,9 @@ export function buildRootTypeName(
       return 'string';
     case 'number':
     case 'integer':
+    case 'long':
+    case 'float':
+    case 'double':
       return 'number';
     case 'boolean':
       return 'boolean';
