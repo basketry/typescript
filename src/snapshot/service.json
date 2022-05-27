@@ -142,12 +142,12 @@
             }
           ],
           "returnType": {
-            "typeName": { "value": "gizmo", "loc": "443;5;12;11484;11491" },
+            "typeName": { "value": "gizmo", "loc": "507;5;12;13061;13068" },
             "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": [],
-            "loc": "443;14;450;6;11493;11694"
+            "loc": "507;14;514;6;13070;13271"
           },
           "loc": "82;7;103;8;1786;2403"
         },
@@ -234,12 +234,12 @@
             }
           ],
           "returnType": {
-            "typeName": { "value": "gizmo", "loc": "443;5;12;11484;11491" },
+            "typeName": { "value": "gizmo", "loc": "507;5;12;13061;13068" },
             "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": [],
-            "loc": "443;14;450;6;11493;11694"
+            "loc": "507;14;514;6;13070;13271"
           },
           "loc": "104;7;129;8;2411;3064"
         }
@@ -319,12 +319,12 @@
           ],
           "parameters": [],
           "returnType": {
-            "typeName": { "value": "widget", "loc": "455;5;13;11795;11803" },
+            "typeName": { "value": "widget", "loc": "519;5;13;13372;13380" },
             "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": [],
-            "loc": "455;15;468;6;11805;12106"
+            "loc": "519;15;532;6;13382;13683"
           },
           "loc": "132;7;140;8;3096;3350"
         },
@@ -410,12 +410,12 @@
             }
           ],
           "returnType": {
-            "typeName": { "value": "widget", "loc": "455;5;13;11795;11803" },
+            "typeName": { "value": "widget", "loc": "519;5;13;13372;13380" },
             "isUnknown": false,
             "isLocal": true,
             "isArray": false,
             "rules": [],
-            "loc": "455;15;468;6;11805;12106"
+            "loc": "519;15;532;6;13382;13683"
           },
           "loc": "174;7;182;8;4171;4427"
         },
@@ -543,20 +543,159 @@
       "name": "exhaustive",
       "methods": [
         {
-          "name": { "value": "exhaustiveParams", "loc": "204;24;42;5081;5099" },
+          "name": {
+            "value": "exhaustiveFormats",
+            "loc": "204;24;43;4911;4930"
+          },
           "security": [],
           "parameters": [
             {
-              "name": { "value": "query-string", "loc": "207;21;35;5157;5171" },
-              "typeName": { "value": "string", "loc": "209;21;29;5220;5228" },
+              "name": {
+                "value": "string-no-format",
+                "loc": "207;21;39;4988;5006"
+              },
+              "typeName": { "value": "string", "loc": "209;21;29;5055;5063" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "206;11;210;12;5135;5240"
+              "loc": "206;11;210;12;4966;5075"
             },
             {
-              "name": { "value": "query-enum", "loc": "212;21;33;5274;5286" },
+              "name": { "value": "string-date", "loc": "212;21;34;5109;5122" },
+              "typeName": { "value": "date", "loc": "211;11;216;12;5087;5221" },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [
+                {
+                  "id": "string-format",
+                  "format": { "value": "date", "loc": "215;23;29;5203;5209" },
+                  "loc": "215;13;29;5193;5209"
+                }
+              ],
+              "loc": "211;11;216;12;5087;5221"
+            },
+            {
+              "name": {
+                "value": "string-date-time",
+                "loc": "218;21;39;5255;5273"
+              },
+              "typeName": {
+                "value": "date-time",
+                "loc": "217;11;222;12;5233;5377"
+              },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [
+                {
+                  "id": "string-format",
+                  "format": {
+                    "value": "date-time",
+                    "loc": "221;23;34;5354;5365"
+                  },
+                  "loc": "221;13;34;5344;5365"
+                }
+              ],
+              "loc": "217;11;222;12;5233;5377"
+            },
+            {
+              "name": {
+                "value": "integer-no-format",
+                "loc": "224;21;40;5411;5430"
+              },
+              "typeName": { "value": "integer", "loc": "226;21;30;5479;5488" },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "223;11;227;12;5389;5500"
+            },
+            {
+              "name": {
+                "value": "integer-int32",
+                "loc": "229;21;36;5534;5549"
+              },
+              "typeName": {
+                "value": "integer",
+                "loc": "228;11;233;12;5512;5650"
+              },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "228;11;233;12;5512;5650"
+            },
+            {
+              "name": {
+                "value": "integer-int64",
+                "loc": "235;21;36;5684;5699"
+              },
+              "typeName": { "value": "long", "loc": "234;11;239;12;5662;5800" },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "234;11;239;12;5662;5800"
+            },
+            {
+              "name": {
+                "value": "number-no-format",
+                "loc": "241;21;39;5834;5852"
+              },
+              "typeName": { "value": "number", "loc": "243;21;29;5901;5909" },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "240;11;244;12;5812;5921"
+            },
+            {
+              "name": { "value": "number-float", "loc": "246;21;35;5955;5969" },
+              "typeName": {
+                "value": "float",
+                "loc": "245;11;250;12;5933;6069"
+              },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "245;11;250;12;5933;6069"
+            },
+            {
+              "name": {
+                "value": "number-double",
+                "loc": "252;21;36;6103;6118"
+              },
+              "typeName": {
+                "value": "double",
+                "loc": "251;11;256;12;6081;6219"
+              },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "251;11;256;12;6081;6219"
+            }
+          ],
+          "loc": "203;7;264;8;4879;6421"
+        },
+        {
+          "name": { "value": "exhaustiveParams", "loc": "268;24;42;6658;6676" },
+          "security": [],
+          "parameters": [
+            {
+              "name": { "value": "query-string", "loc": "271;21;35;6734;6748" },
+              "typeName": { "value": "string", "loc": "273;21;29;6797;6805" },
+              "isUnknown": false,
+              "isLocal": false,
+              "isArray": false,
+              "rules": [],
+              "loc": "270;11;274;12;6712;6817"
+            },
+            {
+              "name": { "value": "query-enum", "loc": "276;21;33;6851;6863" },
               "typeName": { "value": "exhaustiveParamsQueryEnum" },
               "isUnknown": false,
               "isLocal": true,
@@ -565,64 +704,64 @@
                 {
                   "id": "string-enum",
                   "values": [
-                    { "value": "one", "loc": "215;22;27;5366;5371" },
-                    { "value": "two", "loc": "215;29;34;5373;5378" },
-                    { "value": "three", "loc": "215;36;43;5380;5387" }
+                    { "value": "one", "loc": "279;22;27;6943;6948" },
+                    { "value": "two", "loc": "279;29;34;6950;6955" },
+                    { "value": "three", "loc": "279;36;43;6957;6964" }
                   ],
-                  "loc": "215;13;44;5357;5388"
+                  "loc": "279;13;44;6934;6965"
                 }
               ],
-              "loc": "211;11;216;12;5252;5400"
+              "loc": "275;11;280;12;6829;6977"
             },
             {
-              "name": { "value": "query-number", "loc": "218;21;35;5434;5448" },
-              "typeName": { "value": "number", "loc": "220;21;29;5497;5505" },
+              "name": { "value": "query-number", "loc": "282;21;35;7011;7025" },
+              "typeName": { "value": "number", "loc": "284;21;29;7074;7082" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "217;11;221;12;5412;5517"
+              "loc": "281;11;285;12;6989;7094"
             },
             {
               "name": {
                 "value": "query-integer",
-                "loc": "223;21;36;5551;5566"
+                "loc": "287;21;36;7128;7143"
               },
-              "typeName": { "value": "integer", "loc": "225;21;30;5615;5624" },
+              "typeName": { "value": "integer", "loc": "289;21;30;7192;7201" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "222;11;226;12;5529;5636"
+              "loc": "286;11;290;12;7106;7213"
             },
             {
               "name": {
                 "value": "query-boolean",
-                "loc": "228;21;36;5670;5685"
+                "loc": "292;21;36;7247;7262"
               },
-              "typeName": { "value": "boolean", "loc": "230;21;30;5734;5743" },
+              "typeName": { "value": "boolean", "loc": "294;21;30;7311;7320" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "227;11;231;12;5648;5755"
+              "loc": "291;11;295;12;7225;7332"
             },
             {
               "name": {
                 "value": "query-string-array",
-                "loc": "233;21;41;5789;5809"
+                "loc": "297;21;41;7366;7386"
               },
-              "typeName": { "value": "string", "loc": "236;32;40;5898;5906" },
+              "typeName": { "value": "string", "loc": "300;32;40;7475;7483" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "232;11;237;12;5767;5920"
+              "loc": "296;11;301;12;7344;7497"
             },
             {
               "name": {
                 "value": "query-enum-array",
-                "loc": "239;21;39;5954;5972"
+                "loc": "303;21;39;7531;7549"
               },
               "typeName": { "value": "exhaustiveParamsQueryEnumArray" },
               "isUnknown": false,
@@ -632,62 +771,62 @@
                 {
                   "id": "string-enum",
                   "values": [
-                    { "value": "one", "loc": "242;51;56;6080;6085" },
-                    { "value": "two", "loc": "242;58;63;6087;6092" },
-                    { "value": "three", "loc": "242;65;72;6094;6101" }
+                    { "value": "one", "loc": "306;51;56;7657;7662" },
+                    { "value": "two", "loc": "306;58;63;7664;7669" },
+                    { "value": "three", "loc": "306;65;72;7671;7678" }
                   ],
-                  "loc": "242;42;73;6071;6102"
+                  "loc": "306;42;73;7648;7679"
                 }
               ],
-              "loc": "238;11;243;12;5932;6116"
+              "loc": "302;11;307;12;7509;7693"
             },
             {
               "name": {
                 "value": "query-number-array",
-                "loc": "245;21;41;6150;6170"
+                "loc": "309;21;41;7727;7747"
               },
-              "typeName": { "value": "number", "loc": "248;32;40;6259;6267" },
+              "typeName": { "value": "number", "loc": "312;32;40;7836;7844" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "244;11;249;12;6128;6281"
+              "loc": "308;11;313;12;7705;7858"
             },
             {
               "name": {
                 "value": "query-integer-array",
-                "loc": "251;21;42;6315;6336"
+                "loc": "315;21;42;7892;7913"
               },
-              "typeName": { "value": "integer", "loc": "254;32;41;6425;6434" },
+              "typeName": { "value": "integer", "loc": "318;32;41;8002;8011" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "250;11;255;12;6293;6448"
+              "loc": "314;11;319;12;7870;8025"
             },
             {
               "name": {
                 "value": "query-boolean-array",
-                "loc": "257;21;42;6482;6503"
+                "loc": "321;21;42;8059;8080"
               },
-              "typeName": { "value": "boolean", "loc": "260;32;41;6592;6601" },
+              "typeName": { "value": "boolean", "loc": "324;32;41;8169;8178" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "256;11;261;12;6460;6615"
+              "loc": "320;11;325;12;8037;8192"
             },
             {
-              "name": { "value": "path-string", "loc": "263;21;34;6649;6662" },
-              "typeName": { "value": "string", "loc": "265;21;29;6710;6718" },
+              "name": { "value": "path-string", "loc": "327;21;34;8226;8239" },
+              "typeName": { "value": "string", "loc": "329;21;29;8287;8295" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [{ "id": "required" }],
-              "loc": "262;11;267;12;6627;6760"
+              "loc": "326;11;331;12;8204;8337"
             },
             {
-              "name": { "value": "path-enum", "loc": "269;21;32;6794;6805" },
+              "name": { "value": "path-enum", "loc": "333;21;32;8371;8382" },
               "typeName": { "value": "exhaustiveParamsPathEnum" },
               "isUnknown": false,
               "isLocal": true,
@@ -697,58 +836,58 @@
                 {
                   "id": "string-enum",
                   "values": [
-                    { "value": "one", "loc": "273;22;27;6914;6919" },
-                    { "value": "two", "loc": "273;29;34;6921;6926" },
-                    { "value": "three", "loc": "273;36;43;6928;6935" }
+                    { "value": "one", "loc": "337;22;27;8491;8496" },
+                    { "value": "two", "loc": "337;29;34;8498;8503" },
+                    { "value": "three", "loc": "337;36;43;8505;8512" }
                   ],
-                  "loc": "273;13;44;6905;6936"
+                  "loc": "337;13;44;8482;8513"
                 }
               ],
-              "loc": "268;11;274;12;6772;6948"
+              "loc": "332;11;338;12;8349;8525"
             },
             {
-              "name": { "value": "path-number", "loc": "276;21;34;6982;6995" },
-              "typeName": { "value": "number", "loc": "278;21;29;7043;7051" },
+              "name": { "value": "path-number", "loc": "340;21;34;8559;8572" },
+              "typeName": { "value": "number", "loc": "342;21;29;8620;8628" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [{ "id": "required" }],
-              "loc": "275;11;280;12;6960;7093"
+              "loc": "339;11;344;12;8537;8670"
             },
             {
-              "name": { "value": "path-integer", "loc": "282;21;35;7127;7141" },
-              "typeName": { "value": "integer", "loc": "284;21;30;7189;7198" },
+              "name": { "value": "path-integer", "loc": "346;21;35;8704;8718" },
+              "typeName": { "value": "integer", "loc": "348;21;30;8766;8775" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [{ "id": "required" }],
-              "loc": "281;11;286;12;7105;7240"
+              "loc": "345;11;350;12;8682;8817"
             },
             {
-              "name": { "value": "path-boolean", "loc": "288;21;35;7274;7288" },
-              "typeName": { "value": "boolean", "loc": "290;21;30;7336;7345" },
+              "name": { "value": "path-boolean", "loc": "352;21;35;8851;8865" },
+              "typeName": { "value": "boolean", "loc": "354;21;30;8913;8922" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [{ "id": "required" }],
-              "loc": "287;11;292;12;7252;7387"
+              "loc": "351;11;356;12;8829;8964"
             },
             {
               "name": {
                 "value": "path-string-array",
-                "loc": "294;21;40;7421;7440"
+                "loc": "358;21;40;8998;9017"
               },
-              "typeName": { "value": "string", "loc": "298;32;40;7567;7575" },
+              "typeName": { "value": "string", "loc": "362;32;40;9144;9152" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [{ "id": "required" }],
-              "loc": "293;11;300;12;7399;7619"
+              "loc": "357;11;364;12;8976;9196"
             },
             {
               "name": {
                 "value": "path-enum-array",
-                "loc": "302;21;38;7653;7670"
+                "loc": "366;21;38;9230;9247"
               },
               "typeName": { "value": "exhaustiveParamsPathEnumArray" },
               "isUnknown": false,
@@ -759,65 +898,71 @@
                 {
                   "id": "string-enum",
                   "values": [
-                    { "value": "one", "loc": "306;51;56;7818;7823" },
-                    { "value": "two", "loc": "306;58;63;7825;7830" },
-                    { "value": "three", "loc": "306;65;72;7832;7839" }
+                    { "value": "one", "loc": "370;51;56;9395;9400" },
+                    { "value": "two", "loc": "370;58;63;9402;9407" },
+                    { "value": "three", "loc": "370;65;72;9409;9416" }
                   ],
-                  "loc": "306;42;73;7809;7840"
+                  "loc": "370;42;73;9386;9417"
                 }
               ],
-              "loc": "301;11;308;12;7631;7884"
+              "loc": "365;11;372;12;9208;9461"
             },
             {
               "name": {
                 "value": "path-number-array",
-                "loc": "310;21;40;7918;7937"
+                "loc": "374;21;40;9495;9514"
               },
-              "typeName": { "value": "number", "loc": "314;32;40;8064;8072" },
+              "typeName": { "value": "number", "loc": "378;32;40;9641;9649" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [{ "id": "required" }],
-              "loc": "309;11;316;12;7896;8116"
+              "loc": "373;11;380;12;9473;9693"
             },
             {
               "name": {
                 "value": "path-integer-array",
-                "loc": "318;21;41;8150;8170"
+                "loc": "382;21;41;9727;9747"
               },
-              "typeName": { "value": "integer", "loc": "322;32;41;8297;8306" },
+              "typeName": { "value": "integer", "loc": "386;32;41;9874;9883" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [{ "id": "required" }],
-              "loc": "317;11;324;12;8128;8350"
+              "loc": "381;11;388;12;9705;9927"
             },
             {
               "name": {
                 "value": "path-boolean-array",
-                "loc": "326;21;41;8384;8404"
+                "loc": "390;21;41;9961;9981"
               },
-              "typeName": { "value": "boolean", "loc": "329;32;41;8492;8501" },
+              "typeName": {
+                "value": "boolean",
+                "loc": "393;32;41;10069;10078"
+              },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [{ "id": "required" }],
-              "loc": "325;11;331;12;8362;8545"
+              "loc": "389;11;395;12;9939;10122"
             },
             {
               "name": {
                 "value": "header-string",
-                "loc": "333;21;36;8579;8594"
+                "loc": "397;21;36;10156;10171"
               },
-              "typeName": { "value": "string", "loc": "335;21;29;8644;8652" },
+              "typeName": { "value": "string", "loc": "399;21;29;10221;10229" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "332;11;336;12;8557;8664"
+              "loc": "396;11;400;12;10134;10241"
             },
             {
-              "name": { "value": "header-enum", "loc": "338;21;34;8698;8711" },
+              "name": {
+                "value": "header-enum",
+                "loc": "402;21;34;10275;10288"
+              },
               "typeName": { "value": "exhaustiveParamsHeaderEnum" },
               "isUnknown": false,
               "isLocal": true,
@@ -826,67 +971,73 @@
                 {
                   "id": "string-enum",
                   "values": [
-                    { "value": "one", "loc": "341;22;27;8792;8797" },
-                    { "value": "two", "loc": "341;29;34;8799;8804" },
-                    { "value": "three", "loc": "341;36;43;8806;8813" }
+                    { "value": "one", "loc": "405;22;27;10369;10374" },
+                    { "value": "two", "loc": "405;29;34;10376;10381" },
+                    { "value": "three", "loc": "405;36;43;10383;10390" }
                   ],
-                  "loc": "341;13;44;8783;8814"
+                  "loc": "405;13;44;10360;10391"
                 }
               ],
-              "loc": "337;11;342;12;8676;8826"
+              "loc": "401;11;406;12;10253;10403"
             },
             {
               "name": {
                 "value": "header-number",
-                "loc": "344;21;36;8860;8875"
+                "loc": "408;21;36;10437;10452"
               },
-              "typeName": { "value": "number", "loc": "346;21;29;8925;8933" },
+              "typeName": { "value": "number", "loc": "410;21;29;10502;10510" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "343;11;347;12;8838;8945"
+              "loc": "407;11;411;12;10415;10522"
             },
             {
               "name": {
                 "value": "header-integer",
-                "loc": "349;21;37;8979;8995"
+                "loc": "413;21;37;10556;10572"
               },
-              "typeName": { "value": "integer", "loc": "351;21;30;9045;9054" },
+              "typeName": {
+                "value": "integer",
+                "loc": "415;21;30;10622;10631"
+              },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "348;11;352;12;8957;9066"
+              "loc": "412;11;416;12;10534;10643"
             },
             {
               "name": {
                 "value": "header-boolean",
-                "loc": "354;21;37;9100;9116"
+                "loc": "418;21;37;10677;10693"
               },
-              "typeName": { "value": "boolean", "loc": "356;21;30;9166;9175" },
+              "typeName": {
+                "value": "boolean",
+                "loc": "420;21;30;10743;10752"
+              },
               "isUnknown": false,
               "isLocal": false,
               "isArray": false,
               "rules": [],
-              "loc": "353;11;357;12;9078;9187"
+              "loc": "417;11;421;12;10655;10764"
             },
             {
               "name": {
                 "value": "header-string-array",
-                "loc": "359;21;42;9221;9242"
+                "loc": "423;21;42;10798;10819"
               },
-              "typeName": { "value": "string", "loc": "362;32;40;9332;9340" },
+              "typeName": { "value": "string", "loc": "426;32;40;10909;10917" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "358;11;363;12;9199;9354"
+              "loc": "422;11;427;12;10776;10931"
             },
             {
               "name": {
                 "value": "header-enum-array",
-                "loc": "365;21;40;9388;9407"
+                "loc": "429;21;40;10965;10984"
               },
               "typeName": { "value": "exhaustiveParamsHeaderEnumArray" },
               "isUnknown": false,
@@ -896,348 +1047,443 @@
                 {
                   "id": "string-enum",
                   "values": [
-                    { "value": "one", "loc": "369;51;56;9555;9560" },
-                    { "value": "two", "loc": "369;58;63;9562;9567" },
-                    { "value": "three", "loc": "369;65;72;9569;9576" }
+                    { "value": "one", "loc": "433;51;56;11132;11137" },
+                    { "value": "two", "loc": "433;58;63;11139;11144" },
+                    { "value": "three", "loc": "433;65;72;11146;11153" }
                   ],
-                  "loc": "369;42;73;9546;9577"
+                  "loc": "433;42;73;11123;11154"
                 }
               ],
-              "loc": "364;11;370;12;9366;9591"
+              "loc": "428;11;434;12;10943;11168"
             },
             {
               "name": {
                 "value": "header-number-array",
-                "loc": "372;21;42;9625;9646"
+                "loc": "436;21;42;11202;11223"
               },
-              "typeName": { "value": "number", "loc": "376;32;40;9777;9785" },
+              "typeName": { "value": "number", "loc": "440;32;40;11354;11362" },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "371;11;377;12;9603;9799"
+              "loc": "435;11;441;12;11180;11376"
             },
             {
               "name": {
                 "value": "header-integer-array",
-                "loc": "379;21;43;9833;9855"
+                "loc": "443;21;43;11410;11432"
               },
-              "typeName": { "value": "integer", "loc": "383;32;41;9984;9993" },
+              "typeName": {
+                "value": "integer",
+                "loc": "447;32;41;11561;11570"
+              },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "378;11;384;12;9811;10007"
+              "loc": "442;11;448;12;11388;11584"
             },
             {
               "name": {
                 "value": "header-boolean-array",
-                "loc": "386;21;43;10041;10063"
+                "loc": "450;21;43;11618;11640"
               },
               "typeName": {
                 "value": "boolean",
-                "loc": "390;32;41;10192;10201"
+                "loc": "454;32;41;11769;11778"
               },
               "isUnknown": false,
               "isLocal": false,
               "isArray": true,
               "rules": [],
-              "loc": "385;11;391;12;10019;10215"
+              "loc": "449;11;455;12;11596;11792"
             },
             {
-              "name": { "value": "body", "loc": "393;21;27;10249;10255" },
+              "name": { "value": "body", "loc": "457;21;27;11826;11832" },
               "typeName": { "value": "exhaustiveParamsBody" },
               "isUnknown": false,
               "isLocal": true,
               "isArray": false,
               "rules": [],
-              "loc": "392;11;402;12;10227;10499"
+              "loc": "456;11;466;12;11804;12076"
             }
           ],
-          "loc": "203;7;410;8;5049;10682"
+          "loc": "267;7;474;8;6626;12259"
         }
       ],
       "protocols": {
         "http": [
           {
+            "path": { "value": "/exhaustive", "loc": "202;5;18;4856;4869" },
+            "methods": [
+              {
+                "name": {
+                  "value": "exhaustiveFormats",
+                  "loc": "204;24;43;4911;4930"
+                },
+                "verb": { "value": "get", "loc": "203;7;12;4879;4884" },
+                "parameters": [
+                  {
+                    "name": {
+                      "value": "string-no-format",
+                      "loc": "207;21;39;4988;5006"
+                    },
+                    "in": { "value": "query", "loc": "208;19;26;5026;5033" },
+                    "loc": "206;11;210;12;4966;5075"
+                  },
+                  {
+                    "name": {
+                      "value": "string-date",
+                      "loc": "212;21;34;5109;5122"
+                    },
+                    "in": { "value": "query", "loc": "213;19;26;5142;5149" },
+                    "loc": "211;11;216;12;5087;5221"
+                  },
+                  {
+                    "name": {
+                      "value": "string-date-time",
+                      "loc": "218;21;39;5255;5273"
+                    },
+                    "in": { "value": "query", "loc": "219;19;26;5293;5300" },
+                    "loc": "217;11;222;12;5233;5377"
+                  },
+                  {
+                    "name": {
+                      "value": "integer-no-format",
+                      "loc": "224;21;40;5411;5430"
+                    },
+                    "in": { "value": "query", "loc": "225;19;26;5450;5457" },
+                    "loc": "223;11;227;12;5389;5500"
+                  },
+                  {
+                    "name": {
+                      "value": "integer-int32",
+                      "loc": "229;21;36;5534;5549"
+                    },
+                    "in": { "value": "query", "loc": "230;19;26;5569;5576" },
+                    "loc": "228;11;233;12;5512;5650"
+                  },
+                  {
+                    "name": {
+                      "value": "integer-int64",
+                      "loc": "235;21;36;5684;5699"
+                    },
+                    "in": { "value": "query", "loc": "236;19;26;5719;5726" },
+                    "loc": "234;11;239;12;5662;5800"
+                  },
+                  {
+                    "name": {
+                      "value": "number-no-format",
+                      "loc": "241;21;39;5834;5852"
+                    },
+                    "in": { "value": "query", "loc": "242;19;26;5872;5879" },
+                    "loc": "240;11;244;12;5812;5921"
+                  },
+                  {
+                    "name": {
+                      "value": "number-float",
+                      "loc": "246;21;35;5955;5969"
+                    },
+                    "in": { "value": "query", "loc": "247;19;26;5989;5996" },
+                    "loc": "245;11;250;12;5933;6069"
+                  },
+                  {
+                    "name": {
+                      "value": "number-double",
+                      "loc": "252;21;36;6103;6118"
+                    },
+                    "in": { "value": "query", "loc": "253;19;26;6138;6145" },
+                    "loc": "251;11;256;12;6081;6219"
+                  }
+                ],
+                "successCode": { "value": 204, "loc": "259;11;20;6264;6273" },
+                "loc": "203;7;264;8;4879;6421"
+              }
+            ],
+            "loc": "202;5;265;6;4856;6427"
+          },
+          {
             "path": {
               "value": "/exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array}",
-              "loc": "202;5;188;4856;5039"
+              "loc": "266;5;188;6433;6616"
             },
             "methods": [
               {
                 "name": {
                   "value": "exhaustiveParams",
-                  "loc": "204;24;42;5081;5099"
+                  "loc": "268;24;42;6658;6676"
                 },
-                "verb": { "value": "get", "loc": "203;7;12;5049;5054" },
+                "verb": { "value": "get", "loc": "267;7;12;6626;6631" },
                 "parameters": [
                   {
                     "name": {
                       "value": "query-string",
-                      "loc": "207;21;35;5157;5171"
+                      "loc": "271;21;35;6734;6748"
                     },
-                    "in": { "value": "query", "loc": "208;19;26;5191;5198" },
-                    "loc": "206;11;210;12;5135;5240"
+                    "in": { "value": "query", "loc": "272;19;26;6768;6775" },
+                    "loc": "270;11;274;12;6712;6817"
                   },
                   {
                     "name": {
                       "value": "query-enum",
-                      "loc": "212;21;33;5274;5286"
+                      "loc": "276;21;33;6851;6863"
                     },
-                    "in": { "value": "query", "loc": "213;19;26;5306;5313" },
-                    "loc": "211;11;216;12;5252;5400"
+                    "in": { "value": "query", "loc": "277;19;26;6883;6890" },
+                    "loc": "275;11;280;12;6829;6977"
                   },
                   {
                     "name": {
                       "value": "query-number",
-                      "loc": "218;21;35;5434;5448"
+                      "loc": "282;21;35;7011;7025"
                     },
-                    "in": { "value": "query", "loc": "219;19;26;5468;5475" },
-                    "loc": "217;11;221;12;5412;5517"
+                    "in": { "value": "query", "loc": "283;19;26;7045;7052" },
+                    "loc": "281;11;285;12;6989;7094"
                   },
                   {
                     "name": {
                       "value": "query-integer",
-                      "loc": "223;21;36;5551;5566"
+                      "loc": "287;21;36;7128;7143"
                     },
-                    "in": { "value": "query", "loc": "224;19;26;5586;5593" },
-                    "loc": "222;11;226;12;5529;5636"
+                    "in": { "value": "query", "loc": "288;19;26;7163;7170" },
+                    "loc": "286;11;290;12;7106;7213"
                   },
                   {
                     "name": {
                       "value": "query-boolean",
-                      "loc": "228;21;36;5670;5685"
+                      "loc": "292;21;36;7247;7262"
                     },
-                    "in": { "value": "query", "loc": "229;19;26;5705;5712" },
-                    "loc": "227;11;231;12;5648;5755"
+                    "in": { "value": "query", "loc": "293;19;26;7282;7289" },
+                    "loc": "291;11;295;12;7225;7332"
                   },
                   {
                     "name": {
                       "value": "query-string-array",
-                      "loc": "233;21;41;5789;5809"
+                      "loc": "297;21;41;7366;7386"
                     },
-                    "in": { "value": "query", "loc": "234;19;26;5829;5836" },
+                    "in": { "value": "query", "loc": "298;19;26;7406;7413" },
                     "array": { "value": "csv" },
-                    "loc": "232;11;237;12;5767;5920"
+                    "loc": "296;11;301;12;7344;7497"
                   },
                   {
                     "name": {
                       "value": "query-enum-array",
-                      "loc": "239;21;39;5954;5972"
+                      "loc": "303;21;39;7531;7549"
                     },
-                    "in": { "value": "query", "loc": "240;19;26;5992;5999" },
+                    "in": { "value": "query", "loc": "304;19;26;7569;7576" },
                     "array": { "value": "csv" },
-                    "loc": "238;11;243;12;5932;6116"
+                    "loc": "302;11;307;12;7509;7693"
                   },
                   {
                     "name": {
                       "value": "query-number-array",
-                      "loc": "245;21;41;6150;6170"
+                      "loc": "309;21;41;7727;7747"
                     },
-                    "in": { "value": "query", "loc": "246;19;26;6190;6197" },
+                    "in": { "value": "query", "loc": "310;19;26;7767;7774" },
                     "array": { "value": "csv" },
-                    "loc": "244;11;249;12;6128;6281"
+                    "loc": "308;11;313;12;7705;7858"
                   },
                   {
                     "name": {
                       "value": "query-integer-array",
-                      "loc": "251;21;42;6315;6336"
+                      "loc": "315;21;42;7892;7913"
                     },
-                    "in": { "value": "query", "loc": "252;19;26;6356;6363" },
+                    "in": { "value": "query", "loc": "316;19;26;7933;7940" },
                     "array": { "value": "csv" },
-                    "loc": "250;11;255;12;6293;6448"
+                    "loc": "314;11;319;12;7870;8025"
                   },
                   {
                     "name": {
                       "value": "query-boolean-array",
-                      "loc": "257;21;42;6482;6503"
+                      "loc": "321;21;42;8059;8080"
                     },
-                    "in": { "value": "query", "loc": "258;19;26;6523;6530" },
+                    "in": { "value": "query", "loc": "322;19;26;8100;8107" },
                     "array": { "value": "csv" },
-                    "loc": "256;11;261;12;6460;6615"
+                    "loc": "320;11;325;12;8037;8192"
                   },
                   {
                     "name": {
                       "value": "path-string",
-                      "loc": "263;21;34;6649;6662"
+                      "loc": "327;21;34;8226;8239"
                     },
-                    "in": { "value": "path", "loc": "264;19;25;6682;6688" },
-                    "loc": "262;11;267;12;6627;6760"
+                    "in": { "value": "path", "loc": "328;19;25;8259;8265" },
+                    "loc": "326;11;331;12;8204;8337"
                   },
                   {
                     "name": {
                       "value": "path-enum",
-                      "loc": "269;21;32;6794;6805"
+                      "loc": "333;21;32;8371;8382"
                     },
-                    "in": { "value": "path", "loc": "270;19;25;6825;6831" },
-                    "loc": "268;11;274;12;6772;6948"
+                    "in": { "value": "path", "loc": "334;19;25;8402;8408" },
+                    "loc": "332;11;338;12;8349;8525"
                   },
                   {
                     "name": {
                       "value": "path-number",
-                      "loc": "276;21;34;6982;6995"
+                      "loc": "340;21;34;8559;8572"
                     },
-                    "in": { "value": "path", "loc": "277;19;25;7015;7021" },
-                    "loc": "275;11;280;12;6960;7093"
+                    "in": { "value": "path", "loc": "341;19;25;8592;8598" },
+                    "loc": "339;11;344;12;8537;8670"
                   },
                   {
                     "name": {
                       "value": "path-integer",
-                      "loc": "282;21;35;7127;7141"
+                      "loc": "346;21;35;8704;8718"
                     },
-                    "in": { "value": "path", "loc": "283;19;25;7161;7167" },
-                    "loc": "281;11;286;12;7105;7240"
+                    "in": { "value": "path", "loc": "347;19;25;8738;8744" },
+                    "loc": "345;11;350;12;8682;8817"
                   },
                   {
                     "name": {
                       "value": "path-boolean",
-                      "loc": "288;21;35;7274;7288"
+                      "loc": "352;21;35;8851;8865"
                     },
-                    "in": { "value": "path", "loc": "289;19;25;7308;7314" },
-                    "loc": "287;11;292;12;7252;7387"
+                    "in": { "value": "path", "loc": "353;19;25;8885;8891" },
+                    "loc": "351;11;356;12;8829;8964"
                   },
                   {
                     "name": {
                       "value": "path-string-array",
-                      "loc": "294;21;40;7421;7440"
+                      "loc": "358;21;40;8998;9017"
                     },
-                    "in": { "value": "path", "loc": "295;19;25;7460;7466" },
-                    "array": { "value": "csv", "loc": "297;33;38;7529;7534" },
-                    "loc": "293;11;300;12;7399;7619"
+                    "in": { "value": "path", "loc": "359;19;25;9037;9043" },
+                    "array": { "value": "csv", "loc": "361;33;38;9106;9111" },
+                    "loc": "357;11;364;12;8976;9196"
                   },
                   {
                     "name": {
                       "value": "path-enum-array",
-                      "loc": "302;21;38;7653;7670"
+                      "loc": "366;21;38;9230;9247"
                     },
-                    "in": { "value": "path", "loc": "303;19;25;7690;7696" },
-                    "array": { "value": "pipes", "loc": "305;33;40;7759;7766" },
-                    "loc": "301;11;308;12;7631;7884"
+                    "in": { "value": "path", "loc": "367;19;25;9267;9273" },
+                    "array": { "value": "pipes", "loc": "369;33;40;9336;9343" },
+                    "loc": "365;11;372;12;9208;9461"
                   },
                   {
                     "name": {
                       "value": "path-number-array",
-                      "loc": "310;21;40;7918;7937"
+                      "loc": "374;21;40;9495;9514"
                     },
-                    "in": { "value": "path", "loc": "311;19;25;7957;7963" },
-                    "array": { "value": "ssv", "loc": "313;33;38;8026;8031" },
-                    "loc": "309;11;316;12;7896;8116"
+                    "in": { "value": "path", "loc": "375;19;25;9534;9540" },
+                    "array": { "value": "ssv", "loc": "377;33;38;9603;9608" },
+                    "loc": "373;11;380;12;9473;9693"
                   },
                   {
                     "name": {
                       "value": "path-integer-array",
-                      "loc": "318;21;41;8150;8170"
+                      "loc": "382;21;41;9727;9747"
                     },
-                    "in": { "value": "path", "loc": "319;19;25;8190;8196" },
-                    "array": { "value": "tsv", "loc": "321;33;38;8259;8264" },
-                    "loc": "317;11;324;12;8128;8350"
+                    "in": { "value": "path", "loc": "383;19;25;9767;9773" },
+                    "array": { "value": "tsv", "loc": "385;33;38;9836;9841" },
+                    "loc": "381;11;388;12;9705;9927"
                   },
                   {
                     "name": {
                       "value": "path-boolean-array",
-                      "loc": "326;21;41;8384;8404"
+                      "loc": "390;21;41;9961;9981"
                     },
-                    "in": { "value": "path", "loc": "327;19;25;8424;8430" },
+                    "in": { "value": "path", "loc": "391;19;25;10001;10007" },
                     "array": { "value": "csv" },
-                    "loc": "325;11;331;12;8362;8545"
+                    "loc": "389;11;395;12;9939;10122"
                   },
                   {
                     "name": {
                       "value": "header-string",
-                      "loc": "333;21;36;8579;8594"
+                      "loc": "397;21;36;10156;10171"
                     },
-                    "in": { "value": "header", "loc": "334;19;27;8614;8622" },
-                    "loc": "332;11;336;12;8557;8664"
+                    "in": { "value": "header", "loc": "398;19;27;10191;10199" },
+                    "loc": "396;11;400;12;10134;10241"
                   },
                   {
                     "name": {
                       "value": "header-enum",
-                      "loc": "338;21;34;8698;8711"
+                      "loc": "402;21;34;10275;10288"
                     },
-                    "in": { "value": "header", "loc": "339;19;27;8731;8739" },
-                    "loc": "337;11;342;12;8676;8826"
+                    "in": { "value": "header", "loc": "403;19;27;10308;10316" },
+                    "loc": "401;11;406;12;10253;10403"
                   },
                   {
                     "name": {
                       "value": "header-number",
-                      "loc": "344;21;36;8860;8875"
+                      "loc": "408;21;36;10437;10452"
                     },
-                    "in": { "value": "header", "loc": "345;19;27;8895;8903" },
-                    "loc": "343;11;347;12;8838;8945"
+                    "in": { "value": "header", "loc": "409;19;27;10472;10480" },
+                    "loc": "407;11;411;12;10415;10522"
                   },
                   {
                     "name": {
                       "value": "header-integer",
-                      "loc": "349;21;37;8979;8995"
+                      "loc": "413;21;37;10556;10572"
                     },
-                    "in": { "value": "header", "loc": "350;19;27;9015;9023" },
-                    "loc": "348;11;352;12;8957;9066"
+                    "in": { "value": "header", "loc": "414;19;27;10592;10600" },
+                    "loc": "412;11;416;12;10534;10643"
                   },
                   {
                     "name": {
                       "value": "header-boolean",
-                      "loc": "354;21;37;9100;9116"
+                      "loc": "418;21;37;10677;10693"
                     },
-                    "in": { "value": "header", "loc": "355;19;27;9136;9144" },
-                    "loc": "353;11;357;12;9078;9187"
+                    "in": { "value": "header", "loc": "419;19;27;10713;10721" },
+                    "loc": "417;11;421;12;10655;10764"
                   },
                   {
                     "name": {
                       "value": "header-string-array",
-                      "loc": "359;21;42;9221;9242"
+                      "loc": "423;21;42;10798;10819"
                     },
-                    "in": { "value": "header", "loc": "360;19;27;9262;9270" },
+                    "in": { "value": "header", "loc": "424;19;27;10839;10847" },
                     "array": { "value": "csv" },
-                    "loc": "358;11;363;12;9199;9354"
+                    "loc": "422;11;427;12;10776;10931"
                   },
                   {
                     "name": {
                       "value": "header-enum-array",
-                      "loc": "365;21;40;9388;9407"
+                      "loc": "429;21;40;10965;10984"
                     },
-                    "in": { "value": "header", "loc": "366;19;27;9427;9435" },
-                    "array": { "value": "csv", "loc": "368;33;38;9498;9503" },
-                    "loc": "364;11;370;12;9366;9591"
+                    "in": { "value": "header", "loc": "430;19;27;11004;11012" },
+                    "array": { "value": "csv", "loc": "432;33;38;11075;11080" },
+                    "loc": "428;11;434;12;10943;11168"
                   },
                   {
                     "name": {
                       "value": "header-number-array",
-                      "loc": "372;21;42;9625;9646"
+                      "loc": "436;21;42;11202;11223"
                     },
-                    "in": { "value": "header", "loc": "373;19;27;9666;9674" },
-                    "array": { "value": "pipes", "loc": "375;33;40;9737;9744" },
-                    "loc": "371;11;377;12;9603;9799"
+                    "in": { "value": "header", "loc": "437;19;27;11243;11251" },
+                    "array": {
+                      "value": "pipes",
+                      "loc": "439;33;40;11314;11321"
+                    },
+                    "loc": "435;11;441;12;11180;11376"
                   },
                   {
                     "name": {
                       "value": "header-integer-array",
-                      "loc": "379;21;43;9833;9855"
+                      "loc": "443;21;43;11410;11432"
                     },
-                    "in": { "value": "header", "loc": "380;19;27;9875;9883" },
-                    "array": { "value": "ssv", "loc": "382;33;38;9946;9951" },
-                    "loc": "378;11;384;12;9811;10007"
+                    "in": { "value": "header", "loc": "444;19;27;11452;11460" },
+                    "array": { "value": "ssv", "loc": "446;33;38;11523;11528" },
+                    "loc": "442;11;448;12;11388;11584"
                   },
                   {
                     "name": {
                       "value": "header-boolean-array",
-                      "loc": "386;21;43;10041;10063"
+                      "loc": "450;21;43;11618;11640"
                     },
-                    "in": { "value": "header", "loc": "387;19;27;10083;10091" },
-                    "array": { "value": "tsv", "loc": "389;33;38;10154;10159" },
-                    "loc": "385;11;391;12;10019;10215"
+                    "in": { "value": "header", "loc": "451;19;27;11660;11668" },
+                    "array": { "value": "tsv", "loc": "453;33;38;11731;11736" },
+                    "loc": "449;11;455;12;11596;11792"
                   },
                   {
-                    "name": { "value": "body", "loc": "393;21;27;10249;10255" },
-                    "in": { "value": "body", "loc": "394;19;25;10275;10281" },
-                    "loc": "392;11;402;12;10227;10499"
+                    "name": { "value": "body", "loc": "457;21;27;11826;11832" },
+                    "in": { "value": "body", "loc": "458;19;25;11852;11858" },
+                    "loc": "456;11;466;12;11804;12076"
                   }
                 ],
-                "successCode": { "value": 204, "loc": "405;11;20;10544;10553" },
-                "loc": "203;7;410;8;5049;10682"
+                "successCode": { "value": 204, "loc": "469;11;20;12121;12130" },
+                "loc": "267;7;474;8;6626;12259"
               }
             ],
-            "loc": "202;5;411;6;4856;10688"
+            "loc": "266;5;475;6;6433;12265"
           }
         ]
       }
@@ -1248,7 +1494,7 @@
         {
           "name": {
             "value": "all-auth-schemes",
-            "loc": "414;24;42;10755;10773"
+            "loc": "478;24;42;12332;12350"
           },
           "security": [
             [
@@ -1295,7 +1541,7 @@
                       {
                         "name": {
                           "value": "admin:gizmos",
-                          "loc": "419;28;42;10929;10943"
+                          "loc": "483;28;42;12506;12520"
                         },
                         "description": {
                           "value": "Manage gizmos",
@@ -1312,12 +1558,12 @@
             ]
           ],
           "parameters": [],
-          "loc": "413;7;426;8;10723;11066"
+          "loc": "477;7;490;8;12300;12643"
         },
         {
           "name": {
             "value": "combo-auth-schemes",
-            "loc": "428;24;44;11106;11126"
+            "loc": "492;24;44;12683;12703"
           },
           "security": [
             [
@@ -1377,7 +1623,7 @@
                       {
                         "name": {
                           "value": "admin:gizmos",
-                          "loc": "432;56;70;11312;11326"
+                          "loc": "496;56;70;12889;12903"
                         },
                         "description": {
                           "value": "Manage gizmos",
@@ -1394,7 +1640,7 @@
             ]
           ],
           "parameters": [],
-          "loc": "427;7;439;8;11074;11449"
+          "loc": "491;7;503;8;12651;13026"
         }
       ],
       "protocols": {
@@ -1402,31 +1648,31 @@
           {
             "path": {
               "value": "/authPermutations",
-              "loc": "412;5;24;10694;10713"
+              "loc": "476;5;24;12271;12290"
             },
             "methods": [
               {
                 "name": {
                   "value": "all-auth-schemes",
-                  "loc": "414;24;42;10755;10773"
+                  "loc": "478;24;42;12332;12350"
                 },
-                "verb": { "value": "get", "loc": "413;7;12;10723;10728" },
+                "verb": { "value": "get", "loc": "477;7;12;12300;12305" },
                 "parameters": [],
-                "successCode": { "value": 200, "loc": "422;11;16;10991;10996" },
-                "loc": "413;7;426;8;10723;11066"
+                "successCode": { "value": 200, "loc": "486;11;16;12568;12573" },
+                "loc": "477;7;490;8;12300;12643"
               },
               {
                 "name": {
                   "value": "combo-auth-schemes",
-                  "loc": "428;24;44;11106;11126"
+                  "loc": "492;24;44;12683;12703"
                 },
-                "verb": { "value": "put", "loc": "427;7;12;11074;11079" },
+                "verb": { "value": "put", "loc": "491;7;12;12651;12656" },
                 "parameters": [],
-                "successCode": { "value": 200, "loc": "435;11;16;11374;11379" },
-                "loc": "427;7;439;8;11074;11449"
+                "successCode": { "value": 200, "loc": "499;11;16;12951;12956" },
+                "loc": "491;7;503;8;12651;13026"
               }
             ],
-            "loc": "412;5;440;6;10694;11455"
+            "loc": "476;5;504;6;12271;13032"
           }
         ]
       }
@@ -1434,35 +1680,35 @@
   ],
   "types": [
     {
-      "name": { "value": "gizmo", "loc": "443;5;12;11484;11491" },
+      "name": { "value": "gizmo", "loc": "507;5;12;13061;13068" },
       "properties": [
         {
-          "name": { "value": "id", "loc": "446;9;13;11549;11553" },
-          "typeName": { "value": "string", "loc": "493;15;23;12793;12801" },
+          "name": { "value": "id", "loc": "510;9;13;13126;13130" },
+          "typeName": { "value": "string", "loc": "557;15;23;14370;14378" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "string-max-length",
-              "length": { "value": 30, "loc": "494;20;22;12822;12824" },
-              "loc": "494;7;22;12809;12824"
+              "length": { "value": 30, "loc": "558;20;22;14399;14401" },
+              "loc": "558;7;22;14386;14401"
             }
           ],
-          "loc": "492;11;495;6;12777;12830"
+          "loc": "556;11;559;6;14354;14407"
         },
         {
-          "name": { "value": "name", "loc": "447;9;15;11595;11601" },
-          "typeName": { "value": "string", "loc": "447;27;35;11613;11621" },
+          "name": { "value": "name", "loc": "511;9;15;13172;13178" },
+          "typeName": { "value": "string", "loc": "511;27;35;13190;13198" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [],
-          "loc": "447;17;37;11603;11623"
+          "loc": "511;17;37;13180;13200"
         },
         {
-          "name": { "value": "size", "loc": "448;9;15;11633;11639" },
-          "typeName": { "value": "productSize", "loc": "451;5;18;11700;11713" },
+          "name": { "value": "size", "loc": "512;9;15;13210;13216" },
+          "typeName": { "value": "productSize", "loc": "515;5;18;13277;13290" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": true,
@@ -1470,25 +1716,25 @@
             {
               "id": "string-enum",
               "values": [
-                { "value": "small", "loc": "453;16;23;11756;11763" },
-                { "value": "medium", "loc": "453;25;33;11765;11773" },
-                { "value": "large", "loc": "453;35;42;11775;11782" }
+                { "value": "small", "loc": "517;16;23;13333;13340" },
+                { "value": "medium", "loc": "517;25;33;13342;13350" },
+                { "value": "large", "loc": "517;35;42;13352;13359" }
               ],
-              "loc": "453;7;43;11747;11783"
+              "loc": "517;7;43;13324;13360"
             }
           ],
-          "loc": "451;20;454;6;11715;11789"
+          "loc": "515;20;518;6;13292;13366"
         }
       ],
       "rules": [],
-      "loc": "443;5;450;6;11484;11694"
+      "loc": "507;5;514;6;13061;13271"
     },
     {
-      "name": { "value": "widget", "loc": "455;5;13;11795;11803" },
+      "name": { "value": "widget", "loc": "519;5;13;13372;13380" },
       "properties": [
         {
-          "name": { "value": "id", "loc": "462;13;17;11950;11954" },
-          "typeName": { "value": "string", "loc": "493;15;23;12793;12801" },
+          "name": { "value": "id", "loc": "526;13;17;13527;13531" },
+          "typeName": { "value": "string", "loc": "557;15;23;14370;14378" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
@@ -1496,38 +1742,38 @@
             { "id": "required" },
             {
               "id": "string-max-length",
-              "length": { "value": 30, "loc": "494;20;22;12822;12824" },
-              "loc": "494;7;22;12809;12824"
+              "length": { "value": 30, "loc": "558;20;22;14399;14401" },
+              "loc": "558;7;22;14386;14401"
             }
           ],
-          "loc": "492;11;495;6;12777;12830"
+          "loc": "556;11;559;6;14354;14407"
         },
         {
-          "name": { "value": "name", "loc": "473;9;15;12208;12214" },
-          "typeName": { "value": "string", "loc": "474;19;27;12236;12244" },
+          "name": { "value": "name", "loc": "537;9;15;13785;13791" },
+          "typeName": { "value": "string", "loc": "538;19;27;13813;13821" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "string-max-length",
-              "length": { "value": 30, "loc": "475;24;26;12269;12271" },
-              "loc": "475;11;26;12256;12271"
+              "length": { "value": 30, "loc": "539;24;26;13846;13848" },
+              "loc": "539;11;26;13833;13848"
             },
             {
               "id": "string-pattern",
               "pattern": {
                 "value": "[0-9a-fA-F]+",
-                "loc": "476;22;36;12294;12308"
+                "loc": "540;22;36;13871;13885"
               },
-              "loc": "476;11;36;12283;12308"
+              "loc": "540;11;36;13860;13885"
             }
           ],
-          "loc": "473;17;477;10;12216;12318"
+          "loc": "537;17;541;10;13793;13895"
         },
         {
-          "name": { "value": "fiz", "loc": "478;9;14;12328;12333" },
-          "typeName": { "value": "number", "loc": "478;26;34;12345;12353" },
+          "name": { "value": "fiz", "loc": "542;9;14;13905;13910" },
+          "typeName": { "value": "number", "loc": "542;26;34;13922;13930" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
@@ -1535,54 +1781,54 @@
             { "id": "required" },
             {
               "id": "number-multiple-of",
-              "value": { "value": 3, "loc": "478;50;51;12369;12370" },
-              "loc": "478;36;51;12355;12370"
+              "value": { "value": 3, "loc": "542;50;51;13946;13947" },
+              "loc": "542;36;51;13932;13947"
             }
           ],
-          "loc": "478;16;53;12335;12372"
+          "loc": "542;16;53;13912;13949"
         },
         {
-          "name": { "value": "buzz", "loc": "479;9;15;12382;12388" },
-          "typeName": { "value": "number", "loc": "479;27;35;12400;12408" },
+          "name": { "value": "buzz", "loc": "543;9;15;13959;13965" },
+          "typeName": { "value": "number", "loc": "543;27;35;13977;13985" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "number-multiple-of",
-              "value": { "value": 5, "loc": "479;51;52;12424;12425" },
-              "loc": "479;37;52;12410;12425"
+              "value": { "value": 5, "loc": "543;51;52;14001;14002" },
+              "loc": "543;37;52;13987;14002"
             }
           ],
-          "loc": "479;17;54;12390;12427"
+          "loc": "543;17;54;13967;14004"
         },
         {
-          "name": { "value": "fizbuzz", "loc": "480;9;18;12437;12446" },
-          "typeName": { "value": "number", "loc": "480;30;38;12458;12466" },
+          "name": { "value": "fizbuzz", "loc": "544;9;18;14014;14023" },
+          "typeName": { "value": "number", "loc": "544;30;38;14035;14043" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "number-multiple-of",
-              "value": { "value": 15, "loc": "480;54;56;12482;12484" },
-              "loc": "480;40;56;12468;12484"
+              "value": { "value": 15, "loc": "544;54;56;14059;14061" },
+              "loc": "544;40;56;14045;14061"
             }
           ],
-          "loc": "480;20;58;12448;12486"
+          "loc": "544;20;58;14025;14063"
         },
         {
-          "name": { "value": "foo", "loc": "481;9;14;12496;12501" },
+          "name": { "value": "foo", "loc": "545;9;14;14073;14078" },
           "typeName": { "value": "widgetFoo" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": true,
           "rules": [],
-          "loc": "481;16;488;10;12503;12694"
+          "loc": "545;16;552;10;14080;14271"
         },
         {
-          "name": { "value": "size", "loc": "489;9;15;12704;12710" },
-          "typeName": { "value": "productSize", "loc": "451;5;18;11700;11713" },
+          "name": { "value": "size", "loc": "553;9;15;14281;14287" },
+          "typeName": { "value": "productSize", "loc": "515;5;18;13277;13290" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": true,
@@ -1590,54 +1836,54 @@
             {
               "id": "string-enum",
               "values": [
-                { "value": "small", "loc": "453;16;23;11756;11763" },
-                { "value": "medium", "loc": "453;25;33;11765;11773" },
-                { "value": "large", "loc": "453;35;42;11775;11782" }
+                { "value": "small", "loc": "517;16;23;13333;13340" },
+                { "value": "medium", "loc": "517;25;33;13342;13350" },
+                { "value": "large", "loc": "517;35;42;13352;13359" }
               ],
-              "loc": "453;7;43;11747;11783"
+              "loc": "517;7;43;13324;13360"
             }
           ],
-          "loc": "451;20;454;6;11715;11789"
+          "loc": "515;20;518;6;13292;13366"
         }
       ],
       "rules": [
         {
           "id": "object-additional-properties",
           "forbidden": true,
-          "loc": "467;7;36;12071;12100"
+          "loc": "531;7;36;13648;13677"
         }
       ],
-      "loc": "455;5;468;6;11795;12106"
+      "loc": "519;5;532;6;13372;13683"
     },
     {
-      "name": { "value": "newWidget", "loc": "469;5;16;12112;12123" },
+      "name": { "value": "newWidget", "loc": "533;5;16;13689;13700" },
       "properties": [
         {
-          "name": { "value": "name", "loc": "473;9;15;12208;12214" },
-          "typeName": { "value": "string", "loc": "474;19;27;12236;12244" },
+          "name": { "value": "name", "loc": "537;9;15;13785;13791" },
+          "typeName": { "value": "string", "loc": "538;19;27;13813;13821" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "string-max-length",
-              "length": { "value": 30, "loc": "475;24;26;12269;12271" },
-              "loc": "475;11;26;12256;12271"
+              "length": { "value": 30, "loc": "539;24;26;13846;13848" },
+              "loc": "539;11;26;13833;13848"
             },
             {
               "id": "string-pattern",
               "pattern": {
                 "value": "[0-9a-fA-F]+",
-                "loc": "476;22;36;12294;12308"
+                "loc": "540;22;36;13871;13885"
               },
-              "loc": "476;11;36;12283;12308"
+              "loc": "540;11;36;13860;13885"
             }
           ],
-          "loc": "473;17;477;10;12216;12318"
+          "loc": "537;17;541;10;13793;13895"
         },
         {
-          "name": { "value": "fiz", "loc": "478;9;14;12328;12333" },
-          "typeName": { "value": "number", "loc": "478;26;34;12345;12353" },
+          "name": { "value": "fiz", "loc": "542;9;14;13905;13910" },
+          "typeName": { "value": "number", "loc": "542;26;34;13922;13930" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
@@ -1645,54 +1891,54 @@
             { "id": "required" },
             {
               "id": "number-multiple-of",
-              "value": { "value": 3, "loc": "478;50;51;12369;12370" },
-              "loc": "478;36;51;12355;12370"
+              "value": { "value": 3, "loc": "542;50;51;13946;13947" },
+              "loc": "542;36;51;13932;13947"
             }
           ],
-          "loc": "478;16;53;12335;12372"
+          "loc": "542;16;53;13912;13949"
         },
         {
-          "name": { "value": "buzz", "loc": "479;9;15;12382;12388" },
-          "typeName": { "value": "number", "loc": "479;27;35;12400;12408" },
+          "name": { "value": "buzz", "loc": "543;9;15;13959;13965" },
+          "typeName": { "value": "number", "loc": "543;27;35;13977;13985" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "number-multiple-of",
-              "value": { "value": 5, "loc": "479;51;52;12424;12425" },
-              "loc": "479;37;52;12410;12425"
+              "value": { "value": 5, "loc": "543;51;52;14001;14002" },
+              "loc": "543;37;52;13987;14002"
             }
           ],
-          "loc": "479;17;54;12390;12427"
+          "loc": "543;17;54;13967;14004"
         },
         {
-          "name": { "value": "fizbuzz", "loc": "480;9;18;12437;12446" },
-          "typeName": { "value": "number", "loc": "480;30;38;12458;12466" },
+          "name": { "value": "fizbuzz", "loc": "544;9;18;14014;14023" },
+          "typeName": { "value": "number", "loc": "544;30;38;14035;14043" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [
             {
               "id": "number-multiple-of",
-              "value": { "value": 15, "loc": "480;54;56;12482;12484" },
-              "loc": "480;40;56;12468;12484"
+              "value": { "value": 15, "loc": "544;54;56;14059;14061" },
+              "loc": "544;40;56;14045;14061"
             }
           ],
-          "loc": "480;20;58;12448;12486"
+          "loc": "544;20;58;14025;14063"
         },
         {
-          "name": { "value": "foo", "loc": "481;9;14;12496;12501" },
+          "name": { "value": "foo", "loc": "545;9;14;14073;14078" },
           "typeName": { "value": "newWidgetFoo" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": true,
           "rules": [],
-          "loc": "481;16;488;10;12503;12694"
+          "loc": "545;16;552;10;14080;14271"
         },
         {
-          "name": { "value": "size", "loc": "489;9;15;12704;12710" },
-          "typeName": { "value": "productSize", "loc": "451;5;18;11700;11713" },
+          "name": { "value": "size", "loc": "553;9;15;14281;14287" },
+          "typeName": { "value": "productSize", "loc": "515;5;18;13277;13290" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": true,
@@ -1700,25 +1946,25 @@
             {
               "id": "string-enum",
               "values": [
-                { "value": "small", "loc": "453;16;23;11756;11763" },
-                { "value": "medium", "loc": "453;25;33;11765;11773" },
-                { "value": "large", "loc": "453;35;42;11775;11782" }
+                { "value": "small", "loc": "517;16;23;13333;13340" },
+                { "value": "medium", "loc": "517;25;33;13342;13350" },
+                { "value": "large", "loc": "517;35;42;13352;13359" }
               ],
-              "loc": "453;7;43;11747;11783"
+              "loc": "517;7;43;13324;13360"
             }
           ],
-          "loc": "451;20;454;6;11715;11789"
+          "loc": "515;20;518;6;13292;13366"
         }
       ],
       "rules": [],
-      "loc": "469;5;491;6;12112;12765"
+      "loc": "533;5;555;6;13689;14342"
     },
     {
       "name": { "value": "gizmosResponse" },
       "properties": [
         {
           "name": { "value": "data", "loc": "26;11;17;588;594" },
-          "typeName": { "value": "gizmo", "loc": "443;5;12;11484;11491" },
+          "typeName": { "value": "gizmo", "loc": "507;5;12;13061;13068" },
           "isUnknown": false,
           "isArray": true,
           "isLocal": true,
@@ -1755,76 +2001,76 @@
       "name": { "value": "exhaustiveParamsBody" },
       "properties": [
         {
-          "name": { "value": "foo", "loc": "398;17;22;10385;10390" },
-          "typeName": { "value": "string", "loc": "398;34;42;10402;10410" },
+          "name": { "value": "foo", "loc": "462;17;22;11962;11967" },
+          "typeName": { "value": "string", "loc": "462;34;42;11979;11987" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [],
-          "loc": "398;24;44;10392;10412"
+          "loc": "462;24;44;11969;11989"
         },
         {
-          "name": { "value": "bar", "loc": "399;17;22;10430;10435" },
-          "typeName": { "value": "string", "loc": "399;34;42;10447;10455" },
+          "name": { "value": "bar", "loc": "463;17;22;12007;12012" },
+          "typeName": { "value": "string", "loc": "463;34;42;12024;12032" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [],
-          "loc": "399;24;44;10437;10457"
+          "loc": "463;24;44;12014;12034"
         }
       ],
       "rules": [],
-      "loc": "395;23;401;14;10305;10487"
+      "loc": "459;23;465;14;11882;12064"
     },
     {
       "name": { "value": "widgetFoo" },
       "properties": [
         {
-          "name": { "value": "fiz", "loc": "485;13;18;12603;12608" },
-          "typeName": { "value": "number", "loc": "485;30;38;12620;12628" },
+          "name": { "value": "fiz", "loc": "549;13;18;14180;14185" },
+          "typeName": { "value": "number", "loc": "549;30;38;14197;14205" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [],
-          "loc": "485;20;40;12610;12630"
+          "loc": "549;20;40;14187;14207"
         },
         {
-          "name": { "value": "buzz", "loc": "486;13;19;12644;12650" },
-          "typeName": { "value": "number", "loc": "486;31;39;12662;12670" },
+          "name": { "value": "buzz", "loc": "550;13;19;14221;14227" },
+          "typeName": { "value": "number", "loc": "550;31;39;14239;14247" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "required" }],
-          "loc": "486;21;41;12652;12672"
+          "loc": "550;21;41;14229;14249"
         }
       ],
       "rules": [],
-      "loc": "481;16;488;10;12503;12694"
+      "loc": "545;16;552;10;14080;14271"
     },
     {
       "name": { "value": "newWidgetFoo" },
       "properties": [
         {
-          "name": { "value": "fiz", "loc": "485;13;18;12603;12608" },
-          "typeName": { "value": "number", "loc": "485;30;38;12620;12628" },
+          "name": { "value": "fiz", "loc": "549;13;18;14180;14185" },
+          "typeName": { "value": "number", "loc": "549;30;38;14197;14205" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [],
-          "loc": "485;20;40;12610;12630"
+          "loc": "549;20;40;14187;14207"
         },
         {
-          "name": { "value": "buzz", "loc": "486;13;19;12644;12650" },
-          "typeName": { "value": "number", "loc": "486;31;39;12662;12670" },
+          "name": { "value": "buzz", "loc": "550;13;19;14221;14227" },
+          "typeName": { "value": "number", "loc": "550;31;39;14239;14247" },
           "isUnknown": false,
           "isArray": false,
           "isLocal": false,
           "rules": [{ "id": "required" }],
-          "loc": "486;21;41;12652;12672"
+          "loc": "550;21;41;14229;14249"
         }
       ],
       "rules": [],
-      "loc": "481;16;488;10;12503;12694"
+      "loc": "545;16;552;10;14080;14271"
     }
   ],
   "enums": [
@@ -1841,66 +2087,66 @@
     {
       "name": { "value": "exhaustiveParamsQueryEnum" },
       "values": [
-        { "value": "one", "loc": "215;22;27;5366;5371" },
-        { "value": "two", "loc": "215;29;34;5373;5378" },
-        { "value": "three", "loc": "215;36;43;5380;5387" }
+        { "value": "one", "loc": "279;22;27;6943;6948" },
+        { "value": "two", "loc": "279;29;34;6950;6955" },
+        { "value": "three", "loc": "279;36;43;6957;6964" }
       ],
-      "loc": "215;13;44;5357;5388"
+      "loc": "279;13;44;6934;6965"
     },
     {
       "name": { "value": "exhaustiveParamsQueryEnumArray" },
       "values": [
-        { "value": "one", "loc": "242;51;56;6080;6085" },
-        { "value": "two", "loc": "242;58;63;6087;6092" },
-        { "value": "three", "loc": "242;65;72;6094;6101" }
+        { "value": "one", "loc": "306;51;56;7657;7662" },
+        { "value": "two", "loc": "306;58;63;7664;7669" },
+        { "value": "three", "loc": "306;65;72;7671;7678" }
       ],
-      "loc": "242;42;73;6071;6102"
+      "loc": "306;42;73;7648;7679"
     },
     {
       "name": { "value": "exhaustiveParamsPathEnum" },
       "values": [
-        { "value": "one", "loc": "273;22;27;6914;6919" },
-        { "value": "two", "loc": "273;29;34;6921;6926" },
-        { "value": "three", "loc": "273;36;43;6928;6935" }
+        { "value": "one", "loc": "337;22;27;8491;8496" },
+        { "value": "two", "loc": "337;29;34;8498;8503" },
+        { "value": "three", "loc": "337;36;43;8505;8512" }
       ],
-      "loc": "273;13;44;6905;6936"
+      "loc": "337;13;44;8482;8513"
     },
     {
       "name": { "value": "exhaustiveParamsPathEnumArray" },
       "values": [
-        { "value": "one", "loc": "306;51;56;7818;7823" },
-        { "value": "two", "loc": "306;58;63;7825;7830" },
-        { "value": "three", "loc": "306;65;72;7832;7839" }
+        { "value": "one", "loc": "370;51;56;9395;9400" },
+        { "value": "two", "loc": "370;58;63;9402;9407" },
+        { "value": "three", "loc": "370;65;72;9409;9416" }
       ],
-      "loc": "306;42;73;7809;7840"
+      "loc": "370;42;73;9386;9417"
     },
     {
       "name": { "value": "exhaustiveParamsHeaderEnum" },
       "values": [
-        { "value": "one", "loc": "341;22;27;8792;8797" },
-        { "value": "two", "loc": "341;29;34;8799;8804" },
-        { "value": "three", "loc": "341;36;43;8806;8813" }
+        { "value": "one", "loc": "405;22;27;10369;10374" },
+        { "value": "two", "loc": "405;29;34;10376;10381" },
+        { "value": "three", "loc": "405;36;43;10383;10390" }
       ],
-      "loc": "341;13;44;8783;8814"
+      "loc": "405;13;44;10360;10391"
     },
     {
       "name": { "value": "exhaustiveParamsHeaderEnumArray" },
       "values": [
-        { "value": "one", "loc": "369;51;56;9555;9560" },
-        { "value": "two", "loc": "369;58;63;9562;9567" },
-        { "value": "three", "loc": "369;65;72;9569;9576" }
+        { "value": "one", "loc": "433;51;56;11132;11137" },
+        { "value": "two", "loc": "433;58;63;11139;11144" },
+        { "value": "three", "loc": "433;65;72;11146;11153" }
       ],
-      "loc": "369;42;73;9546;9577"
+      "loc": "433;42;73;11123;11154"
     },
     {
-      "name": { "value": "productSize", "loc": "451;5;18;11700;11713" },
+      "name": { "value": "productSize", "loc": "515;5;18;13277;13290" },
       "values": [
-        { "value": "small", "loc": "453;16;23;11756;11763" },
-        { "value": "medium", "loc": "453;25;33;11765;11773" },
-        { "value": "large", "loc": "453;35;42;11775;11782" }
+        { "value": "small", "loc": "517;16;23;13333;13340" },
+        { "value": "medium", "loc": "517;25;33;13342;13350" },
+        { "value": "large", "loc": "517;35;42;13352;13359" }
       ],
-      "loc": "453;7;43;11747;11783"
+      "loc": "517;7;43;13324;13360"
     }
   ],
-  "loc": "1;1;497;2;0;12836"
+  "loc": "1;1;561;2;0;14413"
 }

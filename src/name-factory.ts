@@ -75,9 +75,15 @@ export function buildTypeName(
       return arrayify('string');
     case 'number':
     case 'integer':
+    case 'long':
+    case 'float':
+    case 'double':
       return arrayify('number');
     case 'boolean':
       return arrayify('boolean');
+    case 'date':
+    case 'date-time':
+      return arrayify('Date');
     default:
       return arrayify('any');
   }

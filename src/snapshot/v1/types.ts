@@ -59,6 +59,18 @@ export interface WidgetService {
 }
 
 export interface ExhaustiveService {
+  exhaustiveFormats(params?: {
+    stringNoFormat?: string;
+    stringDate?: Date;
+    stringDateTime?: Date;
+    integerNoFormat?: number;
+    integerInt32?: number;
+    integerInt64?: number;
+    numberNoFormat?: number;
+    numberFloat?: number;
+    numberDouble?: number;
+  }): Promise<void>;
+
   exhaustiveParams(params: {
     pathString: string;
     pathEnum: ExhaustiveParamsPathEnum;
