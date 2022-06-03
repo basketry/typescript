@@ -2,10 +2,10 @@ import { pascal, camel } from 'case';
 
 import {
   Enum,
+  HttpParameter,
   Interface,
   Method,
   Parameter,
-  ParameterSpec,
   Property,
   ReturnType,
   Type,
@@ -27,7 +27,7 @@ export function buildMethodName(method: Method, typeModule?: string): string {
 }
 
 export function buildParameterName(
-  parameter: Parameter | ParameterSpec,
+  parameter: Parameter | HttpParameter,
   typeModule?: string,
 ): string {
   return prefix(typeModule, camel(parameter.name.value));
@@ -60,32 +60,34 @@ export function buildTypeName(
 
   const arrayify = (n: string) => (type.isArray ? `${n}[]` : n);
 
-  if (type.isUnknown) {
-    return arrayify('any');
-  } else if (type.isLocal) {
+  if (type.isPrimitive) {
+    switch (type.typeName.value) {
+      case 'string':
+        return arrayify('string');
+      case 'number':
+      case 'integer':
+      case 'long':
+      case 'float':
+      case 'double':
+        return arrayify('number');
+      case 'boolean':
+        return arrayify('boolean');
+      case 'date':
+      case 'date-time':
+        return arrayify('Date');
+      case 'null':
+        return arrayify('null');
+      case 'untyped':
+        return arrayify('any');
+      default:
+        return arrayify('unknown');
+    }
+  } else {
     if (typeModule) {
       return `${typeModule}.${arrayify(pascal(type.typeName.value))}`;
     } else {
       return arrayify(pascal(type.typeName.value));
     }
-  }
-
-  switch (type.typeName.value) {
-    case 'string':
-      return arrayify('string');
-    case 'number':
-    case 'integer':
-    case 'long':
-    case 'float':
-    case 'double':
-      return arrayify('number');
-    case 'boolean':
-      return arrayify('boolean');
-    case 'date':
-    case 'date-time':
-      return arrayify('Date');
-    default:
-      return arrayify('any');
   }
 }
 
@@ -107,29 +109,34 @@ export function buildRootTypeName(
     }
   }
 
-  if (type.isUnknown) {
-    return 'any';
-  } else if (type.isLocal) {
+  if (type.isPrimitive) {
+    switch (type.typeName.value) {
+      case 'string':
+        return 'string';
+      case 'number':
+      case 'integer':
+      case 'long': // TODO: BigInt
+      case 'float':
+      case 'double':
+        return 'number';
+      case 'boolean':
+        return 'boolean';
+      case 'date':
+      case 'date-time':
+        return 'Date';
+      case 'null':
+        return 'null';
+      case 'untyped':
+        return 'any';
+      default:
+        return 'unknown';
+    }
+  } else {
     if (typeModule) {
       return `${typeModule}.${pascal(type.typeName.value)}`;
     } else {
       return pascal(type.typeName.value);
     }
-  }
-
-  switch (type.typeName.value) {
-    case 'string':
-      return 'string';
-    case 'number':
-    case 'integer':
-    case 'long':
-    case 'float':
-    case 'double':
-      return 'number';
-    case 'boolean':
-      return 'boolean';
-    default:
-      return 'any';
   }
 }
 
@@ -145,7 +152,7 @@ export function buildMethodReturnType(
 function isType(
   type: Type | Parameter | Property | ReturnType | Enum,
 ): type is Type {
-  return type['isLocal'] === undefined;
+  return type['isPrimitive'] === undefined;
 }
 
 function isEnum(
