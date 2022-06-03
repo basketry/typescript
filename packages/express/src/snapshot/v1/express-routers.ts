@@ -561,6 +561,72 @@ export function exhaustiveRoutes(
   const r = router || Router();
   const contextProvider = (req: Request) => req.basketry?.context;
 
+  r.route('/exhaustive')
+    .get(async (req, res, next) => {
+      try {
+        // TODO: generate more specific messages
+        switch (auth.authorizeExhaustiveFormats(contextProvider(req))) {
+          case 'unauthenticated':
+            return next(
+              build401(
+                'No authentication scheme supplied for exhaustiveFormats.',
+              ),
+            );
+          case 'unauthorized':
+            return next(
+              build403(
+                'The authenticated principal does not have the necessary scopes to call exhaustiveFormats.',
+              ),
+            );
+        }
+
+        const params = {
+          stringNoFormat: req.query['string-no-format'] as string,
+          stringDate:
+            typeof req.query['string-date'] === 'undefined'
+              ? undefined
+              : new Date(`${req.query['string-date']}`),
+          stringDateTime:
+            typeof req.query['string-date-time'] === 'undefined'
+              ? undefined
+              : new Date(`${req.query['string-date-time']}`),
+          integerNoFormat: Number(`${req.query['integer-no-format']}`),
+          integerInt32: Number(`${req.query['integer-int32']}`),
+          integerInt64: Number(`${req.query['integer-int64']}`),
+          numberNoFormat: Number(`${req.query['number-no-format']}`),
+          numberFloat: Number(`${req.query['number-float']}`),
+          numberDouble: Number(`${req.query['number-double']}`),
+        };
+
+        const errors = validators.validateExhaustiveFormatsParams(params);
+        if (errors.length) {
+          return next(errors.map((error) => build400(error.title)));
+        }
+
+        // TODO: validate return value
+        // TODO: consider response headers
+        const svc = typeof service === 'function' ? service(req) : service;
+        await svc.exhaustiveFormats(params);
+        return res.status(204).send();
+      } catch (ex) {
+        if (typeof ex === 'string') {
+          return next(build500(ex));
+        }
+        if (typeof ex.message === 'string') {
+          return next(build500(ex.message));
+        }
+        return next(build500(ex.toString()));
+      }
+    })
+    .options((req, res) => {
+      res.set({ allow: 'GET, HEAD, OPTIONS' });
+      return res.status(204).send();
+    })
+    .all((req, res) => {
+      res.set({ allow: 'GET, HEAD, OPTIONS' });
+      return res.status(405).send();
+    });
+
   r.route(
     '/exhaustive/:path-string/:path-enum/:path-number/:path-integer/:path-boolean/:path-string-array/:path-enum-array/:path-number-array/:path-integer-array/:path-boolean-array',
   )

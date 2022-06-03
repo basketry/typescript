@@ -1,7 +1,7 @@
 import { format as prettier } from 'prettier';
 import {
   File,
-  FileFactory,
+  HttpParameter,
   Interface,
   isApiKeyScheme,
   isBasicScheme,
@@ -9,7 +9,6 @@ import {
   isOAuth2Scheme,
   Method,
   Parameter,
-  ParameterSpec,
   SecurityScheme,
   Service,
 } from 'basketry';
@@ -34,7 +33,7 @@ function format(contents: string): string {
   });
 }
 
-export class ExpressRouterFactory implements FileFactory {
+export class ExpressRouterFactory {
   public readonly target = 'typescript';
 
   build(service: Service): File[] {
@@ -268,8 +267,8 @@ function* buildRouter(int: Interface): Iterable<string> {
   yield `  const contextProvider = (req: Request) => req.basketry?.context;`;
   yield '';
 
-  for (const pathSpec of int.protocols.http) {
-    let expressPath = pathSpec.path.value;
+  for (const httpPath of int.protocols.http) {
+    let expressPath = httpPath.path.value;
     try {
       while (expressPath.indexOf('{') > -1) {
         expressPath = expressPath.replace('{', ':').replace('}', '');
@@ -279,7 +278,7 @@ function* buildRouter(int: Interface): Iterable<string> {
     }
 
     const allow = new Set(
-      pathSpec.methods.map((m) => m.verb.value.toUpperCase()),
+      httpPath.methods.map((m) => m.verb.value.toUpperCase()),
     );
     allow.add('HEAD');
     allow.add('OPTIONS');
@@ -287,16 +286,16 @@ function* buildRouter(int: Interface): Iterable<string> {
     yield '';
     yield `  r.route('${expressPath}')`;
 
-    for (const methodSpec of pathSpec.methods) {
+    for (const httpMethod of httpPath.methods) {
       const method = int.methods.find(
-        (m) => m.name.value === methodSpec.name.value,
+        (m) => m.name.value === httpMethod.name.value,
       );
       if (!method) continue;
 
-      const paramString = methodSpec.parameters.length ? 'params' : '';
+      const paramString = httpMethod.parameters.length ? 'params' : '';
       const methodAuthorizerName = buildMethodAuthorizerName(method, 'auth');
 
-      yield `    .${methodSpec.verb.value.toLocaleLowerCase()}(async (req, res, next) => {`;
+      yield `    .${httpMethod.verb.value.toLocaleLowerCase()}(async (req, res, next) => {`;
       yield `      try {`;
       yield `        // TODO: generate more specific messages`;
       yield `        switch (${methodAuthorizerName}(contextProvider(req))) {`;
@@ -307,15 +306,15 @@ function* buildRouter(int: Interface): Iterable<string> {
       yield `          }`;
       yield '';
 
-      if (methodSpec.parameters.length) {
+      if (httpMethod.parameters.length) {
         yield `      const params = {`;
-        for (const paramSpec of methodSpec.parameters) {
+        for (const httpParam of httpMethod.parameters) {
           const param = method.parameters.find(
-            (p) => p.name.value === paramSpec.name.value,
+            (p) => p.name.value === httpParam.name.value,
           );
           if (!param) continue;
 
-          yield* buildParam(param, paramSpec);
+          yield* buildParam(param, httpParam);
         }
         yield `      };`;
       }
@@ -334,7 +333,7 @@ function* buildRouter(int: Interface): Iterable<string> {
 
       if (method.returnType) {
         yield `        return res.status(${
-          methodSpec.successCode.value
+          httpMethod.successCode.value
         }).json(await svc.${buildMethodName(method)}(${paramString}));`;
       } else {
         yield `        await svc.${buildMethodName(method)}(${paramString});`;
@@ -388,8 +387,8 @@ function* buildRouter(int: Interface): Iterable<string> {
   yield '}';
 }
 
-function buildArraySeprarator(spec: ParameterSpec): string | undefined {
-  switch (spec.array?.value) {
+function buildArraySeprarator(httpParam: HttpParameter): string | undefined {
+  switch (httpParam.array?.value) {
     case 'csv':
       return ',';
     case 'pipes':
@@ -403,17 +402,20 @@ function buildArraySeprarator(spec: ParameterSpec): string | undefined {
   }
 }
 
-function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
-  const source = buildSource(spec);
+function* buildParam(
+  param: Parameter,
+  httpParam: HttpParameter,
+): Iterable<string> {
+  const source = buildSource(httpParam);
   const paramName = buildParameterName(param);
   if (param.isArray) {
-    if (param.isLocal) {
+    if (!param.isPrimitive) {
       if (isEnum(param)) {
         yield `'${paramName}': Array.isArray(${source}) ? ${source} as ${buildTypeName(
           param,
           'types',
         )} : typeof ${source} === 'string' ? ${source}.split('${
-          buildArraySeprarator(spec) || ','
+          buildArraySeprarator(httpParam) || ','
         }') as ${buildTypeName(param, 'types')} : (${source} as never),`;
       } else {
         yield `'${paramName}': tryParse(${source}),`;
@@ -422,26 +424,30 @@ function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
       switch (param.typeName.value) {
         case 'string':
           yield `'${paramName}': Array.isArray(${source}) ? ${source} as string[] : typeof ${source} === 'string' ? ${source}.split('${
-            buildArraySeprarator(spec) || ','
+            buildArraySeprarator(httpParam) || ','
           }') as string[] : (${source} as never),`;
           break;
         case 'number':
         case 'integer':
+        case 'long':
+        case 'float':
+        case 'double':
           yield `'${paramName}': Array.isArray(${source}) ? ${source}.map((x:any)=> Number(\`\${x}\`)) : typeof ${source} === 'string' ? ${source}.split('${
-            buildArraySeprarator(spec) || ','
+            buildArraySeprarator(httpParam) || ','
           }').map((x:any)=> Number(\`\${x}\`)) : (${source} as never),`;
           break;
         case 'boolean':
           yield `'${paramName}': Array.isArray(${source}) ? ${source}.map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : typeof ${source} === 'string' ? ${source}.split('${
-            buildArraySeprarator(spec) || ','
+            buildArraySeprarator(httpParam) || ','
           }').map((x:any)=> typeof x !== 'undefined' && \`\${x}\`.toLowerCase() !== 'false') : (${source} as never),`;
           break;
+        // TODO: date arrays
         default:
           yield `'${paramName}': tryParse(${source}),`;
       }
     }
   } else {
-    if (param.isLocal) {
+    if (!param.isPrimitive) {
       if (isEnum(param)) {
         yield `'${paramName}': ${source} as ${buildTypeName(param, 'types')},`;
       } else {
@@ -454,10 +460,17 @@ function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
           break;
         case 'number':
         case 'integer':
+        case 'long':
+        case 'float':
+        case 'double':
           yield `'${paramName}': Number(\`\${${source}}\`),`;
           break;
         case 'boolean':
           yield `'${paramName}': typeof ${source} !== 'undefined' && \`\${${source}}\`.toLowerCase() !== 'false',`;
+          break;
+        case 'date':
+        case 'date-time':
+          yield `'${paramName}': typeof ${source} === 'undefined' ? undefined : new Date(\`\${${source}}\`),`;
           break;
         default:
           yield `'${paramName}': tryParse(${source}),`;
@@ -468,21 +481,21 @@ function* buildParam(param: Parameter, spec: ParameterSpec): Iterable<string> {
 
 const r = /^[$a-zA-Z_][$a-zA-Z0-9_]*$/;
 
-function buildSource(spec: ParameterSpec): string {
-  switch (spec.in.value) {
+function buildSource(httpParam: HttpParameter): string {
+  switch (httpParam.in.value) {
     case 'body':
       return `req.body`;
     case 'formData':
       return `req.body`; // TODO: correctly source form data
     case 'header':
-      return `(req.header('${spec.name.value}') as any)`;
+      return `(req.header('${httpParam.name.value}') as any)`;
     case 'path':
-      return r.test(spec.name.value)
-        ? `req.params.${spec.name.value}`
-        : `req.params['${spec.name.value}']`;
+      return r.test(httpParam.name.value)
+        ? `req.params.${httpParam.name.value}`
+        : `req.params['${httpParam.name.value}']`;
     case 'query':
-      return r.test(spec.name.value)
-        ? `req.query.${spec.name.value}`
-        : `req.query['${spec.name.value}']`;
+      return r.test(httpParam.name.value)
+        ? `req.query.${httpParam.name.value}`
+        : `req.query['${httpParam.name.value}']`;
   }
 }

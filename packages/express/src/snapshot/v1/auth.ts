@@ -91,6 +91,12 @@ export function authorizeDeleteWidgetFoo(context?: AuthService): AuthResponse {
   return 'unauthenticated';
 }
 
+export function authorizeExhaustiveFormats(
+  _context?: AuthService,
+): AuthResponse {
+  return 'authorized';
+}
+
 export function authorizeExhaustiveParams(
   _context?: AuthService,
 ): AuthResponse {
