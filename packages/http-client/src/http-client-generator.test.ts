@@ -11,14 +11,12 @@ const withoutVersion = `${pkg.name}@{{version}}`;
 describe('InterfaceFactory', () => {
   it('recreates a valid snapshot', () => {
     // ARRANGE
-    const service = JSON.parse(
-      readFileSync(join('src', 'snapshot', 'service.json')).toString(),
-    );
+    const service = require('basketry/lib/example-ir.json');
 
     // ACT
     const snapshotFiles = [
-      ...generateTypes(service),
-      ...generateValidators(service),
+      // ...generateTypes(service),
+      // ...generateValidators(service),
       ...httpClientGenerator(service),
     ];
 

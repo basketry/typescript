@@ -20,6 +20,30 @@ export interface Fetch {
   ): Promise<{ json(): Promise<T>; status: number }>;
 }
 
+function lpad(n: number, len: number): string {
+  const x = `${n}`;
+  return x.length === len ? x : `${'0'.repeat(len)}${x}`.slice(-len);
+}
+
+function rpad(n: number, len: number): string {
+  const x = `${n}`;
+  return x.length === len ? x : `${'0'.repeat(len)}${x}`.slice(len);
+}
+
+function formatDate(date: Date): string {
+  return `${lpad(date.getUTCFullYear(), 4)}-${lpad(
+    date.getUTCMonth() + 1,
+    2,
+  )}-${lpad(date.getUTCDate(), 2)}`;
+}
+
+function formatDateTime(date: Date): string {
+  return `${formatDate(date)}T${lpad(date.getUTCHours(), 2)}:${lpad(
+    date.getUTCMinutes(),
+    2,
+  )}:${lpad(date.getUTCSeconds(), 2)}.${rpad(date.getMilliseconds(), 3)}Z`;
+}
+
 export class HttpGizmoService implements types.GizmoService {
   constructor(
     private readonly fetch: Fetch,
@@ -320,6 +344,76 @@ export class HttpWidgetService implements types.WidgetService {
 
 export class HttpExhaustiveService implements types.ExhaustiveService {
   constructor(private readonly fetch: Fetch) {}
+
+  async exhaustiveFormats(params?: {
+    stringNoFormat?: string;
+    stringDate?: Date;
+    stringDateTime?: Date;
+    integerNoFormat?: number;
+    integerInt32?: number;
+    integerInt64?: number;
+    numberNoFormat?: number;
+    numberFloat?: number;
+    numberDouble?: number;
+  }): Promise<void> {
+    const errors = validators.validateExhaustiveFormatsParams(params);
+    if (errors) throw errors;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    const query: string[] = [];
+    if (typeof params?.stringNoFormat !== 'undefined') {
+      query.push(
+        `string-no-format=${encodeURIComponent(params.stringNoFormat)}`,
+      );
+    }
+    if (typeof params?.stringDate !== 'undefined') {
+      query.push(
+        `string-date=${encodeURIComponent(formatDate(params.stringDate))}`,
+      );
+    }
+    if (typeof params?.stringDateTime !== 'undefined') {
+      query.push(
+        `string-date-time=${encodeURIComponent(
+          formatDateTime(params.stringDateTime),
+        )}`,
+      );
+    }
+    if (typeof params?.integerNoFormat !== 'undefined') {
+      query.push(
+        `integer-no-format=${encodeURIComponent(params.integerNoFormat)}`,
+      );
+    }
+    if (typeof params?.integerInt32 !== 'undefined') {
+      query.push(`integer-int32=${encodeURIComponent(params.integerInt32)}`);
+    }
+    if (typeof params?.integerInt64 !== 'undefined') {
+      query.push(`integer-int64=${encodeURIComponent(params.integerInt64)}`);
+    }
+    if (typeof params?.numberNoFormat !== 'undefined') {
+      query.push(
+        `number-no-format=${encodeURIComponent(params.numberNoFormat)}`,
+      );
+    }
+    if (typeof params?.numberFloat !== 'undefined') {
+      query.push(`number-float=${encodeURIComponent(params.numberFloat)}`);
+    }
+    if (typeof params?.numberDouble !== 'undefined') {
+      query.push(`number-double=${encodeURIComponent(params.numberDouble)}`);
+    }
+
+    const path = [`/exhaustive`, query.join('&')].join('?');
+
+    const { status } = await this.fetch(path, {
+      headers,
+    });
+
+    if (status !== 204) {
+      throw new Error('Invalid response code');
+    }
+  }
 
   async exhaustiveParams(params: {
     pathString: string;
