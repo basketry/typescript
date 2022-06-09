@@ -175,3 +175,5 @@ export type NewWidgetFoo = {
   fiz?: number;
   buzz: number;
 };
+
+export type ExampleUnion = Gizmo | string[];

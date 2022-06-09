@@ -15,6 +15,7 @@ import {
   buildParameterName,
   buildPropertyName,
   buildTypeName,
+  buildUnionName,
 } from './name-factory';
 
 import { warning } from './warning';
@@ -37,7 +38,16 @@ export const generateTypes: Generator = (service) => {
     )
     .join('\n\n');
 
-  const contents = [warning, interfaces, enums, types].join('\n\n');
+  const unions = service.unions
+    .map(
+      (union) =>
+        `export type ${buildUnionName(union)} = ${union.members
+          .map((member) => buildTypeName(member))
+          .join(' | ')}`,
+    )
+    .join('\n\n');
+
+  const contents = [warning, interfaces, enums, types, unions].join('\n\n');
   const formatted = format(contents, {
     singleQuote: true,
     useTabs: false,

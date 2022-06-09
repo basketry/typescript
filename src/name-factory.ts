@@ -9,6 +9,8 @@ import {
   Property,
   ReturnType,
   Type,
+  TypedValue,
+  Union,
 } from 'basketry';
 
 function prefix(typeModule: string | undefined, name: string) {
@@ -47,10 +49,10 @@ export function buildPropertyName(
  * @returns The name of the type in idiomatic TypeScript casing
  */
 export function buildTypeName(
-  type: Type | Parameter | Property | ReturnType | Enum,
+  type: Type | TypedValue | Enum | Union,
   typeModule?: string,
 ): string {
-  if (isType(type) || isEnum(type)) {
+  if (isUnion(type) || isType(type) || isEnum(type)) {
     if (typeModule) {
       return `${typeModule}.${pascal(type.name.value)}`;
     } else {
@@ -98,10 +100,10 @@ export function buildTypeName(
  * @returns The name of the root type in idiomatic TypeScript casing.
  */
 export function buildRootTypeName(
-  type: Type | Parameter | Property | ReturnType,
+  type: Type | TypedValue | Enum | Union,
   typeModule?: string,
 ): string {
-  if (isType(type) || isEnum(type)) {
+  if (isUnion(type) || isType(type) || isEnum(type)) {
     if (typeModule) {
       return `${typeModule}.${pascal(type.name.value)}`;
     } else {
@@ -149,18 +151,22 @@ export function buildMethodReturnType(
   }>`;
 }
 
-function isType(
-  type: Type | Parameter | Property | ReturnType | Enum,
-): type is Type {
+function isUnion(type: Type | TypedValue | Enum | Union): type is Union {
+  return type['members'] !== undefined;
+}
+
+function isType(type: Type | TypedValue | Enum): type is Type {
   return type['isPrimitive'] === undefined;
 }
 
-function isEnum(
-  type: Type | Parameter | Property | ReturnType | Enum,
-): type is Enum {
+function isEnum(type: Type | TypedValue | Enum): type is Enum {
   return type['values'] !== undefined;
 }
 
 export function buildEnumName(e: Enum): string {
   return pascal(e.name.value);
+}
+
+export function buildUnionName(union: Union): string {
+  return pascal(union.name.value);
 }
