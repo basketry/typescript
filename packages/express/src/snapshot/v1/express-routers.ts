@@ -590,12 +590,30 @@ export function exhaustiveRoutes(
             typeof req.query['string-date-time'] === 'undefined'
               ? undefined
               : new Date(`${req.query['string-date-time']}`),
-          integerNoFormat: Number(`${req.query['integer-no-format']}`),
-          integerInt32: Number(`${req.query['integer-int32']}`),
-          integerInt64: Number(`${req.query['integer-int64']}`),
-          numberNoFormat: Number(`${req.query['number-no-format']}`),
-          numberFloat: Number(`${req.query['number-float']}`),
-          numberDouble: Number(`${req.query['number-double']}`),
+          integerNoFormat:
+            typeof req.query['integer-no-format'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['integer-no-format']}`),
+          integerInt32:
+            typeof req.query['integer-int32'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['integer-int32']}`),
+          integerInt64:
+            typeof req.query['integer-int64'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['integer-int64']}`),
+          numberNoFormat:
+            typeof req.query['number-no-format'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['number-no-format']}`),
+          numberFloat:
+            typeof req.query['number-float'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['number-float']}`),
+          numberDouble:
+            typeof req.query['number-double'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['number-double']}`),
         };
 
         const errors = validators.validateExhaustiveFormatsParams(params);
@@ -651,8 +669,14 @@ export function exhaustiveRoutes(
         const params = {
           queryString: req.query['query-string'] as string,
           queryEnum: req.query['query-enum'] as types.ExhaustiveParamsQueryEnum,
-          queryNumber: Number(`${req.query['query-number']}`),
-          queryInteger: Number(`${req.query['query-integer']}`),
+          queryNumber:
+            typeof req.query['query-number'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['query-number']}`),
+          queryInteger:
+            typeof req.query['query-integer'] === 'undefined'
+              ? undefined
+              : Number(`${req.query['query-integer']}`),
           queryBoolean:
             typeof req.query['query-boolean'] !== 'undefined' &&
             `${req.query['query-boolean']}`.toLowerCase() !== 'false',
@@ -751,8 +775,14 @@ export function exhaustiveRoutes(
           headerEnum: req.header(
             'header-enum',
           ) as any as types.ExhaustiveParamsHeaderEnum,
-          headerNumber: Number(`${req.header('header-number') as any}`),
-          headerInteger: Number(`${req.header('header-integer') as any}`),
+          headerNumber:
+            typeof (req.header('header-number') as any) === 'undefined'
+              ? undefined
+              : Number(`${req.header('header-number') as any}`),
+          headerInteger:
+            typeof (req.header('header-integer') as any) === 'undefined'
+              ? undefined
+              : Number(`${req.header('header-integer') as any}`),
           headerBoolean:
             typeof (req.header('header-boolean') as any) !== 'undefined' &&
             `${req.header('header-boolean') as any}`.toLowerCase() !== 'false',

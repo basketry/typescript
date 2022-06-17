@@ -7,6 +7,7 @@ import {
   isBasicScheme,
   isEnum,
   isOAuth2Scheme,
+  isRequired,
   Method,
   Parameter,
   SecurityScheme,
@@ -463,7 +464,11 @@ function* buildParam(
         case 'long':
         case 'float':
         case 'double':
-          yield `'${paramName}': Number(\`\${${source}}\`),`;
+          if (isRequired(param)) {
+            yield `'${paramName}': Number(\`\${${source}}\`),`;
+          } else {
+            yield `'${paramName}': typeof ${source} === 'undefined' ? undefined : Number(\`\${${source}}\`),`;
+          }
           break;
         case 'boolean':
           yield `'${paramName}': typeof ${source} !== 'undefined' && \`\${${source}}\`.toLowerCase() !== 'false',`;
