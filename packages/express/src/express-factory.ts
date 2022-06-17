@@ -41,7 +41,7 @@ export class ExpressRouterFactory {
     const routers = Array.from(buildRouters(service)).join('\n');
 
     const utils =
-      'function tryParse(obj: any): any {try{return JSON.parse(obj);} catch {return;}}';
+      'function tryParse(obj: any): any {try{return typeof obj === "object" || Array.isArray(obj) ? obj : JSON.parse(obj);} catch {return obj;}}';
 
     const contents = [warning, utils, routers].join('\n\n');
 

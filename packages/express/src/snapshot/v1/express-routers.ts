@@ -8,9 +8,11 @@
 
 function tryParse(obj: any): any {
   try {
-    return JSON.parse(obj);
+    return typeof obj === 'object' || Array.isArray(obj)
+      ? obj
+      : JSON.parse(obj);
   } catch {
-    return;
+    return obj;
   }
 }
 
