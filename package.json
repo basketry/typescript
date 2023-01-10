@@ -1,6 +1,6 @@
 {
   "name": "@basketry/typescript",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Basketry generator for generating Typescript interfaces",
   "main": "./lib/index.js",
   "scripts": {
