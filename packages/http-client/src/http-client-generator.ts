@@ -1,4 +1,3 @@
-import { format as prettier } from 'prettier';
 import {
   allParameters,
   Generator,
@@ -17,6 +16,7 @@ import {
   Service,
 } from 'basketry';
 import { header as warning } from '@basketry/typescript/lib/warning';
+import { format } from '@basketry/typescript/lib/utils';
 import {
   buildDescription,
   buildInterfaceName,
@@ -33,16 +33,6 @@ import {
 } from '@basketry/typescript-validators';
 import { NamespacedTypescriptOptions } from '@basketry/typescript/lib/types';
 import { pascal } from 'case';
-
-function format(contents: string): string {
-  return prettier(contents, {
-    singleQuote: true,
-    useTabs: false,
-    tabWidth: 2,
-    trailingComma: 'all',
-    parser: 'typescript',
-  });
-}
 
 export const httpClientGenerator: Generator = (service, options) => {
   const includeFormatDateTime = allParameters(service, '', options).some(
@@ -67,7 +57,7 @@ export const httpClientGenerator: Generator = (service, options) => {
   return [
     {
       path: [`v${service.majorVersion.value}`, 'http-client.ts'],
-      contents: format(contents),
+      contents: format(contents, options),
     },
   ];
 };
