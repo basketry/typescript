@@ -89,15 +89,15 @@ export class HttpGizmoService implements types.GizmoService {
 
     const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-    const { json, status } = await this.fetch<types.GizmosResponse>(path, {
+    const res = await this.fetch<types.GizmosResponse>(path, {
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
 
-    const response = await json();
+    const response = await res.json();
 
     const responseValidationErrors =
       validators.validateGizmosResponse(response);
@@ -139,16 +139,16 @@ export class HttpGizmoService implements types.GizmoService {
 
     const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-    const { json, status } = await this.fetch<types.Gizmo>(path, {
+    const res = await this.fetch<types.Gizmo>(path, {
       method: 'POST',
       headers,
     });
 
-    if (status !== 201) {
+    if (res.status !== 201) {
       throw new Error('Invalid response code');
     }
 
-    const response = await json();
+    const response = await res.json();
 
     const responseValidationErrors = validators.validateGizmo(response);
     if (responseValidationErrors) throw responseValidationErrors;
@@ -187,16 +187,16 @@ export class HttpGizmoService implements types.GizmoService {
 
     const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-    const { json, status } = await this.fetch<types.Gizmo>(path, {
+    const res = await this.fetch<types.Gizmo>(path, {
       method: 'PUT',
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
 
-    const response = await json();
+    const response = await res.json();
 
     const responseValidationErrors = validators.validateGizmo(response);
     if (responseValidationErrors) throw responseValidationErrors;
@@ -232,15 +232,15 @@ export class HttpWidgetService implements types.WidgetService {
 
     const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
-    const { json, status } = await this.fetch<types.Widget>(path, {
+    const res = await this.fetch<types.Widget>(path, {
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
 
-    const response = await json();
+    const response = await res.json();
 
     const responseValidationErrors = validators.validateWidget(response);
     if (responseValidationErrors) throw responseValidationErrors;
@@ -277,13 +277,13 @@ export class HttpWidgetService implements types.WidgetService {
     const body =
       params?.body === undefined ? undefined : JSON.stringify(params?.body);
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       method: 'POST',
       headers,
       body,
     });
 
-    if (status !== 204) {
+    if (res.status !== 204) {
       throw new Error('Invalid response code');
     }
   }
@@ -306,12 +306,12 @@ export class HttpWidgetService implements types.WidgetService {
 
     const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       method: 'PUT',
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
   }
@@ -345,15 +345,15 @@ export class HttpWidgetService implements types.WidgetService {
       query.join('&'),
     ].join('?');
 
-    const { json, status } = await this.fetch<types.Widget>(path, {
+    const res = await this.fetch<types.Widget>(path, {
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
 
-    const response = await json();
+    const response = await res.json();
 
     const responseValidationErrors = validators.validateWidget(response);
     if (responseValidationErrors) throw responseValidationErrors;
@@ -390,12 +390,12 @@ export class HttpWidgetService implements types.WidgetService {
       query.join('&'),
     ].join('?');
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       method: 'DELETE',
       headers,
     });
 
-    if (status !== 204) {
+    if (res.status !== 204) {
       throw new Error('Invalid response code');
     }
   }
@@ -474,11 +474,11 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
 
     const path = [`${prefix}/exhaustive`, query.join('&')].join('?');
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       headers,
     });
 
-    if (status !== 204) {
+    if (res.status !== 204) {
       throw new Error('Invalid response code');
     }
   }
@@ -632,12 +632,12 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     const body =
       params.body === undefined ? undefined : JSON.stringify(params.body);
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       headers,
       body,
     });
 
-    if (status !== 204) {
+    if (res.status !== 204) {
       throw new Error('Invalid response code');
     }
   }
@@ -694,11 +694,11 @@ export class HttpAuthPermutationService
 
     const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
   }
@@ -739,12 +739,12 @@ export class HttpAuthPermutationService
 
     const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-    const { status } = await this.fetch(path, {
+    const res = await this.fetch(path, {
       method: 'PUT',
       headers,
     });
 
-    if (status !== 200) {
+    if (res.status !== 200) {
       throw new Error('Invalid response code');
     }
   }

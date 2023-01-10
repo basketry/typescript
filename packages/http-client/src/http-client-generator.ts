@@ -443,12 +443,12 @@ class MethodFactory {
   }
 
   private *buildFetch(): Iterable<string> {
-    const params = this.method.returnType ? `json, status` : `status`;
+    // const params = this.method.returnType ? `json, status` : `status`;
     const returnType = this.method.returnType
       ? `<${buildTypeName(this.method.returnType, 'types')}>`
       : '';
 
-    yield `const { ${params} } = await this.fetch${returnType}(path`;
+    yield `const res = await this.fetch${returnType}(path`;
 
     yield `  ,{`;
     if (this.httpMethod.verb.value.toUpperCase() !== 'GET') {
@@ -460,7 +460,7 @@ class MethodFactory {
 
     yield `)`;
     yield ``;
-    yield `if(status !== ${this.httpMethod.successCode.value}) { throw new Error('Invalid response code'); }`;
+    yield `if(res.status !== ${this.httpMethod.successCode.value}) { throw new Error('Invalid response code'); }`;
     yield ``;
 
     if (this.method.returnType && !this.method.returnType.isPrimitive) {
@@ -468,7 +468,7 @@ class MethodFactory {
         this.method.returnType,
         'validators',
       );
-      yield `const response = await json();`;
+      yield `const response = await res.json();`;
       yield ``;
       yield `  const responseValidationErrors = ${validatorName}(response);`;
       yield ` if(responseValidationErrors) throw responseValidationErrors;`;
