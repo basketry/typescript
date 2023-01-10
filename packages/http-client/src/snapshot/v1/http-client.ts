@@ -14,6 +14,10 @@
 import * as types from './types';
 import * as validators from './validators';
 
+export interface BasketryExampleOptions {
+  root?: string;
+}
+
 export interface Fetch {
   <T>(
     resource: string,
@@ -55,6 +59,7 @@ export class HttpGizmoService implements types.GizmoService {
     private readonly auth: {
       oauth2Auth?: { accessToken: string };
     },
+    private readonly options?: BasketryExampleOptions,
   ) {}
 
   /**
@@ -76,7 +81,13 @@ export class HttpGizmoService implements types.GizmoService {
       query.push(`search=${encodeURIComponent(params.search)}`);
     }
 
-    const path = [`/gizmos`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
     const { json, status } = await this.fetch<types.GizmosResponse>(path, {
       headers,
@@ -120,7 +131,13 @@ export class HttpGizmoService implements types.GizmoService {
       query.push(`size=${encodeURIComponent(params.size)}`);
     }
 
-    const path = [`/gizmos`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
     const { json, status } = await this.fetch<types.Gizmo>(path, {
       method: 'POST',
@@ -162,7 +179,13 @@ export class HttpGizmoService implements types.GizmoService {
       );
     }
 
-    const path = [`/gizmos`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
     const { json, status } = await this.fetch<types.Gizmo>(path, {
       method: 'PUT',
@@ -188,6 +211,7 @@ export class HttpWidgetService implements types.WidgetService {
     private readonly auth: {
       apiKeyAuth?: { key: string };
     },
+    private readonly options?: BasketryExampleOptions,
   ) {}
 
   async getWidgets(): Promise<types.Widget> {
@@ -200,7 +224,13 @@ export class HttpWidgetService implements types.WidgetService {
 
     const query: string[] = [];
 
-    const path = [`/widgets`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
     const { json, status } = await this.fetch<types.Widget>(path, {
       headers,
@@ -236,7 +266,13 @@ export class HttpWidgetService implements types.WidgetService {
 
     const query: string[] = [];
 
-    const path = [`/widgets`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
     const body =
       params?.body === undefined ? undefined : JSON.stringify(params?.body);
@@ -262,7 +298,13 @@ export class HttpWidgetService implements types.WidgetService {
 
     const query: string[] = [];
 
-    const path = [`/widgets`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
     const { status } = await this.fetch(path, {
       method: 'PUT',
@@ -292,8 +334,14 @@ export class HttpWidgetService implements types.WidgetService {
 
     const query: string[] = [];
 
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
     const path = [
-      `/widgets/${encodeURIComponent(params.id)}/foo`,
+      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
       query.join('&'),
     ].join('?');
 
@@ -331,8 +379,14 @@ export class HttpWidgetService implements types.WidgetService {
 
     const query: string[] = [];
 
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
     const path = [
-      `/widgets/${encodeURIComponent(params.id)}/foo`,
+      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
       query.join('&'),
     ].join('?');
 
@@ -348,7 +402,10 @@ export class HttpWidgetService implements types.WidgetService {
 }
 
 export class HttpExhaustiveService implements types.ExhaustiveService {
-  constructor(private readonly fetch: Fetch) {}
+  constructor(
+    private readonly fetch: Fetch,
+    private readonly options?: BasketryExampleOptions,
+  ) {}
 
   async exhaustiveFormats(params?: {
     stringNoFormat?: string;
@@ -409,7 +466,13 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       query.push(`number-double=${encodeURIComponent(params.numberDouble)}`);
     }
 
-    const path = [`/exhaustive`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/exhaustive`, query.join('&')].join('?');
 
     const { status } = await this.fetch(path, {
       headers,
@@ -539,8 +602,14 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       );
     }
 
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
     const path = [
-      `/exhaustive/${encodeURIComponent(
+      `${prefix}/exhaustive/${encodeURIComponent(
         params.pathString,
       )}/${encodeURIComponent(params.pathEnum)}/${encodeURIComponent(
         params.pathNumber,
@@ -586,6 +655,7 @@ export class HttpAuthPermutationService
       oauth2Auth?: { accessToken: string };
       alternateApiKeyAuth?: { key: string };
     },
+    private readonly options?: BasketryExampleOptions,
   ) {}
 
   async allAuthSchemes(): Promise<void> {
@@ -616,7 +686,13 @@ export class HttpAuthPermutationService
       query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
     }
 
-    const path = [`/authPermutations`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
     const { status } = await this.fetch(path, {
       headers,
@@ -655,7 +731,13 @@ export class HttpAuthPermutationService
       query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
     }
 
-    const path = [`/authPermutations`, query.join('&')].join('?');
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
     const { status } = await this.fetch(path, {
       method: 'PUT',

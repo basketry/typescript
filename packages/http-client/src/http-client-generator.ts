@@ -32,6 +32,7 @@ import {
   buildTypeValidatorName,
 } from '@basketry/typescript-validators';
 import { NamespacedTypescriptOptions } from '@basketry/typescript/lib/types';
+import { pascal } from 'case';
 
 function format(contents: string): string {
   return prettier(contents, {
@@ -93,6 +94,10 @@ function* buildStandardTypes(
 
   methods.delete(`'GET'`);
 
+  yield `export interface ${pascal(`${service.title.value}Options`)} {`;
+  yield `  root?: string;`;
+  yield `}`;
+  yield ``;
   yield `export interface Fetch {`;
   yield `<T>(resource: string, init?: {`;
   if (methods.size) yield `  method?: ${Array.from(methods).join(' | ')},`;
@@ -153,18 +158,20 @@ function* buildAuth(int: Interface): Iterable<string> {
 function* buildClasses(service: Service): Iterable<string> {
   for (const int of service.interfaces) {
     yield '';
-    yield* buildClass(int);
+    yield* buildClass(service, int);
   }
 }
 
-function* buildClass(int: Interface): Iterable<string> {
+function* buildClass(service: Service, int: Interface): Iterable<string> {
   yield `export class ${buildHttpClientName(
     int,
   )} implements ${buildInterfaceName(int, 'types')} {`;
   yield `constructor(`;
   yield `private readonly fetch: Fetch,`;
   yield* buildAuth(int);
-
+  yield `private readonly options?: ${pascal(
+    `${service.title.value}Options`,
+  )},`;
   yield `) {}`;
 
   const httpMethodsByMethodName = int.protocols.http
@@ -415,7 +422,15 @@ class MethodFactory {
       }
     }
 
-    yield `  const path = [\`${path}\`, query.join('&')].join('?')`;
+    yield ``;
+    yield `  let prefix = '';`;
+    yield `  if(this.options?.root) {`;
+    yield `    prefix = this.options.root;`;
+    yield `    if(!prefix.startsWith('/')) prefix = \`/\${prefix}\`;`;
+    yield `  }`;
+    yield ``;
+
+    yield `  const path = [\`\${prefix}${path}\`, query.join('&')].join('?')`;
   }
 
   private *buildBody(): Iterable<string> {
