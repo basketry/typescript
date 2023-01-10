@@ -16,7 +16,7 @@ import {
   SecurityScheme,
   Service,
 } from 'basketry';
-import { warning } from './warning';
+import { header as warning } from '@basketry/typescript/lib/warning';
 import {
   buildDescription,
   buildInterfaceName,
@@ -31,6 +31,7 @@ import {
   buildParamsValidatorName,
   buildTypeValidatorName,
 } from '@basketry/typescript-validators';
+import { NamespacedTypescriptOptions } from '@basketry/typescript/lib/types';
 
 function format(contents: string): string {
   return prettier(contents, {
@@ -55,12 +56,13 @@ export const httpClientGenerator: Generator = (service, options) => {
         parameter.isPrimitive && parameter.typeName.value === 'date',
     );
 
-  const imports = Array.from(buildImports()).join('\n');
+  const imports = Array.from(buildImports(options)).join('\n');
   const standardTypes = Array.from(
     buildStandardTypes(service, includeFormatDate, includeFormatDateTime),
   ).join('\n');
   const classes = Array.from(buildClasses(service)).join('\n');
-  const contents = [warning, imports, standardTypes, classes].join('\n\n');
+  const header = warning(service, require('../package.json'), options);
+  const contents = [header, imports, standardTypes, classes].join('\n\n');
   return [
     {
       path: [`v${service.majorVersion.value}`, 'http-client.ts'],
@@ -69,8 +71,10 @@ export const httpClientGenerator: Generator = (service, options) => {
   ];
 };
 
-function* buildImports(): Iterable<string> {
-  yield `import * as types from './types';`;
+function* buildImports(options: NamespacedTypescriptOptions): Iterable<string> {
+  yield `import${
+    options?.typescript?.typeImports ? ' type ' : ' '
+  }* as types from './types';`;
   yield `import * as validators from './validators';`;
 }
 
@@ -142,7 +146,7 @@ function* buildAuth(int: Interface): Iterable<string> {
         yield `'${scheme.name.value}'?: {accessToken: string}`;
       }
     }
-    yield '}';
+    yield '},';
   }
 }
 
@@ -160,6 +164,7 @@ function* buildClass(int: Interface): Iterable<string> {
   yield `constructor(`;
   yield `private readonly fetch: Fetch,`;
   yield* buildAuth(int);
+
   yield `) {}`;
 
   const httpMethodsByMethodName = int.protocols.http
