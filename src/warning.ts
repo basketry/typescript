@@ -5,3 +5,20 @@ export const warning = `/**
 * Changes to this file may cause incorrect behavior and will be lost if
 * the code is regenerated.
 */`;
+
+import {
+  NamespacedBasketryOptions,
+  Service,
+  warning as buildWarning,
+} from 'basketry';
+import { blockComment, from } from './utils';
+
+export const header = (
+  service: Service,
+  pkg: {
+    name: string;
+    version: string;
+    homepage?: string;
+  },
+  options?: NamespacedBasketryOptions,
+) => from(blockComment(buildWarning(service, pkg, options || {})));
