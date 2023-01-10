@@ -471,7 +471,7 @@ class MethodFactory {
       yield `const response = await res.json();`;
       yield ``;
       yield `  const responseValidationErrors = ${validatorName}(response);`;
-      yield ` if(responseValidationErrors) throw responseValidationErrors;`;
+      yield ` if(responseValidationErrors.length) throw responseValidationErrors;`;
       yield ``;
 
       yield `return response;`;

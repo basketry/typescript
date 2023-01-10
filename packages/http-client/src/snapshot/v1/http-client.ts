@@ -101,7 +101,7 @@ export class HttpGizmoService implements types.GizmoService {
 
     const responseValidationErrors =
       validators.validateGizmosResponse(response);
-    if (responseValidationErrors) throw responseValidationErrors;
+    if (responseValidationErrors.length) throw responseValidationErrors;
 
     return response;
   }
@@ -151,7 +151,7 @@ export class HttpGizmoService implements types.GizmoService {
     const response = await res.json();
 
     const responseValidationErrors = validators.validateGizmo(response);
-    if (responseValidationErrors) throw responseValidationErrors;
+    if (responseValidationErrors.length) throw responseValidationErrors;
 
     return response;
   }
@@ -199,7 +199,7 @@ export class HttpGizmoService implements types.GizmoService {
     const response = await res.json();
 
     const responseValidationErrors = validators.validateGizmo(response);
-    if (responseValidationErrors) throw responseValidationErrors;
+    if (responseValidationErrors.length) throw responseValidationErrors;
 
     return response;
   }
@@ -243,7 +243,7 @@ export class HttpWidgetService implements types.WidgetService {
     const response = await res.json();
 
     const responseValidationErrors = validators.validateWidget(response);
-    if (responseValidationErrors) throw responseValidationErrors;
+    if (responseValidationErrors.length) throw responseValidationErrors;
 
     return response;
   }
@@ -356,7 +356,7 @@ export class HttpWidgetService implements types.WidgetService {
     const response = await res.json();
 
     const responseValidationErrors = validators.validateWidget(response);
-    if (responseValidationErrors) throw responseValidationErrors;
+    if (responseValidationErrors.length) throw responseValidationErrors;
 
     return response;
   }
