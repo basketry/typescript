@@ -17,7 +17,7 @@ import {
   buildUnionName,
 } from './name-factory';
 
-import { format } from './utils';
+import { eslintDisable, format, from } from './utils';
 
 import { header as warning } from './warning';
 
@@ -50,7 +50,11 @@ export const generateTypes: Generator = (service, options) => {
 
   const header = warning(service, require('../package.json'), options);
 
-  const contents = [header, interfaces, enums, types, unions].join('\n\n');
+  const ignore = from(eslintDisable(options));
+
+  const contents = [header, ignore, interfaces, enums, types, unions].join(
+    '\n\n',
+  );
 
   return [
     {

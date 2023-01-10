@@ -79,6 +79,14 @@ function iter(contents: Contents): Iterable<string> {
   return typeof contents === 'function' ? arr(contents()) : arr(contents);
 }
 
+export function* eslintDisable(
+  options: NamespacedTypescriptOptions,
+): Iterable<string> {
+  for (const rule of options?.typescript?.eslintDisable || []) {
+    yield `/* eslint-disable ${rule} */`;
+  }
+}
+
 /** Formats the source content with Prettier. */
 export function format(
   source: string,
