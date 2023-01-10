@@ -6,7 +6,6 @@ import {
   Method,
   Type,
 } from 'basketry';
-import { format } from 'prettier';
 import {
   buildEnumName,
   buildInterfaceName,
@@ -18,9 +17,11 @@ import {
   buildUnionName,
 } from './name-factory';
 
-import { warning } from './warning';
+import { format } from './utils';
 
-export const generateTypes: Generator = (service) => {
+import { header as warning } from './warning';
+
+export const generateTypes: Generator = (service, options) => {
   const interfaces = service.interfaces
     .map((int) => Array.from(buildInterface(int)).join('\n'))
     .join('\n\n');
@@ -47,19 +48,14 @@ export const generateTypes: Generator = (service) => {
     )
     .join('\n\n');
 
-  const contents = [warning, interfaces, enums, types, unions].join('\n\n');
-  const formatted = format(contents, {
-    singleQuote: true,
-    useTabs: false,
-    tabWidth: 2,
-    trailingComma: 'all',
-    parser: 'typescript',
-  });
+  const header = warning(service, require('../package.json'), options);
+
+  const contents = [header, interfaces, enums, types, unions].join('\n\n');
 
   return [
     {
       path: [`v${service.majorVersion.value}`, 'types.ts'],
-      contents: formatted,
+      contents: format(contents, options),
     },
   ];
 };
