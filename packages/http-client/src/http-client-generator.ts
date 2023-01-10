@@ -16,7 +16,7 @@ import {
   Service,
 } from 'basketry';
 import { header as warning } from '@basketry/typescript/lib/warning';
-import { format } from '@basketry/typescript/lib/utils';
+import { eslintDisable, format, from } from '@basketry/typescript/lib/utils';
 import {
   buildDescription,
   buildInterfaceName,
@@ -53,7 +53,10 @@ export const httpClientGenerator: Generator = (service, options) => {
   ).join('\n');
   const classes = Array.from(buildClasses(service)).join('\n');
   const header = warning(service, require('../package.json'), options);
-  const contents = [header, imports, standardTypes, classes].join('\n\n');
+  const disable = from(eslintDisable(options || {}));
+  const contents = [header, disable, imports, standardTypes, classes].join(
+    '\n\n',
+  );
   return [
     {
       path: [`v${service.majorVersion.value}`, 'http-client.ts'],
