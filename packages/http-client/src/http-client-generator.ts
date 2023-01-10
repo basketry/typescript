@@ -265,7 +265,7 @@ class MethodFactory {
       const validatorName = buildParamsValidatorName(this.method, 'validators');
 
       yield `  const errors = ${validatorName}(params);`;
-      yield ` if(errors) throw errors;`;
+      yield ` if(errors.length) throw errors;`;
     }
     yield '';
     yield* this.buildHeaders();

@@ -67,7 +67,7 @@ export class HttpGizmoService implements types.GizmoService {
    */
   async getGizmos(params?: { search?: string }): Promise<types.GizmosResponse> {
     const errors = validators.validateGetGizmosParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export class HttpGizmoService implements types.GizmoService {
     size?: types.CreateGizmoSize;
   }): Promise<types.Gizmo> {
     const errors = validators.validateCreateGizmoParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ export class HttpGizmoService implements types.GizmoService {
     factors?: string[];
   }): Promise<types.Gizmo> {
     const errors = validators.validateUpdateGizmoParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -255,7 +255,7 @@ export class HttpWidgetService implements types.WidgetService {
     body?: types.CreateWidgetBody;
   }): Promise<void> {
     const errors = validators.validateCreateWidgetParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -323,7 +323,7 @@ export class HttpWidgetService implements types.WidgetService {
     id: string;
   }): Promise<types.Widget> {
     const errors = validators.validateGetWidgetFooParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -368,7 +368,7 @@ export class HttpWidgetService implements types.WidgetService {
     id: string;
   }): Promise<void> {
     const errors = validators.validateDeleteWidgetFooParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -419,7 +419,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     numberDouble?: number;
   }): Promise<void> {
     const errors = validators.validateExhaustiveFormatsParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -517,7 +517,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     body?: types.ExhaustiveParamsBody;
   }): Promise<void> {
     const errors = validators.validateExhaustiveParamsParams(params);
-    if (errors) throw errors;
+    if (errors.length) throw errors;
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
