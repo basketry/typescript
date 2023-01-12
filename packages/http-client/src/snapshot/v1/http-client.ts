@@ -93,8 +93,10 @@ export class HttpGizmoService implements types.GizmoService {
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
 
     const response = await res.json();
@@ -144,8 +146,10 @@ export class HttpGizmoService implements types.GizmoService {
       headers,
     });
 
-    if (res.status !== 201) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 201) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 201 but got ${res.status}`,
+      );
     }
 
     const response = await res.json();
@@ -192,8 +196,10 @@ export class HttpGizmoService implements types.GizmoService {
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
 
     const response = await res.json();
@@ -236,8 +242,10 @@ export class HttpWidgetService implements types.WidgetService {
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
 
     const response = await res.json();
@@ -283,8 +291,10 @@ export class HttpWidgetService implements types.WidgetService {
       body,
     });
 
-    if (res.status !== 204) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 204) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
+      );
     }
   }
 
@@ -311,8 +321,10 @@ export class HttpWidgetService implements types.WidgetService {
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
   }
 
@@ -349,8 +361,10 @@ export class HttpWidgetService implements types.WidgetService {
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
 
     const response = await res.json();
@@ -395,8 +409,10 @@ export class HttpWidgetService implements types.WidgetService {
       headers,
     });
 
-    if (res.status !== 204) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 204) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
+      );
     }
   }
 }
@@ -478,8 +494,10 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       headers,
     });
 
-    if (res.status !== 204) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 204) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
+      );
     }
   }
 
@@ -637,8 +655,10 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       body,
     });
 
-    if (res.status !== 204) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 204) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
+      );
     }
   }
 }
@@ -698,8 +718,10 @@ export class HttpAuthPermutationService
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
   }
 
@@ -744,8 +766,10 @@ export class HttpAuthPermutationService
       headers,
     });
 
-    if (res.status !== 200) {
-      throw new Error('Invalid response code');
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
     }
   }
 }

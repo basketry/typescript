@@ -463,7 +463,7 @@ class MethodFactory {
 
     yield `)`;
     yield ``;
-    yield `if(res.status !== ${this.httpMethod.successCode.value}) { throw new Error('Invalid response code'); }`;
+    yield `if(res.status < 400 && res.status !== ${this.httpMethod.successCode.value}) { throw new Error(\`Unexpected HTTP status code. Expected ${this.httpMethod.successCode.value} but got \${res.status}\`); }`;
     yield ``;
 
     if (this.method.returnType && !this.method.returnType.isPrimitive) {
