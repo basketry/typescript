@@ -12,56 +12,10 @@
  * About @basketry/typescript: https://github.com/basketry/typescript#readme
  */
 
-export interface GizmoService {
-  /**
-   * Only has a summary
-   */
-  getGizmos(params?: { search?: string }): Promise<GizmosResponse>;
+export interface AuthPermutationService {
+  allAuthSchemes(): Promise<void>;
 
-  /**
-   * Has a summary in addition to a description
-   * Has a description in addition to a summary
-   */
-  createGizmo(params?: {
-    /**
-     * Anonymous enum
-     */
-    size?: CreateGizmoSize;
-  }): Promise<Gizmo>;
-
-  updateGizmo(params?: {
-    /**
-     * array of primitive
-     */
-    factors?: string[];
-  }): Promise<Gizmo>;
-}
-
-export interface WidgetService {
-  getWidgets(): Promise<Widget>;
-
-  createWidget(params?: {
-    /**
-     * The new widget
-     */
-    body?: CreateWidgetBody;
-  }): Promise<void>;
-
-  putWidget(): Promise<void>;
-
-  getWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<Widget>;
-
-  deleteWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<void>;
+  comboAuthSchemes(): Promise<void>;
 }
 
 export interface ExhaustiveService {
@@ -112,32 +66,105 @@ export interface ExhaustiveService {
   }): Promise<void>;
 }
 
-export interface AuthPermutationService {
-  allAuthSchemes(): Promise<void>;
+export interface GizmoService {
+  /**
+   * Has a summary in addition to a description
+   * Has a description in addition to a summary
+   */
+  createGizmo(params?: {
+    /**
+     * Anonymous enum
+     */
+    size?: CreateGizmoSize;
+  }): Promise<Gizmo>;
 
-  comboAuthSchemes(): Promise<void>;
+  /**
+   * Only has a summary
+   */
+  getGizmos(params?: { search?: string }): Promise<GizmosResponse>;
+
+  updateGizmo(params?: {
+    /**
+     * array of primitive
+     */
+    factors?: string[];
+  }): Promise<Gizmo>;
+}
+
+export interface WidgetService {
+  createWidget(params?: {
+    /**
+     * The new widget
+     */
+    body?: CreateWidgetBody;
+  }): Promise<void>;
+
+  deleteWidgetFoo(params: {
+    /**
+     * The widget ID
+     */
+    id: string;
+  }): Promise<void>;
+
+  getWidgetFoo(params: {
+    /**
+     * The widget ID
+     */
+    id: string;
+  }): Promise<Widget>;
+
+  getWidgets(): Promise<Widget>;
+
+  putWidget(): Promise<void>;
 }
 
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
-
-export type ExhaustiveParamsQueryEnum = 'one' | 'two' | 'three';
-
-export type ExhaustiveParamsQueryEnumArray = 'one' | 'two' | 'three';
-
-export type ExhaustiveParamsPathEnum = 'one' | 'two' | 'three';
-
-export type ExhaustiveParamsPathEnumArray = 'one' | 'two' | 'three';
 
 export type ExhaustiveParamsHeaderEnum = 'one' | 'two' | 'three';
 
 export type ExhaustiveParamsHeaderEnumArray = 'one' | 'two' | 'three';
 
+export type ExhaustiveParamsPathEnum = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsPathEnumArray = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsQueryEnum = 'one' | 'two' | 'three';
+
+export type ExhaustiveParamsQueryEnumArray = 'one' | 'two' | 'three';
+
 export type ProductSize = 'small' | 'medium' | 'large';
+
+export type CreateWidgetBody = {
+  name: string;
+};
+
+export type ExhaustiveParamsBody = {
+  foo?: string;
+  bar?: string;
+};
 
 export type Gizmo = {
   id?: string;
   name?: string;
   size?: ProductSize;
+};
+
+export type GizmosResponse = {
+  data: Gizmo[];
+};
+
+export type NewWidget = {
+  name?: string;
+  fiz: number;
+  buzz?: number;
+  fizbuzz?: number;
+  foo?: NewWidgetFoo;
+  size?: ProductSize;
+};
+
+export type NewWidgetFoo = {
+  fiz?: number;
+  buzz: number;
 };
 
 export type Widget = {
@@ -150,34 +177,7 @@ export type Widget = {
   size?: ProductSize;
 };
 
-export type NewWidget = {
-  name?: string;
-  fiz: number;
-  buzz?: number;
-  fizbuzz?: number;
-  foo?: NewWidgetFoo;
-  size?: ProductSize;
-};
-
-export type GizmosResponse = {
-  data: Gizmo[];
-};
-
-export type CreateWidgetBody = {
-  name: string;
-};
-
-export type ExhaustiveParamsBody = {
-  foo?: string;
-  bar?: string;
-};
-
 export type WidgetFoo = {
-  fiz?: number;
-  buzz: number;
-};
-
-export type NewWidgetFoo = {
   fiz?: number;
   buzz: number;
 };
