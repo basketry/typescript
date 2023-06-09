@@ -23,14 +23,17 @@ import { header as warning } from './warning';
 
 export const generateTypes: Generator = (service, options) => {
   const interfaces = service.interfaces
+    .sort((a, b) => a.name.localeCompare(b.name))
     .map((int) => Array.from(buildInterface(int)).join('\n'))
     .join('\n\n');
 
   const types = service.types
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((type) => Array.from(buildType(type)).join('\n'))
     .join('\n\n');
 
   const enums = service.enums
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map(
       (e) =>
         `export type ${buildEnumName(e)} = ${e.values
@@ -40,6 +43,7 @@ export const generateTypes: Generator = (service, options) => {
     .join('\n\n');
 
   const unions = service.unions
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map(
       (union) =>
         `export type ${buildUnionName(union)} = ${union.members
@@ -67,7 +71,9 @@ export const generateTypes: Generator = (service, options) => {
 function* buildInterface(int: Interface): Iterable<string> {
   yield* buildDescription(int.description);
   yield `export interface ${buildInterfaceName(int)} {`;
-  for (const method of int.methods) {
+  for (const method of int.methods.sort((a, b) =>
+    a.name.value.localeCompare(b.name.value),
+  )) {
     yield* buildMethod(method);
     yield '';
   }
