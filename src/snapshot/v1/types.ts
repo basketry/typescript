@@ -66,6 +66,9 @@ export interface ExhaustiveService {
   }): Promise<void>;
 }
 
+/**
+ * Single paragraph description
+ */
 export interface GizmoService {
   /**
    * Has a summary in addition to a description
@@ -91,6 +94,10 @@ export interface GizmoService {
   }): Promise<Gizmo>;
 }
 
+/**
+ * First paragraph of a multi-paragraph description
+ * Second paragraph of a multi-paragraph description
+ */
 export interface WidgetService {
   createWidget(params?: {
     /**
