@@ -1,9 +1,10 @@
 import {
+  Enum,
   Generator,
   Interface,
   isRequired,
-  Literal,
   Method,
+  Scalar,
   Type,
 } from 'basketry';
 import {
@@ -23,7 +24,7 @@ import { header as warning } from './warning';
 
 export const generateTypes: Generator = (service, options) => {
   const interfaces = service.interfaces
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((int) => Array.from(buildInterface(int)).join('\n'))
     .join('\n\n');
 
@@ -34,12 +35,7 @@ export const generateTypes: Generator = (service, options) => {
 
   const enums = service.enums
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
-    .map(
-      (e) =>
-        `export type ${buildEnumName(e)} = ${e.values
-          .map((v) => `'${v.value}'`)
-          .join(' | ')}`,
-    )
+    .map((e) => Array.from(buildEnum(e)).join('\n'))
     .join('\n\n');
 
   const unions = service.unions
@@ -103,8 +99,19 @@ function* buildType(type: Type): Iterable<string> {
   }
 }
 
+function* buildEnum(e: Enum): Iterable<string> {
+  yield* buildDescription(e.description);
+  if (e.values.length) {
+    yield `export type ${buildEnumName(e)} = ${e.values
+      .map((v) => `'${v.content.value}'`)
+      .join(' | ')}`;
+  } else {
+    yield `export type ${buildTypeName(e)} = never`;
+  }
+}
+
 export function* buildDescription(
-  description: string | Literal<string> | Literal<string>[] | undefined,
+  description: string | Scalar<string> | Scalar<string>[] | undefined,
 ): Iterable<string> {
   if (description) {
     yield ``;
