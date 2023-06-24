@@ -24,6 +24,15 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basketry/express.git"
+  },
+  "bugs": {
+    "url": "https://github.com/basketry/express/issues"
+  },
+  "homepage": "https://github.com/basketry/express/wiki",
+  "funding": "https://github.com/basketry/express?sponsor=1",
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/jest": "^27.4.0",
