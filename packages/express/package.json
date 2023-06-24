@@ -42,10 +42,10 @@
     "typescript": "^4.5.5"
   },
   "dependencies": {
-    "@basketry/typescript": "^0.0.13",
-    "@basketry/typescript-auth": "^0.0.7",
-    "@basketry/typescript-validators": "^0.0.9",
-    "basketry": "^0.0.28",
+    "@basketry/typescript": "^0.1.0-rc.0",
+    "@basketry/typescript-auth": "^0.1.0-rc.0",
+    "@basketry/typescript-validators": "^0.1.0-rc.0",
+    "basketry": "^0.1.0-rc.5",
     "case": "^1.6.3",
     "prettier": "^2.5.1"
   }
