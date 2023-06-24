@@ -9,17 +9,19 @@ import {
   isOAuth2Scheme,
   isRequired,
   Method,
+  NamespacedBasketryOptions,
   Parameter,
   SecurityScheme,
   Service,
 } from 'basketry';
-import { warning } from './warning';
 import {
   buildInterfaceName,
   buildMethodName,
   buildParameterName,
   buildTypeName,
 } from '@basketry/typescript';
+
+import { header as standardWarning } from '@basketry/typescript/lib/warning';
 import { buildRouterFactoryName } from './name-factory';
 import { buildMethodAuthorizerName } from '@basketry/typescript-auth';
 import { buildParamsValidatorName } from '@basketry/typescript-validators';
@@ -37,16 +39,20 @@ function format(contents: string): string {
 export class ExpressRouterFactory {
   public readonly target = 'typescript';
 
-  build(service: Service): File[] {
+  build(service: Service, options?: NamespacedBasketryOptions): File[] {
     const routers = Array.from(buildRouters(service)).join('\n');
 
     const utils =
       'function tryParse(obj: any): any {try{return typeof obj === "object" || Array.isArray(obj) ? obj : JSON.parse(obj);} catch {return obj;}}';
 
-    const contents = [warning, utils, routers].join('\n\n');
+    const contents = [
+      standardWarning(service, require('../package.json'), options || {}),
+      utils,
+      routers,
+    ].join('\n\n');
 
     const shim = [
-      warning,
+      standardWarning(service, require('../package.json'), options || {}),
       `import { AuthService } from './auth';`,
       `declare global { namespace Express { interface Request { basketry?: { context: AuthService; }}}}`,
     ].join('\n\n');
