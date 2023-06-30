@@ -260,9 +260,52 @@ function* buildRouters(service: Service): Iterable<string> {
   yield '';
   yield buildErrorFactories();
   yield '';
+  yield* buildDocsRouter();
+  yield '';
   for (const int of service.interfaces) {
     yield* buildRouter(int);
   }
+}
+
+function* buildDocsRouter(): Iterable<string> {
+  yield 'export function swaggerDocsRouter(schema: any) {';
+  yield 'const r = Router();';
+  yield 'r.route("/").get((_, res) => {';
+  yield 'const swaggerUiUrl = "https://unpkg.com/swagger-ui-dist@3.51.1/";';
+  yield `res.send(\`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Swagger UI</title>
+        <link rel="stylesheet" type="text/css" href="\${swaggerUiUrl}swagger-ui.css">
+        <script src="\${swaggerUiUrl}swagger-ui-bundle.js"></script>
+        <script src="\${swaggerUiUrl}swagger-ui-standalone-preset.js"></script>
+      </head>
+      <body>
+        <div id="swagger-ui">CONTENT NOT LOADED</div>
+        <script>
+          const spec = \${JSON.stringify(schema)};
+          const ui = SwaggerUIBundle({
+            deepLinking: false,
+            spec,
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis],
+            layout: 'BaseLayout',
+            requestInterceptor: (request) => {
+              const currentUrl = new URL(window.location.href);
+              const requestUrl = new URL(request.url);
+              const newUrl = currentUrl.href + requestUrl.href.substring(requestUrl.origin.length)
+              request.url = newUrl;
+              return request;
+            }
+          });
+        </script>
+      </body>
+    </html>
+  \`);`;
+  yield '})';
+  yield 'return r;';
+  yield '}';
 }
 
 function* buildRouter(int: Interface): Iterable<string> {

@@ -9,6 +9,7 @@
  * 2. Run the Basketry CLI
  *
  * About Basketry: https://github.com/basketry/basketry/wiki
+ * About @basketry/express: https://github.com/basketry/express/wiki
  */
 
 function tryParse(obj: any): any {
@@ -160,6 +161,45 @@ function build500(detail?: string): StandardError {
   if (typeof detail === 'string') error.detail = detail;
 
   return error;
+}
+
+export function swaggerDocsRouter(schema: any) {
+  const r = Router();
+  r.route('/').get((_, res) => {
+    const swaggerUiUrl = 'https://unpkg.com/swagger-ui-dist@3.51.1/';
+    res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Swagger UI</title>
+        <link rel="stylesheet" type="text/css" href="${swaggerUiUrl}swagger-ui.css">
+        <script src="${swaggerUiUrl}swagger-ui-bundle.js"></script>
+        <script src="${swaggerUiUrl}swagger-ui-standalone-preset.js"></script>
+      </head>
+      <body>
+        <div id="swagger-ui">CONTENT NOT LOADED</div>
+        <script>
+          const spec = ${JSON.stringify(schema)};
+          const ui = SwaggerUIBundle({
+            deepLinking: false,
+            spec,
+            dom_id: '#swagger-ui',
+            presets: [SwaggerUIBundle.presets.apis],
+            layout: 'BaseLayout',
+            requestInterceptor: (request) => {
+              const currentUrl = new URL(window.location.href);
+              const requestUrl = new URL(request.url);
+              const newUrl = currentUrl.href + requestUrl.href.substring(requestUrl.origin.length)
+              request.url = newUrl;
+              return request;
+            }
+          });
+        </script>
+      </body>
+    </html>
+  `);
+  });
+  return r;
 }
 
 export function authPermutationRoutes(

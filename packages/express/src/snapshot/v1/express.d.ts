@@ -9,6 +9,7 @@
  * 2. Run the Basketry CLI
  *
  * About Basketry: https://github.com/basketry/basketry/wiki
+ * About @basketry/express: https://github.com/basketry/express/wiki
  */
 
 import { AuthService } from './auth';
