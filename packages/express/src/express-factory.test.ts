@@ -19,7 +19,7 @@ describe('InterfaceFactory', () => {
       ...generateTypes(service),
       ...generateAuth(service),
       ...generateValidators(service),
-      ...new ExpressRouterFactory().build(service),
+      ...new ExpressRouterFactory(service).build(),
     ];
 
     // ASSERT

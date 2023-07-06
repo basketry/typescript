@@ -15,7 +15,7 @@ const snapshotFiles = [
   ...generateTypes(service),
   ...generateAuth(service),
   ...generateValidators(service),
-  ...new ExpressRouterFactory().build(service, {}),
+  ...new ExpressRouterFactory(service, {}).build(),
 ];
 
 for (const file of snapshotFiles) {

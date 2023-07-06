@@ -22,49 +22,68 @@ import {
 } from '@basketry/typescript';
 
 import { header as standardWarning } from '@basketry/typescript/lib/warning';
+import { format } from '@basketry/typescript/lib/utils';
 import { buildRouterFactoryName } from './name-factory';
 import { buildMethodAuthorizerName } from '@basketry/typescript-auth';
 import { buildParamsValidatorName } from '@basketry/typescript-validators';
+import { NamespacedExpressOptions } from './types';
 
-function format(contents: string): string {
-  return prettier(contents, {
-    singleQuote: true,
-    useTabs: false,
-    tabWidth: 2,
-    trailingComma: 'all',
-    parser: 'typescript',
-  });
-}
+// function format(contents: string): string {
+//   return prettier(contents, {
+//     singleQuote: true,
+//     useTabs: false,
+//     tabWidth: 2,
+//     trailingComma: 'all',
+//     parser: 'typescript',
+//   });
+// }
 
 export class ExpressRouterFactory {
   public readonly target = 'typescript';
 
-  build(service: Service, options?: NamespacedBasketryOptions): File[] {
-    const routers = Array.from(buildRouters(service)).join('\n');
+  constructor(
+    private readonly service: Service,
+    private readonly options?: NamespacedExpressOptions,
+  ) {}
+
+  build(): File[] {
+    const routers = Array.from(buildRouters(this.service, this.options)).join(
+      '\n',
+    );
 
     const utils =
       'function tryParse(obj: any): any {try{return typeof obj === "object" || Array.isArray(obj) ? obj : JSON.parse(obj);} catch {return obj;}}';
 
     const contents = [
-      standardWarning(service, require('../package.json'), options || {}),
+      standardWarning(
+        this.service,
+        require('../package.json'),
+        this.options || {},
+      ),
       utils,
       routers,
     ].join('\n\n');
 
     const shim = [
-      standardWarning(service, require('../package.json'), options || {}),
-      `import { AuthService } from './auth';`,
+      standardWarning(
+        this.service,
+        require('../package.json'),
+        this.options || {},
+      ),
+      `import { AuthService } from '${
+        this.options?.express?.authImportPath ?? './auth'
+      }';`,
       `declare global { namespace Express { interface Request { basketry?: { context: AuthService; }}}}`,
     ].join('\n\n');
 
     return [
       {
-        path: [`v${service.majorVersion.value}`, 'express-routers.ts'],
-        contents: format(contents),
+        path: [`v${this.service.majorVersion.value}`, 'express-routers.ts'],
+        contents: format(contents, this.options),
       },
       {
-        path: [`v${service.majorVersion.value}`, 'express.d.ts'],
-        contents: format(shim),
+        path: [`v${this.service.majorVersion.value}`, 'express.d.ts'],
+        contents: format(shim, this.options),
       },
     ];
   }
@@ -239,16 +258,25 @@ function* buildMiddleware(methods: Method[]): Iterable<string> {
   yield '}';
 }
 
-function* buildRouters(service: Service): Iterable<string> {
+function* buildRouters(
+  service: Service,
+  options: NamespacedExpressOptions | undefined,
+): Iterable<string> {
   const methods = service.interfaces
     .map((i) => i.methods)
     .reduce((a, b) => a.concat(b), []);
 
   yield `import { type NextFunction, type Request, type RequestHandler, type Response, Router } from 'express';`;
   yield `import { URL } from 'url';`;
-  yield `import * as auth from './auth';`;
-  yield `import * as types from './types';`;
-  yield `import * as validators from './validators';`;
+  yield `import * as auth from '${
+    options?.express?.authImportPath ?? './auth'
+  }';`;
+  yield `import * as types from '${
+    options?.express?.typesImportPath ?? './types'
+  }';`;
+  yield `import * as validators from '${
+    options?.express?.validatorsImportPath ?? './validators'
+  }';`;
   yield '';
   yield buildAuthTypes();
   yield '';
