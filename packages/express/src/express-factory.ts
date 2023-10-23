@@ -1,6 +1,7 @@
 import { format as prettier } from 'prettier';
 import {
   File,
+  getTypeByName,
   HttpParameter,
   Interface,
   isApiKeyScheme,
@@ -20,12 +21,17 @@ import {
   buildParameterName,
   buildTypeName,
 } from '@basketry/typescript';
+import { camel } from 'case';
 
 import { header as standardWarning } from '@basketry/typescript/lib/warning';
 import { format } from '@basketry/typescript/lib/utils';
 import { buildRouterFactoryName } from './name-factory';
 import { buildMethodAuthorizerName } from '@basketry/typescript-auth';
 import { buildParamsValidatorName } from '@basketry/typescript-validators';
+import {
+  hasDateConverters,
+  needsDateConversion,
+} from '@basketry/typescript-validators/lib/utils';
 import { NamespacedExpressOptions } from './types';
 
 // function format(contents: string): string {
@@ -277,6 +283,11 @@ function* buildRouters(
   yield `import * as validators from '${
     options?.express?.validatorsImportPath ?? './validators'
   }';`;
+  if (hasDateConverters(service, service.types)) {
+    yield `import * as dateUtils from '${
+      options?.express?.dateUtilsImportPath ?? './date-utils'
+    }';`;
+  }
   yield '';
   yield buildAuthTypes();
   yield '';
@@ -291,7 +302,7 @@ function* buildRouters(
   yield* buildDocsRouter();
   yield '';
   for (const int of service.interfaces) {
-    yield* buildRouter(int);
+    yield* buildRouter(service, int);
   }
 }
 
@@ -336,7 +347,7 @@ function* buildDocsRouter(): Iterable<string> {
   yield '}';
 }
 
-function* buildRouter(int: Interface): Iterable<string> {
+function* buildRouter(service: Service, int: Interface): Iterable<string> {
   const interfaceName = buildInterfaceName(int, 'types');
   yield `export function ${buildRouterFactoryName(
     int,
@@ -392,7 +403,7 @@ function* buildRouter(int: Interface): Iterable<string> {
           );
           if (!param) continue;
 
-          yield* buildParam(param, httpParam);
+          yield* buildParam(service, param, httpParam);
         }
         yield `      };`;
       }
@@ -481,6 +492,7 @@ function buildArraySeprarator(httpParam: HttpParameter): string | undefined {
 }
 
 function* buildParam(
+  service: Service,
   param: Parameter,
   httpParam: HttpParameter,
 ): Iterable<string> {
@@ -496,6 +508,7 @@ function* buildParam(
           buildArraySeprarator(httpParam) || ','
         }') as ${buildTypeName(param, 'types')} : (${source} as never),`;
       } else {
+        // TODO: Dates
         yield `'${paramName}': tryParse(${source}),`;
       }
     } else {
@@ -529,7 +542,14 @@ function* buildParam(
       if (isEnum(param)) {
         yield `'${paramName}': ${source} as ${buildTypeName(param, 'types')},`;
       } else {
-        yield `'${paramName}': tryParse(${source}),`;
+        const subtype = getTypeByName(service, param.typeName.value);
+        if (subtype && needsDateConversion(service, subtype)) {
+          yield `'${paramName}': dateUtils.${camel(
+            `convert_${subtype.name.value}_dates`,
+          )}(${source}),`;
+        } else {
+          yield `'${paramName}': tryParse(${source}),`;
+        }
       }
     } else {
       switch (param.typeName.value) {
