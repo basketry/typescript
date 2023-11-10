@@ -1,6 +1,7 @@
 import {
   allParameters,
   Generator,
+  getTypeByName,
   hasRequiredParameters,
   HttpMethod,
   HttpParameter,
@@ -27,22 +28,20 @@ import {
   buildTypeName,
 } from '@basketry/typescript';
 import { buildHttpClientName } from './name-factory';
-import {
-  buildParamsValidatorName,
-  buildTypeValidatorName,
-} from '@basketry/typescript-validators';
-import { NamespacedTypescriptOptions } from '@basketry/typescript/lib/types';
-import { pascal } from 'case';
+import { buildParamsValidatorName } from '@basketry/typescript-validators';
+import { needsDateConversion } from '@basketry/typescript-validators/lib/utils';
+import { camel, pascal, snake } from 'case';
+import { NamespacedTypescriptHttpClientOptions } from './types';
 
 export const httpClientGenerator: Generator = (service, options) => {
-  const includeFormatDateTime = allParameters(service, '', options).some(
+  const includeFormatDateTime = allParameters(service, options).some(
     ({ parameter }) =>
       parameter.isPrimitive && parameter.typeName.value === 'date-time',
   );
 
   const includeFormatDate =
     includeFormatDateTime ||
-    allParameters(service, '', options).some(
+    allParameters(service, options).some(
       ({ parameter }) =>
         parameter.isPrimitive && parameter.typeName.value === 'date',
     );
@@ -65,11 +64,21 @@ export const httpClientGenerator: Generator = (service, options) => {
   ];
 };
 
-function* buildImports(options: NamespacedTypescriptOptions): Iterable<string> {
-  yield `import${
-    options?.typescript?.typeImports ? ' type ' : ' '
-  }* as types from './types';`;
-  yield `import * as validators from './validators';`;
+function* buildImports(
+  options: NamespacedTypescriptHttpClientOptions,
+): Iterable<string> {
+  yield `import * as types from '${
+    options?.typescriptHttpClient?.typesImportPath ?? './types'
+  }';`;
+  yield `import * as validators from '${
+    options?.typescriptHttpClient?.validatorsImportPath ?? './validators'
+  }';`;
+  yield `import * as sanitizers from '${
+    options?.typescriptHttpClient?.sanitizersImportPath ?? './sanitizers'
+  }';`;
+  yield `import * as dateUtils from '${
+    options?.typescriptHttpClient?.dateUtilsImportPath ?? './date-utils'
+  }';`;
 }
 
 function* buildStandardTypes(
@@ -89,6 +98,8 @@ function* buildStandardTypes(
 
   yield `export interface ${pascal(`${service.title.value}Options`)} {`;
   yield `  root?: string;`;
+  yield `  mapValidationError?: (error: validators.ValidationError) => types.Error;`;
+  yield `  mapUnhandledException?: (error: any) => types.Error;`;
   yield `}`;
   yield ``;
   yield `export interface Fetch {`;
@@ -187,8 +198,38 @@ function* buildClass(service: Service, int: Interface): Iterable<string> {
 
     if (!httpPath || !httpMethod) continue;
     yield ``;
-    yield* MethodFactory.build(int, method);
+    yield* MethodFactory.build(service, int, method);
   }
+
+  yield '';
+
+  yield `private mapErrors(
+    validationErrors: validators.ValidationError[],
+    unhandledException?: any,
+  ): types.Error[] {
+    const mapError =
+      this.options?.mapValidationError ||
+      ((error) => ({
+        code: error.code as any,
+        status: 400,
+        title: error.title,
+      }));
+    const result = validationErrors.map(mapError);
+
+    if (unhandledException) {
+      if (this.options?.mapUnhandledException) {
+        result.push(this.options.mapUnhandledException(unhandledException));
+      } else {
+        result.push({
+          code: 'UNHANDLED CLIENT EXCEPTION' as any,
+          status: 400,
+          title: 'Unhandled client exception',
+        });
+      }
+    }
+
+    return result;
+  }`;
 
   yield `}`;
 }
@@ -223,13 +264,18 @@ function getSecuritySchemes(int: Interface): SecurityScheme[] {
 
 class MethodFactory {
   private constructor(
+    private readonly service: Service,
     private readonly method: Method,
     private readonly httpMethod: HttpMethod,
     private readonly httpPath: HttpPath,
     private readonly schemes: SecurityScheme[],
   ) {}
 
-  public static *build(int: Interface, method: Method): Iterable<string> {
+  public static *build(
+    service: Service,
+    int: Interface,
+    method: Method,
+  ): Iterable<string> {
     const httpMethod = int.protocols.http
       .flatMap((p) => p.methods)
       .find((m) => m.name.value === method.name.value);
@@ -240,25 +286,27 @@ class MethodFactory {
 
     if (httpMethod && httpPath) {
       yield* new MethodFactory(
+        service,
         method,
         httpMethod,
         httpPath,
         getSecuritySchemes(int),
-      )._build();
+      ).buildMethod();
     }
   }
 
-  private *_build(): Iterable<string> {
+  private *buildMethod(): Iterable<string> {
     yield* buildDescription(this.method.description);
     yield `async ${buildMethodName(this.method)}(`;
     yield* buildMethodParams(this.method, 'types');
     yield `): ${buildMethodReturnType(this.method, 'types')} {`;
+    yield ` try {`;
 
     if (this.method.parameters.length) {
       const validatorName = buildParamsValidatorName(this.method, 'validators');
-
-      yield `  const errors = ${validatorName}(params);`;
-      yield ` if(errors.length) throw errors;`;
+      yield `  const sanitizedParams = params;`;
+      yield `  const errors = ${validatorName}(sanitizedParams);`;
+      yield `if (errors.length) { return { errors: this.mapErrors(errors) } as any }`;
     }
     yield '';
     yield* this.buildHeaders();
@@ -270,6 +318,9 @@ class MethodFactory {
     yield* this.buildBody();
     yield '';
     yield* this.buildFetch();
+    yield '  } catch (unhandledException) {';
+    yield '    return { errors: this.mapErrors([], unhandledException) } as any;';
+    yield '  }';
     yield '}';
   }
 
@@ -300,7 +351,7 @@ class MethodFactory {
         );
         if (!param || isRequired(param)) continue;
         const paramName = buildParameterName(param);
-        yield `if(typeof params.${paramName} !== 'undefined') {`;
+        yield `if(typeof sanitizedParams.${paramName} !== 'undefined') {`;
         yield `headers${safe(httpParam.name.value)} = ${this.buildParamValue(
           httpParam,
         )};`;
@@ -463,21 +514,26 @@ class MethodFactory {
 
     yield `)`;
     yield ``;
-    yield `if(res.status < 400 && res.status !== ${this.httpMethod.successCode.value}) { throw new Error(\`Unexpected HTTP status code. Expected ${this.httpMethod.successCode.value} but got \${res.status}\`); }`;
+    // yield `if(res.status < 400 && res.status !== ${this.httpMethod.successCode.value}) { throw new Error(\`Unexpected HTTP status code. Expected ${this.httpMethod.successCode.value} but got \${res.status}\`); }`;
     yield ``;
 
     if (this.method.returnType && !this.method.returnType.isPrimitive) {
-      const validatorName = buildTypeValidatorName(
-        this.method.returnType,
-        'validators',
+      const responseTypeName = getTypeByName(
+        this.service,
+        this.method.returnType?.typeName.value,
+      )!;
+      const sanitizerName = camel(
+        `sanitize_${snake(responseTypeName.name.value)}`,
       );
-      yield `const response = await res.json();`;
-      yield ``;
-      yield `  const responseValidationErrors = ${validatorName}(response);`;
-      yield ` if(responseValidationErrors.length) throw responseValidationErrors;`;
-      yield ``;
 
-      yield `return response;`;
+      if (needsDateConversion(this.service, responseTypeName)) {
+        const converterName = camel(
+          `convert_${responseTypeName.name.value}_dates`,
+        );
+        yield `return sanitizers.${sanitizerName}(dateUtils.${converterName}(await res.json()));`;
+      } else {
+        yield `return sanitizers.${sanitizerName}(await res.json());`;
+      }
     }
   }
 
@@ -485,11 +541,11 @@ class MethodFactory {
     const paramName = buildParameterName(httpParam);
 
     if (httpParam.array === undefined || httpParam.array?.value === 'multi') {
-      return `encodeURIComponent(params.${paramName})`; // TODO: format date/date-time
+      return `encodeURIComponent(sanitizedParams.${paramName})`; // TODO: format date/date-time
     }
 
     // TODO: format date/date-time
-    return `params.${paramName}.map(encodeURIComponent).join('${sep(
+    return `sanitizedParams.${paramName}.map(encodeURIComponent).join('${sep(
       httpParam,
     )}')`;
   }
@@ -504,7 +560,7 @@ class MethodFactory {
     const paramName = buildParameterName(param);
     const optionalChain =
       includeOptionalChaining && !hasRequiredParameters(this.method) ? '?' : '';
-    const value = `params${optionalChain}.${paramName}`;
+    const value = `sanitizedParams${optionalChain}.${paramName}`;
     if (!formatDates) return value;
 
     if (param.isPrimitive) {

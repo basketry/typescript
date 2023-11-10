@@ -53,182 +53,48 @@ function formatDateTime(date: Date): string {
   )}:${lpad(date.getUTCSeconds(), 2)}.${rpad(date.getMilliseconds(), 3)}Z`;
 }
 
-export class HttpGizmoService implements types.GizmoService {
+export class HttpAuthPermutationService
+  implements types.AuthPermutationService
+{
   constructor(
     private readonly fetch: Fetch,
     private readonly auth: {
-      oauth2Auth?: { accessToken: string };
-    },
-    private readonly options?: BasketryExampleOptions,
-  ) {}
-
-  /**
-   * Only has a summary
-   */
-  async getGizmos(params?: { search?: string }): Promise<types.GizmosResponse> {
-    const errors = validators.validateGetGizmosParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
-
-    const query: string[] = [];
-    if (typeof params?.search !== 'undefined') {
-      query.push(`search=${encodeURIComponent(params.search)}`);
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.GizmosResponse>(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors =
-      validators.validateGizmosResponse(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  /**
-   * Has a summary in addition to a description
-   * Has a description in addition to a summary
-   */
-  async createGizmo(params?: {
-    /**
-     * Anonymous enum
-     */
-    size?: types.CreateGizmoSize;
-  }): Promise<types.Gizmo> {
-    const errors = validators.validateCreateGizmoParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
-
-    const query: string[] = [];
-    if (typeof params?.size !== 'undefined') {
-      query.push(`size=${encodeURIComponent(params.size)}`);
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.Gizmo>(path, {
-      method: 'POST',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 201) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 201 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateGizmo(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  async updateGizmo(params?: {
-    /**
-     * array of primitive
-     */
-    factors?: string[];
-  }): Promise<types.Gizmo> {
-    const errors = validators.validateUpdateGizmoParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
-
-    const query: string[] = [];
-    if (typeof params?.factors !== 'undefined') {
-      query.push(
-        `factors=${params.factors}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.Gizmo>(path, {
-      method: 'PUT',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateGizmo(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-}
-
-export class HttpWidgetService implements types.WidgetService {
-  constructor(
-    private readonly fetch: Fetch,
-    private readonly auth: {
+      basicAuth?: { username: string; password: string };
+      'alternate-basic-auth'?: { username: string; password: string };
       apiKeyAuth?: { key: string };
+      oauth2Auth?: { accessToken: string };
+      alternateApiKeyAuth?: { key: string };
     },
     private readonly options?: BasketryExampleOptions,
   ) {}
 
-  async getWidgets(): Promise<types.Widget> {
+  async allAuthSchemes(): Promise<void> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+    if (this.auth.basicAuth) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
+      )}`;
+    }
+    if (this.auth['alternate-basic-auth']) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
+      )}`;
+    }
     if (this.auth.apiKeyAuth) {
       headers['x-apikey'] = this.auth.apiKeyAuth.key;
     }
+    if (this.auth.oauth2Auth) {
+      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+    }
 
     const query: string[] = [];
+    if (this.auth.alternateApiKeyAuth) {
+      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+    }
 
     let prefix = '';
     if (this.options?.root) {
@@ -236,9 +102,9 @@ export class HttpWidgetService implements types.WidgetService {
       if (!prefix.startsWith('/')) prefix = `/${prefix}`;
     }
 
-    const path = [`${prefix}/widgets`, query.join('&')].join('?');
+    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-    const res = await this.fetch<types.Widget>(path, {
+    const res = await this.fetch(path, {
       headers,
     });
 
@@ -247,32 +113,35 @@ export class HttpWidgetService implements types.WidgetService {
         `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
       );
     }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateWidget(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
   }
 
-  async createWidget(params?: {
-    /**
-     * The new widget
-     */
-    body?: types.CreateWidgetBody;
-  }): Promise<void> {
-    const errors = validators.validateCreateWidgetParams(params);
-    if (errors.length) throw errors;
-
+  async comboAuthSchemes(): Promise<void> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+    if (this.auth.basicAuth) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
+      )}`;
+    }
+    if (this.auth['alternate-basic-auth']) {
+      // TODO: remove deprecated method for node targets
+      headers.authorization = `Basic ${btoa(
+        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
+      )}`;
+    }
     if (this.auth.apiKeyAuth) {
       headers['x-apikey'] = this.auth.apiKeyAuth.key;
     }
+    if (this.auth.oauth2Auth) {
+      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+    }
 
     const query: string[] = [];
+    if (this.auth.alternateApiKeyAuth) {
+      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+    }
 
     let prefix = '';
     if (this.options?.root) {
@@ -280,41 +149,7 @@ export class HttpWidgetService implements types.WidgetService {
       if (!prefix.startsWith('/')) prefix = `/${prefix}`;
     }
 
-    const path = [`${prefix}/widgets`, query.join('&')].join('?');
-
-    const body =
-      params?.body === undefined ? undefined : JSON.stringify(params?.body);
-
-    const res = await this.fetch(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-
-    if (res.status < 400 && res.status !== 204) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
-      );
-    }
-  }
-
-  async putWidget(): Promise<void> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/widgets`, query.join('&')].join('?');
+    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
     const res = await this.fetch(path, {
       method: 'PUT',
@@ -324,94 +159,6 @@ export class HttpWidgetService implements types.WidgetService {
     if (res.status < 400 && res.status !== 200) {
       throw new Error(
         `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-  }
-
-  async getWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<types.Widget> {
-    const errors = validators.validateGetWidgetFooParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [
-      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
-      query.join('&'),
-    ].join('?');
-
-    const res = await this.fetch<types.Widget>(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateWidget(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  async deleteWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<void> {
-    const errors = validators.validateDeleteWidgetFooParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [
-      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
-      query.join('&'),
-    ].join('?');
-
-    const res = await this.fetch(path, {
-      method: 'DELETE',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 204) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
       );
     }
   }
@@ -663,47 +410,38 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
   }
 }
 
-export class HttpAuthPermutationService
-  implements types.AuthPermutationService
-{
+export class HttpGizmoService implements types.GizmoService {
   constructor(
     private readonly fetch: Fetch,
     private readonly auth: {
-      basicAuth?: { username: string; password: string };
-      'alternate-basic-auth'?: { username: string; password: string };
-      apiKeyAuth?: { key: string };
       oauth2Auth?: { accessToken: string };
-      alternateApiKeyAuth?: { key: string };
     },
     private readonly options?: BasketryExampleOptions,
   ) {}
 
-  async allAuthSchemes(): Promise<void> {
+  /**
+   * Has a summary in addition to a description
+   * Has a description in addition to a summary
+   */
+  async createGizmo(params?: {
+    /**
+     * Anonymous enum
+     */
+    size?: types.CreateGizmoSize;
+  }): Promise<types.Gizmo> {
+    const errors = validators.validateCreateGizmoParams(params);
+    if (errors.length) throw errors;
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    if (this.auth.basicAuth) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
-      )}`;
-    }
-    if (this.auth['alternate-basic-auth']) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
-      )}`;
-    }
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
     if (this.auth.oauth2Auth) {
       headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
     }
 
     const query: string[] = [];
-    if (this.auth.alternateApiKeyAuth) {
-      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+    if (typeof params?.size !== 'undefined') {
+      query.push(`size=${encodeURIComponent(params.size)}`);
     }
 
     let prefix = '';
@@ -712,9 +450,55 @@ export class HttpAuthPermutationService
       if (!prefix.startsWith('/')) prefix = `/${prefix}`;
     }
 
-    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-    const res = await this.fetch(path, {
+    const res = await this.fetch<types.Gizmo>(path, {
+      method: 'POST',
+      headers,
+    });
+
+    if (res.status < 400 && res.status !== 201) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 201 but got ${res.status}`,
+      );
+    }
+
+    const response = await res.json();
+
+    const responseValidationErrors = validators.validateGizmo(response);
+    if (responseValidationErrors.length) throw responseValidationErrors;
+
+    return response;
+  }
+
+  /**
+   * Only has a summary
+   */
+  async getGizmos(params?: { search?: string }): Promise<types.GizmosResponse> {
+    const errors = validators.validateGetGizmosParams(params);
+    if (errors.length) throw errors;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.oauth2Auth) {
+      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+    }
+
+    const query: string[] = [];
+    if (typeof params?.search !== 'undefined') {
+      query.push(`search=${encodeURIComponent(params.search)}`);
+    }
+
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+    const res = await this.fetch<types.GizmosResponse>(path, {
       headers,
     });
 
@@ -723,34 +507,37 @@ export class HttpAuthPermutationService
         `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
       );
     }
+
+    const response = await res.json();
+
+    const responseValidationErrors =
+      validators.validateGizmosResponse(response);
+    if (responseValidationErrors.length) throw responseValidationErrors;
+
+    return response;
   }
 
-  async comboAuthSchemes(): Promise<void> {
+  async updateGizmo(params?: {
+    /**
+     * array of primitive
+     */
+    factors?: string[];
+  }): Promise<types.Gizmo> {
+    const errors = validators.validateUpdateGizmoParams(params);
+    if (errors.length) throw errors;
+
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
-    if (this.auth.basicAuth) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
-      )}`;
-    }
-    if (this.auth['alternate-basic-auth']) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
-      )}`;
-    }
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
     if (this.auth.oauth2Auth) {
       headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
     }
 
     const query: string[] = [];
-    if (this.auth.alternateApiKeyAuth) {
-      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+    if (typeof params?.factors !== 'undefined') {
+      query.push(
+        `factors=${params.factors}.map(encodeURIComponent).join(',')}`,
+      );
     }
 
     let prefix = '';
@@ -759,7 +546,220 @@ export class HttpAuthPermutationService
       if (!prefix.startsWith('/')) prefix = `/${prefix}`;
     }
 
-    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+    const res = await this.fetch<types.Gizmo>(path, {
+      method: 'PUT',
+      headers,
+    });
+
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
+    }
+
+    const response = await res.json();
+
+    const responseValidationErrors = validators.validateGizmo(response);
+    if (responseValidationErrors.length) throw responseValidationErrors;
+
+    return response;
+  }
+}
+
+export class HttpWidgetService implements types.WidgetService {
+  constructor(
+    private readonly fetch: Fetch,
+    private readonly auth: {
+      apiKeyAuth?: { key: string };
+    },
+    private readonly options?: BasketryExampleOptions,
+  ) {}
+
+  async createWidget(params?: {
+    /**
+     * The new widget
+     */
+    body?: types.CreateWidgetBody;
+  }): Promise<void> {
+    const errors = validators.validateCreateWidgetParams(params);
+    if (errors.length) throw errors;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+
+    const query: string[] = [];
+
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+    const body =
+      params?.body === undefined ? undefined : JSON.stringify(params?.body);
+
+    const res = await this.fetch(path, {
+      method: 'POST',
+      headers,
+      body,
+    });
+
+    if (res.status < 400 && res.status !== 204) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
+      );
+    }
+  }
+
+  async deleteWidgetFoo(params: {
+    /**
+     * The widget ID
+     */
+    id: string;
+  }): Promise<void> {
+    const errors = validators.validateDeleteWidgetFooParams(params);
+    if (errors.length) throw errors;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+
+    const query: string[] = [];
+
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [
+      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
+      query.join('&'),
+    ].join('?');
+
+    const res = await this.fetch(path, {
+      method: 'DELETE',
+      headers,
+    });
+
+    if (res.status < 400 && res.status !== 204) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
+      );
+    }
+  }
+
+  async getWidgetFoo(params: {
+    /**
+     * The widget ID
+     */
+    id: string;
+  }): Promise<types.Widget> {
+    const errors = validators.validateGetWidgetFooParams(params);
+    if (errors.length) throw errors;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+
+    const query: string[] = [];
+
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [
+      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
+      query.join('&'),
+    ].join('?');
+
+    const res = await this.fetch<types.Widget>(path, {
+      headers,
+    });
+
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
+    }
+
+    const response = await res.json();
+
+    const responseValidationErrors = validators.validateWidget(response);
+    if (responseValidationErrors.length) throw responseValidationErrors;
+
+    return response;
+  }
+
+  async getWidgets(): Promise<types.Widget> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+
+    const query: string[] = [];
+
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+    const res = await this.fetch<types.Widget>(path, {
+      headers,
+    });
+
+    if (res.status < 400 && res.status !== 200) {
+      throw new Error(
+        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
+      );
+    }
+
+    const response = await res.json();
+
+    const responseValidationErrors = validators.validateWidget(response);
+    if (responseValidationErrors.length) throw responseValidationErrors;
+
+    return response;
+  }
+
+  async putWidget(): Promise<void> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (this.auth.apiKeyAuth) {
+      headers['x-apikey'] = this.auth.apiKeyAuth.key;
+    }
+
+    const query: string[] = [];
+
+    let prefix = '';
+    if (this.options?.root) {
+      prefix = this.options.root;
+      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
+    }
+
+    const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
     const res = await this.fetch(path, {
       method: 'PUT',
