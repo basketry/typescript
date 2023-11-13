@@ -319,6 +319,7 @@ class MethodFactory {
     yield '';
     yield* this.buildFetch();
     yield '  } catch (unhandledException) {';
+    yield '    console.error(unhandledException);';
     yield '    return { errors: this.mapErrors([], unhandledException) } as any;';
     yield '  }';
     yield '}';
