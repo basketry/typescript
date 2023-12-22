@@ -471,7 +471,7 @@ class MethodFactory {
     yield `  let prefix = '';`;
     yield `  if(this.options?.root) {`;
     yield `    prefix = this.options.root;`;
-    yield `    if(!prefix.startsWith('/')) prefix = \`/\${prefix}\`;`;
+    yield `    if(!prefix.startsWith('/') && !prefix.toLowerCase().startsWith('http://') && !prefix.toLowerCase().startsWith('https://')) prefix = \`/\${prefix}\`;`;
     yield `  }`;
     yield ``;
 
