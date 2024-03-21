@@ -12,12 +12,18 @@
  * About @basketry/typescript: https://github.com/basketry/typescript#readme
  */
 
+/**
+ * Interface for the Auth Permutation Service
+ */
 export interface AuthPermutationService {
   allAuthSchemes(): Promise<void>;
 
   comboAuthSchemes(): Promise<void>;
 }
 
+/**
+ * Interface for the Exhaustive Service
+ */
 export interface ExhaustiveService {
   exhaustiveFormats(params?: {
     stringNoFormat?: string;

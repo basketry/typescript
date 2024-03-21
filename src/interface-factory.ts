@@ -7,6 +7,7 @@ import {
   Scalar,
   Type,
 } from 'basketry';
+import { title } from 'case';
 import {
   buildEnumName,
   buildInterfaceName,
@@ -65,7 +66,10 @@ export const generateTypes: Generator = (service, options) => {
 };
 
 function* buildInterface(int: Interface): Iterable<string> {
-  yield* buildDescription(int.description);
+  yield* buildDescription(
+    int.description,
+    `Interface for the ${title(int.name.value)} Service`,
+  );
   yield `export interface ${buildInterfaceName(int)} {`;
   for (const method of int.methods.sort((a, b) =>
     a.name.value.localeCompare(b.name.value),
@@ -112,19 +116,21 @@ function* buildEnum(e: Enum): Iterable<string> {
 
 export function* buildDescription(
   description: string | Scalar<string> | Scalar<string>[] | undefined,
+  defaultValue?: string,
 ): Iterable<string> {
-  if (description) {
+  const desc = description || defaultValue;
+  if (desc) {
     yield ``;
     yield `/**`;
 
-    if (Array.isArray(description)) {
-      for (const line of description) {
+    if (Array.isArray(desc)) {
+      for (const line of desc) {
         yield ` * ${line.value}`;
       }
-    } else if (typeof description === 'string') {
-      yield ` * ${description}`;
+    } else if (typeof desc === 'string') {
+      yield ` * ${desc}`;
     } else {
-      yield ` * ${description.value}`;
+      yield ` * ${desc.value}`;
     }
 
     yield ` */`;
