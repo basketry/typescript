@@ -16,6 +16,7 @@ import {
   Service,
 } from 'basketry';
 import {
+  buildFilePath,
   buildInterfaceName,
   buildMethodName,
   buildParameterName,
@@ -84,11 +85,11 @@ export class ExpressRouterFactory {
 
     return [
       {
-        path: [`v${this.service.majorVersion.value}`, 'express-routers.ts'],
+        path: buildFilePath(['express-routers.ts'], this.service, this.options),
         contents: format(contents, this.options),
       },
       {
-        path: [`v${this.service.majorVersion.value}`, 'express.d.ts'],
+        path: buildFilePath(['express.d.ts'], this.service, this.options),
         contents: format(shim, this.options),
       },
     ];
