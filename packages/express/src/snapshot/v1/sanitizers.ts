@@ -167,10 +167,10 @@ export function sanitizeExampleUnion(
   obj: types.ExampleUnion,
 ): types.ExampleUnion {
   return stripUndefinedValues(
-    [sanitizeGizmo(obj as types.Gizmo), sanitizeString(obj as string[])].reduce(
-      (acc, val) => ({ ...acc, ...val }),
-      {},
-    ),
+    [
+      sanitizeGizmo(obj as types.Gizmo),
+      sanitizeWidget(obj as types.Widget),
+    ].reduce((acc, val) => ({ ...acc, ...val }), {}),
   );
 }
 

@@ -1320,6 +1320,10 @@ export function validateExampleUnion(
   if (!gizmoErrors.length) return [];
   errors.push(...gizmoErrors);
 
+  const widgetErrors = validateWidget(params as types.Widget);
+  if (!widgetErrors.length) return [];
+  errors.push(...widgetErrors);
+
   return errors;
 }
 

@@ -12,7 +12,7 @@ const withoutVersion = `${pkg.name}@{{version}}`;
 describe('InterfaceFactory', () => {
   it('recreates a valid snapshot', () => {
     // ARRANGE
-    const service = require('basketry/lib/example-ir.json');
+    const service = require('./snapshot/example-ir.json');
 
     // ACT
     const snapshotFiles = [

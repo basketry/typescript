@@ -9,7 +9,7 @@ const pkg = require('../../package.json');
 const withVersion = `${pkg.name}@${pkg.version}`;
 const withoutVersion = `${pkg.name}@{{version}}`;
 
-const service = require('basketry/lib/example-ir.json');
+const service = require('./example-ir.json');
 
 const snapshotFiles = [
   ...generateTypes(service),
