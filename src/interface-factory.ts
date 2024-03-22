@@ -10,6 +10,7 @@ import {
 import { title } from 'case';
 import {
   buildEnumName,
+  buildFilePath,
   buildInterfaceName,
   buildMethodName,
   buildMethodReturnType,
@@ -22,8 +23,12 @@ import {
 import { eslintDisable, format, from } from './utils';
 
 import { header as warning } from './warning';
+import { NamespacedTypescriptOptions } from './types';
 
-export const generateTypes: Generator = (service, options) => {
+export const generateTypes: Generator = (
+  service,
+  options?: NamespacedTypescriptOptions,
+) => {
   const interfaces = service.interfaces
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((int) => Array.from(buildInterface(int)).join('\n'))
@@ -59,7 +64,7 @@ export const generateTypes: Generator = (service, options) => {
 
   return [
     {
-      path: [`v${service.majorVersion.value}`, 'types.ts'],
+      path: buildFilePath(['types.ts'], service, options),
       contents: format(contents, options),
     },
   ];
