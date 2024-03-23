@@ -1,15 +1,19 @@
 import {
+  Enum,
   Generator,
   Interface,
   isRequired,
-  Literal,
   Method,
+  Scalar,
   Type,
 } from 'basketry';
+import { title } from 'case';
 import {
   buildEnumName,
+  buildFilePath,
   buildInterfaceName,
   buildMethodName,
+  buildMethodParamsTypeName,
   buildMethodReturnType,
   buildParameterName,
   buildPropertyName,
@@ -20,11 +24,22 @@ import {
 import { eslintDisable, format, from } from './utils';
 
 import { header as warning } from './warning';
+import { NamespacedTypescriptOptions } from './types';
 
-export const generateTypes: Generator = (service, options) => {
+export const generateTypes: Generator = (
+  service,
+  options?: NamespacedTypescriptOptions,
+) => {
   const interfaces = service.interfaces
-    .sort((a, b) => a.name.localeCompare(b.name))
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((int) => Array.from(buildInterface(int)).join('\n'))
+    .join('\n\n');
+
+  const params = service.interfaces
+    .flatMap((int) => int.methods)
+    .filter((method) => method.parameters.length > 0)
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
+    .map((method) => Array.from(buildMethodParamsType(method)).join('\n'))
     .join('\n\n');
 
   const types = service.types
@@ -34,12 +49,7 @@ export const generateTypes: Generator = (service, options) => {
 
   const enums = service.enums
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
-    .map(
-      (e) =>
-        `export type ${buildEnumName(e)} = ${e.values
-          .map((v) => `'${v.value}'`)
-          .join(' | ')}`,
-    )
+    .map((e) => Array.from(buildEnum(e)).join('\n'))
     .join('\n\n');
 
   const unions = service.unions
@@ -56,20 +66,29 @@ export const generateTypes: Generator = (service, options) => {
 
   const ignore = from(eslintDisable(options));
 
-  const contents = [header, ignore, interfaces, enums, types, unions].join(
-    '\n\n',
-  );
+  const contents = [
+    header,
+    ignore,
+    interfaces,
+    params,
+    enums,
+    types,
+    unions,
+  ].join('\n\n');
 
   return [
     {
-      path: [`v${service.majorVersion.value}`, 'types.ts'],
+      path: buildFilePath(['types.ts'], service, options),
       contents: format(contents, options),
     },
   ];
 };
 
 function* buildInterface(int: Interface): Iterable<string> {
-  yield* buildDescription(int.description);
+  yield* buildDescription(
+    int.description,
+    `Interface for the ${title(int.name.value)} Service`,
+  );
   yield `export interface ${buildInterfaceName(int)} {`;
   for (const method of int.methods.sort((a, b) =>
     a.name.value.localeCompare(b.name.value),
@@ -103,25 +122,46 @@ function* buildType(type: Type): Iterable<string> {
   }
 }
 
+function* buildEnum(e: Enum): Iterable<string> {
+  yield* buildDescription(e.description);
+  if (e.values.length) {
+    yield `export type ${buildEnumName(e)} = ${e.values
+      .map((v) => `'${v.content.value}'`)
+      .join(' | ')}`;
+  } else {
+    yield `export type ${buildTypeName(e)} = never`;
+  }
+}
+
 export function* buildDescription(
-  description: string | Literal<string> | Literal<string>[] | undefined,
+  description: string | Scalar<string> | Scalar<string>[] | undefined,
+  defaultValue?: string,
 ): Iterable<string> {
-  if (description) {
+  const desc = description || defaultValue;
+  if (desc) {
     yield ``;
     yield `/**`;
 
-    if (Array.isArray(description)) {
-      for (const line of description) {
+    if (Array.isArray(desc)) {
+      for (const line of desc) {
         yield ` * ${line.value}`;
       }
-    } else if (typeof description === 'string') {
-      yield ` * ${description}`;
+    } else if (typeof desc === 'string') {
+      yield ` * ${desc}`;
     } else {
-      yield ` * ${description.value}`;
+      yield ` * ${desc.value}`;
     }
 
     yield ` */`;
   }
+}
+
+export function* buildMethodParamsType(
+  method: Method,
+  typeModule?: string,
+): Iterable<string> {
+  yield `export type ${buildMethodParamsTypeName(method, typeModule)} =`;
+  yield* internalBuildParamsType(method, typeModule);
 }
 
 export function* buildMethodParams(
@@ -139,10 +179,10 @@ export function* buildMethodParams(
     yield `${paramName}?:`;
   }
 
-  yield* buildParamsType(method, typeModule);
+  yield buildMethodParamsTypeName(method, typeModule);
 }
 
-export function* buildParamsType(
+function* internalBuildParamsType(
   method: Method,
   typeModule?: string,
 ): Iterable<string> {
@@ -163,4 +203,11 @@ export function* buildParamsType(
   }
 
   yield '}';
+}
+
+export function* buildParamsType(
+  method: Method,
+  typeModule?: string,
+): Iterable<string> {
+  yield buildMethodParamsTypeName(method, typeModule);
 }

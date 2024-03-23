@@ -8,20 +8,34 @@ import {
   Parameter,
   Property,
   ReturnType,
+  Service,
   Type,
   TypedValue,
   Union,
 } from 'basketry';
+import { NamespacedTypescriptOptions } from './types';
 
 function prefix(typeModule: string | undefined, name: string) {
   return typeModule ? `${typeModule}.${name}` : name;
+}
+
+export function buildFilePath(
+  path: string[],
+  service: Service,
+  options: NamespacedTypescriptOptions | undefined,
+): string[] {
+  if (options?.typescript?.includeVersion === false) {
+    return path;
+  } else {
+    return [`v${service.majorVersion.value}`, ...path];
+  }
 }
 
 export function buildInterfaceName(
   int: Interface,
   typeModule?: string,
 ): string {
-  return prefix(typeModule, `${pascal(`${int.name}_service`)}`);
+  return prefix(typeModule, `${pascal(`${int.name.value}_service`)}`);
 }
 
 export function buildMethodName(method: Method, typeModule?: string): string {
@@ -40,6 +54,13 @@ export function buildPropertyName(
   typeModule?: string,
 ): string {
   return prefix(typeModule, camel(property.name.value));
+}
+
+export function buildMethodParamsTypeName(
+  method: Method,
+  typeModule?: string,
+): string {
+  return prefix(typeModule, `${pascal(method.name.value)}Params`);
 }
 
 /**

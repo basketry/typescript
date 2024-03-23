@@ -80,7 +80,7 @@ function iter(contents: Contents): Iterable<string> {
 }
 
 export function* eslintDisable(
-  options: NamespacedTypescriptOptions,
+  options?: NamespacedTypescriptOptions,
 ): Iterable<string> {
   for (const rule of options?.typescript?.eslintDisable || []) {
     yield `/* eslint-disable ${rule} */`;
