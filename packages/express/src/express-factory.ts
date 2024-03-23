@@ -45,6 +45,26 @@ import { NamespacedExpressOptions } from './types';
 //   });
 // }
 
+const tryParseDef =
+  'function tryParse(obj: any): any {try{return typeof obj === "object" || Array.isArray(obj) ? obj : JSON.parse(obj);} catch {return obj;}}';
+
+let needsGetHttpStatusDef = false;
+const getHttpStatusDef = `function getHttpStatus(
+  success: number,
+  result: { errors: { status?: number | string }[] },
+): number {
+  if (result.errors.length) {
+    return result.errors.reduce((max, item) => {
+      if (typeof item.status === 'undefined') return success;
+      const value =
+        typeof item.status === 'string' ? Number(item.status) : item.status;
+      return !Number.isNaN(value) && value > max ? value : max;
+    }, success);
+  } else {
+    return success;
+  }
+}`;
+
 export class ExpressRouterFactory {
   public readonly target = 'typescript';
 
@@ -54,22 +74,27 @@ export class ExpressRouterFactory {
   ) {}
 
   build(): File[] {
+    needsGetHttpStatusDef = false;
     const routers = Array.from(buildRouters(this.service, this.options)).join(
       '\n',
     );
 
-    const utils =
-      'function tryParse(obj: any): any {try{return typeof obj === "object" || Array.isArray(obj) ? obj : JSON.parse(obj);} catch {return obj;}}';
-
-    const contents = [
+    const components = [
       standardWarning(
         this.service,
         require('../package.json'),
         this.options || {},
       ),
-      utils,
-      routers,
-    ].join('\n\n');
+      tryParseDef,
+    ];
+
+    if (needsGetHttpStatusDef) {
+      components.push(getHttpStatusDef);
+    }
+
+    components.push(routers);
+
+    const contents = components.join('\n\n');
 
     const shim = [
       standardWarning(
@@ -422,9 +447,27 @@ function* buildRouter(service: Service, int: Interface): Iterable<string> {
       yield `  const svc = typeof service === 'function' ? service(req) : service`;
 
       if (method.returnType) {
-        yield `        return res.status(${
-          httpMethod.successCode.value
-        }).json(await svc.${buildMethodName(method)}(${paramString}));`;
+        const returnType = getTypeByName(
+          service,
+          method.returnType.typeName.value,
+        );
+
+        if (
+          returnType &&
+          returnType.properties.some(
+            (p) => p.name.value === 'errors' && p.isArray,
+          )
+        ) {
+          needsGetHttpStatusDef = true;
+          yield `const result = await svc.${buildMethodName(
+            method,
+          )}(${paramString});`;
+          yield ` return res.status(getHttpStatus(${httpMethod.successCode.value}, result)).json(result);`;
+        } else {
+          yield ` return res.status(${
+            httpMethod.successCode.value
+          }).json(await svc.${buildMethodName(method)}(${paramString}));`;
+        }
       } else {
         yield `        await svc.${buildMethodName(method)}(${paramString});`;
         yield `        return res.status(204).send();`;
