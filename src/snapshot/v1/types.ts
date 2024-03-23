@@ -25,51 +25,9 @@ export interface AuthPermutationService {
  * Interface for the Exhaustive Service
  */
 export interface ExhaustiveService {
-  exhaustiveFormats(params?: {
-    stringNoFormat?: string;
-    stringDate?: Date;
-    stringDateTime?: Date;
-    integerNoFormat?: number;
-    integerInt32?: number;
-    integerInt64?: number;
-    numberNoFormat?: number;
-    numberFloat?: number;
-    numberDouble?: number;
-  }): Promise<void>;
+  exhaustiveFormats(params?: ExhaustiveFormatsParams): Promise<void>;
 
-  exhaustiveParams(params: {
-    pathString: string;
-    pathEnum: ExhaustiveParamsPathEnum;
-    pathNumber: number;
-    pathInteger: number;
-    pathBoolean: boolean;
-    pathStringArray: string[];
-    pathEnumArray: ExhaustiveParamsPathEnumArray[];
-    pathNumberArray: number[];
-    pathIntegerArray: number[];
-    pathBooleanArray: boolean[];
-    queryString?: string;
-    queryEnum?: ExhaustiveParamsQueryEnum;
-    queryNumber?: number;
-    queryInteger?: number;
-    queryBoolean?: boolean;
-    queryStringArray?: string[];
-    queryEnumArray?: ExhaustiveParamsQueryEnumArray[];
-    queryNumberArray?: number[];
-    queryIntegerArray?: number[];
-    queryBooleanArray?: boolean[];
-    headerString?: string;
-    headerEnum?: ExhaustiveParamsHeaderEnum;
-    headerNumber?: number;
-    headerInteger?: number;
-    headerBoolean?: boolean;
-    headerStringArray?: string[];
-    headerEnumArray?: ExhaustiveParamsHeaderEnumArray[];
-    headerNumberArray?: number[];
-    headerIntegerArray?: number[];
-    headerBooleanArray?: boolean[];
-    body?: ExhaustiveParamsBody;
-  }): Promise<void>;
+  exhaustiveParams(params: ExhaustiveParamsParams): Promise<void>;
 }
 
 /**
@@ -80,24 +38,14 @@ export interface GizmoService {
    * Has a summary in addition to a description
    * Has a description in addition to a summary
    */
-  createGizmo(params?: {
-    /**
-     * Anonymous enum
-     */
-    size?: CreateGizmoSize;
-  }): Promise<Gizmo>;
+  createGizmo(params?: CreateGizmoParams): Promise<Gizmo>;
 
   /**
    * Only has a summary
    */
-  getGizmos(params?: { search?: string }): Promise<GizmosResponse>;
+  getGizmos(params?: GetGizmosParams): Promise<GizmosResponse>;
 
-  updateGizmo(params?: {
-    /**
-     * array of primitive
-     */
-    factors?: string[];
-  }): Promise<Gizmo>;
+  updateGizmo(params?: UpdateGizmoParams): Promise<Gizmo>;
 }
 
 /**
@@ -105,31 +53,101 @@ export interface GizmoService {
  * Second paragraph of a multi-paragraph description
  */
 export interface WidgetService {
-  createWidget(params?: {
-    /**
-     * The new widget
-     */
-    body?: CreateWidgetBody;
-  }): Promise<void>;
+  createWidget(params?: CreateWidgetParams): Promise<void>;
 
-  deleteWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<void>;
+  deleteWidgetFoo(params: DeleteWidgetFooParams): Promise<void>;
 
-  getWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<Widget>;
+  getWidgetFoo(params: GetWidgetFooParams): Promise<Widget>;
 
   getWidgets(): Promise<Widget>;
 
   putWidget(): Promise<void>;
 }
+
+export type CreateGizmoParams = {
+  /**
+   * Anonymous enum
+   */
+  size?: CreateGizmoSize;
+};
+
+export type CreateWidgetParams = {
+  /**
+   * The new widget
+   */
+  body?: CreateWidgetBody;
+};
+
+export type DeleteWidgetFooParams = {
+  /**
+   * The widget ID
+   */
+  id: string;
+};
+
+export type ExhaustiveFormatsParams = {
+  stringNoFormat?: string;
+  stringDate?: Date;
+  stringDateTime?: Date;
+  integerNoFormat?: number;
+  integerInt32?: number;
+  integerInt64?: number;
+  numberNoFormat?: number;
+  numberFloat?: number;
+  numberDouble?: number;
+};
+
+export type ExhaustiveParamsParams = {
+  pathString: string;
+  pathEnum: ExhaustiveParamsPathEnum;
+  pathNumber: number;
+  pathInteger: number;
+  pathBoolean: boolean;
+  pathStringArray: string[];
+  pathEnumArray: ExhaustiveParamsPathEnumArray[];
+  pathNumberArray: number[];
+  pathIntegerArray: number[];
+  pathBooleanArray: boolean[];
+  queryString?: string;
+  queryEnum?: ExhaustiveParamsQueryEnum;
+  queryNumber?: number;
+  queryInteger?: number;
+  queryBoolean?: boolean;
+  queryStringArray?: string[];
+  queryEnumArray?: ExhaustiveParamsQueryEnumArray[];
+  queryNumberArray?: number[];
+  queryIntegerArray?: number[];
+  queryBooleanArray?: boolean[];
+  headerString?: string;
+  headerEnum?: ExhaustiveParamsHeaderEnum;
+  headerNumber?: number;
+  headerInteger?: number;
+  headerBoolean?: boolean;
+  headerStringArray?: string[];
+  headerEnumArray?: ExhaustiveParamsHeaderEnumArray[];
+  headerNumberArray?: number[];
+  headerIntegerArray?: number[];
+  headerBooleanArray?: boolean[];
+  body?: ExhaustiveParamsBody;
+};
+
+export type GetGizmosParams = {
+  search?: string;
+};
+
+export type GetWidgetFooParams = {
+  /**
+   * The widget ID
+   */
+  id: string;
+};
+
+export type UpdateGizmoParams = {
+  /**
+   * array of primitive
+   */
+  factors?: string[];
+};
 
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
 

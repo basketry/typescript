@@ -56,6 +56,13 @@ export function buildPropertyName(
   return prefix(typeModule, camel(property.name.value));
 }
 
+export function buildMethodParamsTypeName(
+  method: Method,
+  typeModule?: string,
+): string {
+  return prefix(typeModule, `${pascal(method.name.value)}Params`);
+}
+
 /**
  * Builds name of the type in idiomatic TypeScript casing.
  * @param type The intermediate representation of a type.
