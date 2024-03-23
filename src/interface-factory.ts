@@ -13,6 +13,7 @@ import {
   buildFilePath,
   buildInterfaceName,
   buildMethodName,
+  buildMethodParamsTypeName,
   buildMethodReturnType,
   buildParameterName,
   buildPropertyName,
@@ -32,6 +33,13 @@ export const generateTypes: Generator = (
   const interfaces = service.interfaces
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((int) => Array.from(buildInterface(int)).join('\n'))
+    .join('\n\n');
+
+  const params = service.interfaces
+    .flatMap((int) => int.methods)
+    .filter((method) => method.parameters.length > 0)
+    .sort((a, b) => a.name.value.localeCompare(b.name.value))
+    .map((method) => Array.from(buildMethodParamsType(method)).join('\n'))
     .join('\n\n');
 
   const types = service.types
@@ -58,9 +66,15 @@ export const generateTypes: Generator = (
 
   const ignore = from(eslintDisable(options));
 
-  const contents = [header, ignore, interfaces, enums, types, unions].join(
-    '\n\n',
-  );
+  const contents = [
+    header,
+    ignore,
+    interfaces,
+    params,
+    enums,
+    types,
+    unions,
+  ].join('\n\n');
 
   return [
     {
@@ -142,6 +156,14 @@ export function* buildDescription(
   }
 }
 
+export function* buildMethodParamsType(
+  method: Method,
+  typeModule?: string,
+): Iterable<string> {
+  yield `export type ${buildMethodParamsTypeName(method, typeModule)} =`;
+  yield* internalBuildParamsType(method, typeModule);
+}
+
 export function* buildMethodParams(
   method: Method,
   typeModule?: string,
@@ -157,10 +179,10 @@ export function* buildMethodParams(
     yield `${paramName}?:`;
   }
 
-  yield* buildParamsType(method, typeModule);
+  yield buildMethodParamsTypeName(method, typeModule);
 }
 
-export function* buildParamsType(
+function* internalBuildParamsType(
   method: Method,
   typeModule?: string,
 ): Iterable<string> {
@@ -181,4 +203,11 @@ export function* buildParamsType(
   }
 
   yield '}';
+}
+
+export function* buildParamsType(
+  method: Method,
+  typeModule?: string,
+): Iterable<string> {
+  yield buildMethodParamsTypeName(method, typeModule);
 }
