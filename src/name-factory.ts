@@ -84,6 +84,14 @@ export function buildTypeName(
   const arrayify = (n: string) => (type.isArray ? `${n}[]` : n);
 
   if (type.isPrimitive) {
+    if (type.constant) {
+      switch (typeof type.constant.value) {
+        case 'string':
+          return `'${type.constant.value}'`;
+        default:
+          return `${type.constant.value}`;
+      }
+    }
     switch (type.typeName.value) {
       case 'string':
         return arrayify('string');
@@ -133,6 +141,14 @@ export function buildRootTypeName(
   }
 
   if (type.isPrimitive) {
+    if (type.constant) {
+      switch (typeof type.constant.value) {
+        case 'string':
+          return `'${type.constant.value}'`;
+        default:
+          return `${type.constant.value}`;
+      }
+    }
     switch (type.typeName.value) {
       case 'string':
         return 'string';
