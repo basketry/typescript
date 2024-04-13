@@ -46,6 +46,8 @@ export interface GizmoService {
   getGizmos(params?: GetGizmosParams): Promise<GizmosResponse>;
 
   updateGizmo(params?: UpdateGizmoParams): Promise<Gizmo>;
+
+  uploadGizmo(params: UploadGizmoParams): Promise<void>;
 }
 
 /**
@@ -147,6 +149,10 @@ export type UpdateGizmoParams = {
    * array of primitive
    */
   factors?: string[];
+};
+
+export type UploadGizmoParams = {
+  data: Blob;
 };
 
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
