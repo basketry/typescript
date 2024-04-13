@@ -108,6 +108,8 @@ export function buildTypeName(
         return arrayify('Date');
       case 'null':
         return arrayify('null');
+      case 'binary':
+        return arrayify('Blob');
       case 'untyped':
         return arrayify('any');
       default:
@@ -165,6 +167,8 @@ export function buildRootTypeName(
         return 'Date';
       case 'null':
         return 'null';
+      case 'binary':
+        return 'Blob';
       case 'untyped':
         return 'any';
       default:
