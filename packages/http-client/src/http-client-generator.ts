@@ -46,7 +46,7 @@ export const httpClientGenerator: Generator = (service, options) => {
         parameter.isPrimitive && parameter.typeName.value === 'date',
     );
 
-  const imports = Array.from(buildImports(options)).join('\n');
+  const imports = Array.from(buildImports(service, options)).join('\n');
   const standardTypes = Array.from(
     buildStandardTypes(service, includeFormatDate, includeFormatDateTime),
   ).join('\n');
@@ -65,6 +65,7 @@ export const httpClientGenerator: Generator = (service, options) => {
 };
 
 function* buildImports(
+  service: Service,
   options: NamespacedTypescriptHttpClientOptions,
 ): Iterable<string> {
   yield `import * as types from '${
@@ -76,9 +77,30 @@ function* buildImports(
   yield `import * as sanitizers from '${
     options?.typescriptHttpClient?.sanitizersImportPath ?? './sanitizers'
   }';`;
-  yield `import * as dateUtils from '${
-    options?.typescriptHttpClient?.dateUtilsImportPath ?? './date-utils'
-  }';`;
+  if (service.types.some((type) => needsDateConversion(service, type))) {
+    yield `import * as dateUtils from '${
+      options?.typescriptHttpClient?.dateUtilsImportPath ?? './date-utils'
+    }';`;
+  }
+  const errorType = getTypeByName(service, 'Error');
+  if (!errorType) {
+    yield '';
+    yield `export type ClientError = {`;
+    yield `  code: string;`;
+    yield `  status: number;`;
+    yield `  title: string;`;
+    yield `}`;
+  }
+}
+
+function getErrorType(service: Service): string {
+  const errorType = getTypeByName(service, 'Error');
+
+  if (errorType) {
+    return buildTypeName(errorType, 'types');
+  }
+
+  return 'ClientError';
 }
 
 function* buildStandardTypes(
@@ -95,14 +117,15 @@ function* buildStandardTypes(
   );
 
   methods.delete(`'GET'`);
+  const errorType = getErrorType(service);
 
   yield `export interface ${pascal(`${service.title.value}Options`)} {`;
   yield `  root?: string;`;
-  yield `  mapValidationError?: (error: validators.ValidationError) => types.Error;`;
-  yield `  mapUnhandledException?: (error: any) => types.Error;`;
+  yield `  mapValidationError?: (error: validators.ValidationError) => ${errorType};`;
+  yield `  mapUnhandledException?: (error: any) => ${errorType};`;
   yield `}`;
   yield ``;
-  yield `export interface Fetch {`;
+  yield `export interface FetchLike {`;
   yield `<T>(resource: string, init?: {`;
   if (methods.size) yield `  method?: ${Array.from(methods).join(' | ')},`;
   yield `  headers?: Record<string, string>,`;
@@ -171,7 +194,7 @@ function* buildClass(service: Service, int: Interface): Iterable<string> {
     int,
   )} implements ${buildInterfaceName(int, 'types')} {`;
   yield `constructor(`;
-  yield `private readonly fetch: Fetch,`;
+  yield `private readonly fetch: FetchLike,`;
   yield* buildAuth(int);
   yield `private readonly options?: ${pascal(
     `${service.title.value}Options`,
@@ -203,10 +226,12 @@ function* buildClass(service: Service, int: Interface): Iterable<string> {
 
   yield '';
 
+  const errorType = getErrorType(service);
+
   yield `private mapErrors(
     validationErrors: validators.ValidationError[],
     unhandledException?: any,
-  ): types.Error[] {
+  ): ${errorType}[] {
     const mapError =
       this.options?.mapValidationError ||
       ((error) => ({
@@ -478,13 +503,21 @@ class MethodFactory {
     yield `  const path = [\`\${prefix}${path}\`, query.join('&')].join('?')`;
   }
 
-  private *buildBody(): Iterable<string> {
-    const bodyParam = this.httpMethod.parameters.find(
+  private getBodyParam():
+    | { parameter: Parameter; httpParameter: HttpParameter }
+    | { parameter?: undefined; httpParameter?: undefined } {
+    const httpParameter = this.httpMethod.parameters.find(
       (p) => p.in.value === 'body',
     );
-    const param = this.method.parameters.find(
-      (p) => p.name.value === bodyParam?.name.value,
+    const parameter = this.method.parameters.find(
+      (p) => p.name.value === httpParameter?.name.value,
     );
+
+    return httpParameter && parameter ? { parameter, httpParameter } : {};
+  }
+
+  private *buildBody(): Iterable<string> {
+    const { parameter: param } = this.getBodyParam();
 
     if (param) {
       yield `const body = ${this.accessor(
@@ -574,7 +607,8 @@ class MethodFactory {
   }
 
   private hasBody(): boolean {
-    return this.httpMethod.parameters.some((p) => p.in.value === 'body');
+    const { httpParameter } = this.getBodyParam();
+    return !!httpParameter;
   }
 }
 
