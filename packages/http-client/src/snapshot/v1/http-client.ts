@@ -9,16 +9,26 @@
  * 2. Run the Basketry CLI
  *
  * About Basketry: https://github.com/basketry/basketry/wiki
+ * About @basketry/typescript-http-client: https://github.com/basketry/typescript-http-client#readme
  */
 
 import * as types from './types';
 import * as validators from './validators';
+import * as sanitizers from './sanitizers';
+
+export type ClientError = {
+  code: string;
+  status: number;
+  title: string;
+};
 
 export interface BasketryExampleOptions {
   root?: string;
+  mapValidationError?: (error: validators.ValidationError) => ClientError;
+  mapUnhandledException?: (error: any) => ClientError;
 }
 
-export interface Fetch {
+export interface FetchLike {
   <T>(
     resource: string,
     init?: {
@@ -53,11 +63,759 @@ function formatDateTime(date: Date): string {
   )}:${lpad(date.getUTCSeconds(), 2)}.${rpad(date.getMilliseconds(), 3)}Z`;
 }
 
+export class HttpGizmoService implements types.GizmoService {
+  constructor(
+    private readonly fetch: FetchLike,
+    private readonly auth: {
+      oauth2Auth?: { accessToken: string };
+    },
+    private readonly options?: BasketryExampleOptions,
+  ) {}
+
+  /**
+   * Only has a summary
+   */
+  async getGizmos(
+    params?: types.GetGizmosParams,
+  ): Promise<types.GizmosResponse> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateGetGizmosParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.oauth2Auth) {
+        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+      }
+
+      const query: string[] = [];
+      if (typeof sanitizedParams?.search !== 'undefined') {
+        query.push(`search=${encodeURIComponent(sanitizedParams.search)}`);
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+      const res = await this.fetch<types.GizmosResponse>(path, {
+        headers,
+      });
+
+      return sanitizers.sanitizeGizmosResponse(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  /**
+   * Has a summary in addition to a description
+   * Has a description in addition to a summary
+   */
+  async createGizmo(params?: types.CreateGizmoParams): Promise<types.Gizmo> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateCreateGizmoParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.oauth2Auth) {
+        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+      }
+
+      const query: string[] = [];
+      if (typeof sanitizedParams?.size !== 'undefined') {
+        query.push(`size=${encodeURIComponent(sanitizedParams.size)}`);
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+      const res = await this.fetch<types.Gizmo>(path, {
+        method: 'POST',
+        headers,
+      });
+
+      return sanitizers.sanitizeGizmo(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async updateGizmo(params?: types.UpdateGizmoParams): Promise<types.Gizmo> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateUpdateGizmoParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.oauth2Auth) {
+        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+      }
+
+      const query: string[] = [];
+      if (typeof sanitizedParams?.factors !== 'undefined') {
+        query.push(
+          `factors=${sanitizedParams.factors}.map(encodeURIComponent).join(',')}`,
+        );
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+      const res = await this.fetch<types.Gizmo>(path, {
+        method: 'PUT',
+        headers,
+      });
+
+      return sanitizers.sanitizeGizmo(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async uploadGizmo(params: types.UploadGizmoParams): Promise<void> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateUploadGizmoParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.oauth2Auth) {
+        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+      }
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/gizmos/data`, query.join('&')].join('?');
+
+      const res = await this.fetch(path, {
+        method: 'POST',
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  private mapErrors(
+    validationErrors: validators.ValidationError[],
+    unhandledException?: any,
+  ): ClientError[] {
+    const mapError =
+      this.options?.mapValidationError ||
+      ((error) => ({
+        code: error.code as any,
+        status: 400,
+        title: error.title,
+      }));
+    const result = validationErrors.map(mapError);
+
+    if (unhandledException) {
+      if (this.options?.mapUnhandledException) {
+        result.push(this.options.mapUnhandledException(unhandledException));
+      } else {
+        result.push({
+          code: 'UNHANDLED CLIENT EXCEPTION' as any,
+          status: 400,
+          title: 'Unhandled client exception',
+        });
+      }
+    }
+
+    return result;
+  }
+}
+
+export class HttpWidgetService implements types.WidgetService {
+  constructor(
+    private readonly fetch: FetchLike,
+    private readonly auth: {
+      apiKeyAuth?: { key: string };
+    },
+    private readonly options?: BasketryExampleOptions,
+  ) {}
+
+  async getWidgets(): Promise<types.Widget> {
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+      const res = await this.fetch<types.Widget>(path, {
+        headers,
+      });
+
+      return sanitizers.sanitizeWidget(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async createWidget(params?: types.CreateWidgetParams): Promise<void> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateCreateWidgetParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+      const body =
+        sanitizedParams?.body === undefined
+          ? undefined
+          : JSON.stringify(sanitizedParams?.body);
+
+      const res = await this.fetch(path, {
+        method: 'POST',
+        headers,
+        body,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async putWidget(): Promise<void> {
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+      const res = await this.fetch(path, {
+        method: 'PUT',
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async getWidgetFoo(params: types.GetWidgetFooParams): Promise<types.Widget> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateGetWidgetFooParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [
+        `${prefix}/widgets/${encodeURIComponent(sanitizedParams.id)}/foo`,
+        query.join('&'),
+      ].join('?');
+
+      const res = await this.fetch<types.Widget>(path, {
+        headers,
+      });
+
+      return sanitizers.sanitizeWidget(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async deleteWidgetFoo(params: types.DeleteWidgetFooParams): Promise<void> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateDeleteWidgetFooParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [
+        `${prefix}/widgets/${encodeURIComponent(sanitizedParams.id)}/foo`,
+        query.join('&'),
+      ].join('?');
+
+      const res = await this.fetch(path, {
+        method: 'DELETE',
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  private mapErrors(
+    validationErrors: validators.ValidationError[],
+    unhandledException?: any,
+  ): ClientError[] {
+    const mapError =
+      this.options?.mapValidationError ||
+      ((error) => ({
+        code: error.code as any,
+        status: 400,
+        title: error.title,
+      }));
+    const result = validationErrors.map(mapError);
+
+    if (unhandledException) {
+      if (this.options?.mapUnhandledException) {
+        result.push(this.options.mapUnhandledException(unhandledException));
+      } else {
+        result.push({
+          code: 'UNHANDLED CLIENT EXCEPTION' as any,
+          status: 400,
+          title: 'Unhandled client exception',
+        });
+      }
+    }
+
+    return result;
+  }
+}
+
+export class HttpExhaustiveService implements types.ExhaustiveService {
+  constructor(
+    private readonly fetch: FetchLike,
+    private readonly options?: BasketryExampleOptions,
+  ) {}
+
+  async exhaustiveFormats(
+    params?: types.ExhaustiveFormatsParams,
+  ): Promise<void> {
+    try {
+      const sanitizedParams = params;
+      const errors =
+        validators.validateExhaustiveFormatsParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+      if (typeof sanitizedParams?.stringNoFormat !== 'undefined') {
+        query.push(
+          `string-no-format=${encodeURIComponent(
+            sanitizedParams.stringNoFormat,
+          )}`,
+        );
+      }
+      if (typeof sanitizedParams?.stringDate !== 'undefined') {
+        query.push(
+          `string-date=${encodeURIComponent(
+            formatDate(sanitizedParams.stringDate),
+          )}`,
+        );
+      }
+      if (typeof sanitizedParams?.stringDateTime !== 'undefined') {
+        query.push(
+          `string-date-time=${encodeURIComponent(
+            formatDateTime(sanitizedParams.stringDateTime),
+          )}`,
+        );
+      }
+      if (typeof sanitizedParams?.integerNoFormat !== 'undefined') {
+        query.push(
+          `integer-no-format=${encodeURIComponent(
+            sanitizedParams.integerNoFormat,
+          )}`,
+        );
+      }
+      if (typeof sanitizedParams?.integerInt32 !== 'undefined') {
+        query.push(
+          `integer-int32=${encodeURIComponent(sanitizedParams.integerInt32)}`,
+        );
+      }
+      if (typeof sanitizedParams?.integerInt64 !== 'undefined') {
+        query.push(
+          `integer-int64=${encodeURIComponent(sanitizedParams.integerInt64)}`,
+        );
+      }
+      if (typeof sanitizedParams?.numberNoFormat !== 'undefined') {
+        query.push(
+          `number-no-format=${encodeURIComponent(
+            sanitizedParams.numberNoFormat,
+          )}`,
+        );
+      }
+      if (typeof sanitizedParams?.numberFloat !== 'undefined') {
+        query.push(
+          `number-float=${encodeURIComponent(sanitizedParams.numberFloat)}`,
+        );
+      }
+      if (typeof sanitizedParams?.numberDouble !== 'undefined') {
+        query.push(
+          `number-double=${encodeURIComponent(sanitizedParams.numberDouble)}`,
+        );
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/exhaustive`, query.join('&')].join('?');
+
+      const res = await this.fetch(path, {
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async exhaustiveParams(params: types.ExhaustiveParamsParams): Promise<void> {
+    try {
+      const sanitizedParams = params;
+      const errors = validators.validateExhaustiveParamsParams(sanitizedParams);
+      if (errors.length) {
+        return { errors: this.mapErrors(errors) } as any;
+      }
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (typeof sanitizedParams.headerString !== 'undefined') {
+        headers['header-string'] = encodeURIComponent(
+          sanitizedParams.headerString,
+        );
+      }
+      if (typeof sanitizedParams.headerEnum !== 'undefined') {
+        headers['header-enum'] = encodeURIComponent(sanitizedParams.headerEnum);
+      }
+      if (typeof sanitizedParams.headerNumber !== 'undefined') {
+        headers['header-number'] = encodeURIComponent(
+          sanitizedParams.headerNumber,
+        );
+      }
+      if (typeof sanitizedParams.headerInteger !== 'undefined') {
+        headers['header-integer'] = encodeURIComponent(
+          sanitizedParams.headerInteger,
+        );
+      }
+      if (typeof sanitizedParams.headerBoolean !== 'undefined') {
+        headers['header-boolean'] = encodeURIComponent(
+          sanitizedParams.headerBoolean,
+        );
+      }
+      if (typeof sanitizedParams.headerStringArray !== 'undefined') {
+        headers['header-string-array'] = sanitizedParams.headerStringArray
+          .map(encodeURIComponent)
+          .join(',');
+      }
+      if (typeof sanitizedParams.headerEnumArray !== 'undefined') {
+        headers['header-enum-array'] = sanitizedParams.headerEnumArray
+          .map(encodeURIComponent)
+          .join(',');
+      }
+      if (typeof sanitizedParams.headerNumberArray !== 'undefined') {
+        headers['header-number-array'] = sanitizedParams.headerNumberArray
+          .map(encodeURIComponent)
+          .join('|');
+      }
+      if (typeof sanitizedParams.headerIntegerArray !== 'undefined') {
+        headers['header-integer-array'] = sanitizedParams.headerIntegerArray
+          .map(encodeURIComponent)
+          .join(' ');
+      }
+      if (typeof sanitizedParams.headerBooleanArray !== 'undefined') {
+        headers['header-boolean-array'] = sanitizedParams.headerBooleanArray
+          .map(encodeURIComponent)
+          .join('\t');
+      }
+
+      const query: string[] = [];
+      if (typeof sanitizedParams.queryEnum !== 'undefined') {
+        query.push(
+          `query-enum=${encodeURIComponent(sanitizedParams.queryEnum)}`,
+        );
+      }
+      if (typeof sanitizedParams.queryNumber !== 'undefined') {
+        query.push(
+          `query-number=${encodeURIComponent(sanitizedParams.queryNumber)}`,
+        );
+      }
+      if (typeof sanitizedParams.queryInteger !== 'undefined') {
+        query.push(
+          `query-integer=${encodeURIComponent(sanitizedParams.queryInteger)}`,
+        );
+      }
+      if (typeof sanitizedParams.queryBoolean !== 'undefined') {
+        query.push(
+          `query-boolean=${encodeURIComponent(sanitizedParams.queryBoolean)}`,
+        );
+      }
+      if (typeof sanitizedParams.queryStringArray !== 'undefined') {
+        query.push(
+          `query-string-array=${sanitizedParams.queryStringArray}.map(encodeURIComponent).join(',')}`,
+        );
+      }
+      if (typeof sanitizedParams.queryEnumArray !== 'undefined') {
+        query.push(
+          `query-enum-array=${sanitizedParams.queryEnumArray}.map(encodeURIComponent).join(',')}`,
+        );
+      }
+      if (typeof sanitizedParams.queryNumberArray !== 'undefined') {
+        query.push(
+          `query-number-array=${sanitizedParams.queryNumberArray}.map(encodeURIComponent).join(',')}`,
+        );
+      }
+      if (typeof sanitizedParams.queryIntegerArray !== 'undefined') {
+        query.push(
+          `query-integer-array=${sanitizedParams.queryIntegerArray}.map(encodeURIComponent).join(',')}`,
+        );
+      }
+      if (typeof sanitizedParams.queryBooleanArray !== 'undefined') {
+        query.push(
+          `query-boolean-array=${sanitizedParams.queryBooleanArray}.map(encodeURIComponent).join(',')}`,
+        );
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [
+        `${prefix}/exhaustive/${encodeURIComponent(
+          sanitizedParams.pathString,
+        )}/${encodeURIComponent(sanitizedParams.pathEnum)}/${encodeURIComponent(
+          sanitizedParams.pathNumber,
+        )}/${encodeURIComponent(
+          sanitizedParams.pathInteger,
+        )}/${encodeURIComponent(
+          sanitizedParams.pathBoolean,
+        )}/${sanitizedParams.pathStringArray
+          .map(encodeURIComponent)
+          .join(',')}/${sanitizedParams.pathEnumArray
+          .map(encodeURIComponent)
+          .join('|')}/${sanitizedParams.pathNumberArray
+          .map(encodeURIComponent)
+          .join(' ')}/${sanitizedParams.pathIntegerArray
+          .map(encodeURIComponent)
+          .join('\t')}/${sanitizedParams.pathBooleanArray
+          .map(encodeURIComponent)
+          .join(',')}`,
+        query.join('&'),
+      ].join('?');
+
+      const body =
+        sanitizedParams.body === undefined
+          ? undefined
+          : JSON.stringify(sanitizedParams.body);
+
+      const res = await this.fetch(path, {
+        headers,
+        body,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  private mapErrors(
+    validationErrors: validators.ValidationError[],
+    unhandledException?: any,
+  ): ClientError[] {
+    const mapError =
+      this.options?.mapValidationError ||
+      ((error) => ({
+        code: error.code as any,
+        status: 400,
+        title: error.title,
+      }));
+    const result = validationErrors.map(mapError);
+
+    if (unhandledException) {
+      if (this.options?.mapUnhandledException) {
+        result.push(this.options.mapUnhandledException(unhandledException));
+      } else {
+        result.push({
+          code: 'UNHANDLED CLIENT EXCEPTION' as any,
+          status: 400,
+          title: 'Unhandled client exception',
+        });
+      }
+    }
+
+    return result;
+  }
+}
+
 export class HttpAuthPermutationService
   implements types.AuthPermutationService
 {
   constructor(
-    private readonly fetch: Fetch,
+    private readonly fetch: FetchLike,
     private readonly auth: {
       basicAuth?: { username: string; password: string };
       'alternate-basic-auth'?: { username: string; password: string };
@@ -69,707 +827,133 @@ export class HttpAuthPermutationService
   ) {}
 
   async allAuthSchemes(): Promise<void> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.basicAuth) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
-      )}`;
-    }
-    if (this.auth['alternate-basic-auth']) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
-      )}`;
-    }
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.basicAuth) {
+        // TODO: remove deprecated method for node targets
+        headers.authorization = `Basic ${btoa(
+          `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
+        )}`;
+      }
+      if (this.auth['alternate-basic-auth']) {
+        // TODO: remove deprecated method for node targets
+        headers.authorization = `Basic ${btoa(
+          `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
+        )}`;
+      }
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+      if (this.auth.oauth2Auth) {
+        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+      }
 
-    const query: string[] = [];
-    if (this.auth.alternateApiKeyAuth) {
-      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
-    }
+      const query: string[] = [];
+      if (this.auth.alternateApiKeyAuth) {
+        query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+      }
 
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
 
-    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+      const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-    const res = await this.fetch(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
+      const res = await this.fetch(path, {
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
     }
   }
 
   async comboAuthSchemes(): Promise<void> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.basicAuth) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
-      )}`;
-    }
-    if (this.auth['alternate-basic-auth']) {
-      // TODO: remove deprecated method for node targets
-      headers.authorization = `Basic ${btoa(
-        `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
-      )}`;
-    }
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (this.auth.basicAuth) {
+        // TODO: remove deprecated method for node targets
+        headers.authorization = `Basic ${btoa(
+          `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
+        )}`;
+      }
+      if (this.auth['alternate-basic-auth']) {
+        // TODO: remove deprecated method for node targets
+        headers.authorization = `Basic ${btoa(
+          `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
+        )}`;
+      }
+      if (this.auth.apiKeyAuth) {
+        headers['x-apikey'] = this.auth.apiKeyAuth.key;
+      }
+      if (this.auth.oauth2Auth) {
+        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
+      }
 
-    const query: string[] = [];
-    if (this.auth.alternateApiKeyAuth) {
-      query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
-    }
+      const query: string[] = [];
+      if (this.auth.alternateApiKeyAuth) {
+        query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+      }
 
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
 
-    const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+      const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-    const res = await this.fetch(path, {
-      method: 'PUT',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-  }
-}
-
-export class HttpExhaustiveService implements types.ExhaustiveService {
-  constructor(
-    private readonly fetch: Fetch,
-    private readonly options?: BasketryExampleOptions,
-  ) {}
-
-  async exhaustiveFormats(params?: {
-    stringNoFormat?: string;
-    stringDate?: Date;
-    stringDateTime?: Date;
-    integerNoFormat?: number;
-    integerInt32?: number;
-    integerInt64?: number;
-    numberNoFormat?: number;
-    numberFloat?: number;
-    numberDouble?: number;
-  }): Promise<void> {
-    const errors = validators.validateExhaustiveFormatsParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    const query: string[] = [];
-    if (typeof params?.stringNoFormat !== 'undefined') {
-      query.push(
-        `string-no-format=${encodeURIComponent(params.stringNoFormat)}`,
-      );
-    }
-    if (typeof params?.stringDate !== 'undefined') {
-      query.push(
-        `string-date=${encodeURIComponent(formatDate(params.stringDate))}`,
-      );
-    }
-    if (typeof params?.stringDateTime !== 'undefined') {
-      query.push(
-        `string-date-time=${encodeURIComponent(
-          formatDateTime(params.stringDateTime),
-        )}`,
-      );
-    }
-    if (typeof params?.integerNoFormat !== 'undefined') {
-      query.push(
-        `integer-no-format=${encodeURIComponent(params.integerNoFormat)}`,
-      );
-    }
-    if (typeof params?.integerInt32 !== 'undefined') {
-      query.push(`integer-int32=${encodeURIComponent(params.integerInt32)}`);
-    }
-    if (typeof params?.integerInt64 !== 'undefined') {
-      query.push(`integer-int64=${encodeURIComponent(params.integerInt64)}`);
-    }
-    if (typeof params?.numberNoFormat !== 'undefined') {
-      query.push(
-        `number-no-format=${encodeURIComponent(params.numberNoFormat)}`,
-      );
-    }
-    if (typeof params?.numberFloat !== 'undefined') {
-      query.push(`number-float=${encodeURIComponent(params.numberFloat)}`);
-    }
-    if (typeof params?.numberDouble !== 'undefined') {
-      query.push(`number-double=${encodeURIComponent(params.numberDouble)}`);
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/exhaustive`, query.join('&')].join('?');
-
-    const res = await this.fetch(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 204) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
-      );
+      const res = await this.fetch(path, {
+        method: 'PUT',
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
     }
   }
 
-  async exhaustiveParams(params: {
-    pathString: string;
-    pathEnum: types.ExhaustiveParamsPathEnum;
-    pathNumber: number;
-    pathInteger: number;
-    pathBoolean: boolean;
-    pathStringArray: string[];
-    pathEnumArray: types.ExhaustiveParamsPathEnumArray[];
-    pathNumberArray: number[];
-    pathIntegerArray: number[];
-    pathBooleanArray: boolean[];
-    queryString?: string;
-    queryEnum?: types.ExhaustiveParamsQueryEnum;
-    queryNumber?: number;
-    queryInteger?: number;
-    queryBoolean?: boolean;
-    queryStringArray?: string[];
-    queryEnumArray?: types.ExhaustiveParamsQueryEnumArray[];
-    queryNumberArray?: number[];
-    queryIntegerArray?: number[];
-    queryBooleanArray?: boolean[];
-    headerString?: string;
-    headerEnum?: types.ExhaustiveParamsHeaderEnum;
-    headerNumber?: number;
-    headerInteger?: number;
-    headerBoolean?: boolean;
-    headerStringArray?: string[];
-    headerEnumArray?: types.ExhaustiveParamsHeaderEnumArray[];
-    headerNumberArray?: number[];
-    headerIntegerArray?: number[];
-    headerBooleanArray?: boolean[];
-    body?: types.ExhaustiveParamsBody;
-  }): Promise<void> {
-    const errors = validators.validateExhaustiveParamsParams(params);
-    if (errors.length) throw errors;
+  private mapErrors(
+    validationErrors: validators.ValidationError[],
+    unhandledException?: any,
+  ): ClientError[] {
+    const mapError =
+      this.options?.mapValidationError ||
+      ((error) => ({
+        code: error.code as any,
+        status: 400,
+        title: error.title,
+      }));
+    const result = validationErrors.map(mapError);
 
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (typeof params.headerString !== 'undefined') {
-      headers['header-string'] = encodeURIComponent(params.headerString);
-    }
-    if (typeof params.headerEnum !== 'undefined') {
-      headers['header-enum'] = encodeURIComponent(params.headerEnum);
-    }
-    if (typeof params.headerNumber !== 'undefined') {
-      headers['header-number'] = encodeURIComponent(params.headerNumber);
-    }
-    if (typeof params.headerInteger !== 'undefined') {
-      headers['header-integer'] = encodeURIComponent(params.headerInteger);
-    }
-    if (typeof params.headerBoolean !== 'undefined') {
-      headers['header-boolean'] = encodeURIComponent(params.headerBoolean);
-    }
-    if (typeof params.headerStringArray !== 'undefined') {
-      headers['header-string-array'] = params.headerStringArray
-        .map(encodeURIComponent)
-        .join(',');
-    }
-    if (typeof params.headerEnumArray !== 'undefined') {
-      headers['header-enum-array'] = params.headerEnumArray
-        .map(encodeURIComponent)
-        .join(',');
-    }
-    if (typeof params.headerNumberArray !== 'undefined') {
-      headers['header-number-array'] = params.headerNumberArray
-        .map(encodeURIComponent)
-        .join('|');
-    }
-    if (typeof params.headerIntegerArray !== 'undefined') {
-      headers['header-integer-array'] = params.headerIntegerArray
-        .map(encodeURIComponent)
-        .join(' ');
-    }
-    if (typeof params.headerBooleanArray !== 'undefined') {
-      headers['header-boolean-array'] = params.headerBooleanArray
-        .map(encodeURIComponent)
-        .join('\t');
+    if (unhandledException) {
+      if (this.options?.mapUnhandledException) {
+        result.push(this.options.mapUnhandledException(unhandledException));
+      } else {
+        result.push({
+          code: 'UNHANDLED CLIENT EXCEPTION' as any,
+          status: 400,
+          title: 'Unhandled client exception',
+        });
+      }
     }
 
-    const query: string[] = [];
-    if (typeof params.queryEnum !== 'undefined') {
-      query.push(`query-enum=${encodeURIComponent(params.queryEnum)}`);
-    }
-    if (typeof params.queryNumber !== 'undefined') {
-      query.push(`query-number=${encodeURIComponent(params.queryNumber)}`);
-    }
-    if (typeof params.queryInteger !== 'undefined') {
-      query.push(`query-integer=${encodeURIComponent(params.queryInteger)}`);
-    }
-    if (typeof params.queryBoolean !== 'undefined') {
-      query.push(`query-boolean=${encodeURIComponent(params.queryBoolean)}`);
-    }
-    if (typeof params.queryStringArray !== 'undefined') {
-      query.push(
-        `query-string-array=${params.queryStringArray}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-    if (typeof params.queryEnumArray !== 'undefined') {
-      query.push(
-        `query-enum-array=${params.queryEnumArray}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-    if (typeof params.queryNumberArray !== 'undefined') {
-      query.push(
-        `query-number-array=${params.queryNumberArray}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-    if (typeof params.queryIntegerArray !== 'undefined') {
-      query.push(
-        `query-integer-array=${params.queryIntegerArray}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-    if (typeof params.queryBooleanArray !== 'undefined') {
-      query.push(
-        `query-boolean-array=${params.queryBooleanArray}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [
-      `${prefix}/exhaustive/${encodeURIComponent(
-        params.pathString,
-      )}/${encodeURIComponent(params.pathEnum)}/${encodeURIComponent(
-        params.pathNumber,
-      )}/${encodeURIComponent(params.pathInteger)}/${encodeURIComponent(
-        params.pathBoolean,
-      )}/${params.pathStringArray
-        .map(encodeURIComponent)
-        .join(',')}/${params.pathEnumArray
-        .map(encodeURIComponent)
-        .join('|')}/${params.pathNumberArray
-        .map(encodeURIComponent)
-        .join(' ')}/${params.pathIntegerArray
-        .map(encodeURIComponent)
-        .join('\t')}/${params.pathBooleanArray
-        .map(encodeURIComponent)
-        .join(',')}`,
-      query.join('&'),
-    ].join('?');
-
-    const body =
-      params.body === undefined ? undefined : JSON.stringify(params.body);
-
-    const res = await this.fetch(path, {
-      headers,
-      body,
-    });
-
-    if (res.status < 400 && res.status !== 204) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
-      );
-    }
-  }
-}
-
-export class HttpGizmoService implements types.GizmoService {
-  constructor(
-    private readonly fetch: Fetch,
-    private readonly auth: {
-      oauth2Auth?: { accessToken: string };
-    },
-    private readonly options?: BasketryExampleOptions,
-  ) {}
-
-  /**
-   * Has a summary in addition to a description
-   * Has a description in addition to a summary
-   */
-  async createGizmo(params?: {
-    /**
-     * Anonymous enum
-     */
-    size?: types.CreateGizmoSize;
-  }): Promise<types.Gizmo> {
-    const errors = validators.validateCreateGizmoParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
-
-    const query: string[] = [];
-    if (typeof params?.size !== 'undefined') {
-      query.push(`size=${encodeURIComponent(params.size)}`);
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.Gizmo>(path, {
-      method: 'POST',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 201) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 201 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateGizmo(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  /**
-   * Only has a summary
-   */
-  async getGizmos(params?: { search?: string }): Promise<types.GizmosResponse> {
-    const errors = validators.validateGetGizmosParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
-
-    const query: string[] = [];
-    if (typeof params?.search !== 'undefined') {
-      query.push(`search=${encodeURIComponent(params.search)}`);
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.GizmosResponse>(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors =
-      validators.validateGizmosResponse(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  async updateGizmo(params?: {
-    /**
-     * array of primitive
-     */
-    factors?: string[];
-  }): Promise<types.Gizmo> {
-    const errors = validators.validateUpdateGizmoParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.oauth2Auth) {
-      headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-    }
-
-    const query: string[] = [];
-    if (typeof params?.factors !== 'undefined') {
-      query.push(
-        `factors=${params.factors}.map(encodeURIComponent).join(',')}`,
-      );
-    }
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.Gizmo>(path, {
-      method: 'PUT',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateGizmo(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-}
-
-export class HttpWidgetService implements types.WidgetService {
-  constructor(
-    private readonly fetch: Fetch,
-    private readonly auth: {
-      apiKeyAuth?: { key: string };
-    },
-    private readonly options?: BasketryExampleOptions,
-  ) {}
-
-  async createWidget(params?: {
-    /**
-     * The new widget
-     */
-    body?: types.CreateWidgetBody;
-  }): Promise<void> {
-    const errors = validators.validateCreateWidgetParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/widgets`, query.join('&')].join('?');
-
-    const body =
-      params?.body === undefined ? undefined : JSON.stringify(params?.body);
-
-    const res = await this.fetch(path, {
-      method: 'POST',
-      headers,
-      body,
-    });
-
-    if (res.status < 400 && res.status !== 204) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
-      );
-    }
-  }
-
-  async deleteWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<void> {
-    const errors = validators.validateDeleteWidgetFooParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [
-      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
-      query.join('&'),
-    ].join('?');
-
-    const res = await this.fetch(path, {
-      method: 'DELETE',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 204) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 204 but got ${res.status}`,
-      );
-    }
-  }
-
-  async getWidgetFoo(params: {
-    /**
-     * The widget ID
-     */
-    id: string;
-  }): Promise<types.Widget> {
-    const errors = validators.validateGetWidgetFooParams(params);
-    if (errors.length) throw errors;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [
-      `${prefix}/widgets/${encodeURIComponent(params.id)}/foo`,
-      query.join('&'),
-    ].join('?');
-
-    const res = await this.fetch<types.Widget>(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateWidget(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  async getWidgets(): Promise<types.Widget> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/widgets`, query.join('&')].join('?');
-
-    const res = await this.fetch<types.Widget>(path, {
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
-
-    const response = await res.json();
-
-    const responseValidationErrors = validators.validateWidget(response);
-    if (responseValidationErrors.length) throw responseValidationErrors;
-
-    return response;
-  }
-
-  async putWidget(): Promise<void> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (this.auth.apiKeyAuth) {
-      headers['x-apikey'] = this.auth.apiKeyAuth.key;
-    }
-
-    const query: string[] = [];
-
-    let prefix = '';
-    if (this.options?.root) {
-      prefix = this.options.root;
-      if (!prefix.startsWith('/')) prefix = `/${prefix}`;
-    }
-
-    const path = [`${prefix}/widgets`, query.join('&')].join('?');
-
-    const res = await this.fetch(path, {
-      method: 'PUT',
-      headers,
-    });
-
-    if (res.status < 400 && res.status !== 200) {
-      throw new Error(
-        `Unexpected HTTP status code. Expected 200 but got ${res.status}`,
-      );
-    }
+    return result;
   }
 }
