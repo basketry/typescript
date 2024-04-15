@@ -15,7 +15,7 @@ describe('InterfaceFactory', () => {
 
     // ACT
     const snapshotFiles = [
-      // ...generateTypes(service),
+      ...generateTypes(service),
       // ...generateValidators(service),
       ...httpClientGenerator(service),
     ];

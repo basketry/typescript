@@ -11,7 +11,7 @@ const withoutVersion = `${pkg.name}@{{version}}`;
 const service = require('basketry/lib/example-ir.json');
 
 const snapshotFiles = [
-  // ...generateTypes(service),
+  ...generateTypes(service),
   // ...generateValidators(service),
   ...httpClientGenerator(service),
 ];
