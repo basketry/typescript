@@ -32,6 +32,7 @@ export interface ExhaustiveService {
 
 /**
  * Single paragraph description
+ * @deprecated
  */
 export interface GizmoService {
   /**
@@ -42,6 +43,7 @@ export interface GizmoService {
 
   /**
    * Only has a summary
+   * @deprecated
    */
   getGizmos(params?: GetGizmosParams): Promise<GizmosResponse>;
 
@@ -155,6 +157,9 @@ export type UploadGizmoParams = {
   data: Blob;
 };
 
+/**
+ * @deprecated
+ */
 export type CreateGizmoSize = 'small' | 'medium' | 'big' | 'XL';
 
 export type ExhaustiveParamsHeaderEnum = 'one' | 'two' | 'three';
@@ -180,9 +185,16 @@ export type ExhaustiveParamsBody = {
   bar?: string;
 };
 
+/**
+ * @deprecated
+ */
 export type Gizmo = {
   id?: string;
   name?: string;
+
+  /**
+   * @deprecated
+   */
   size?: ProductSize;
 };
 

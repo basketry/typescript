@@ -88,6 +88,7 @@ function* buildInterface(int: Interface): Iterable<string> {
   yield* buildDescription(
     int.description,
     `Interface for the ${title(int.name.value)} Service`,
+    int.deprecated?.value,
   );
   yield `export interface ${buildInterfaceName(int)} {`;
   for (const method of int.methods.sort((a, b) =>
@@ -100,18 +101,26 @@ function* buildInterface(int: Interface): Iterable<string> {
 }
 
 function* buildMethod(method: Method): Iterable<string> {
-  yield* buildDescription(method.description);
+  yield* buildDescription(
+    method.description,
+    undefined,
+    method.deprecated?.value,
+  );
   yield `async ${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
   yield `): ${buildMethodReturnType(method)};`;
 }
 
 function* buildType(type: Type): Iterable<string> {
-  yield* buildDescription(type.description);
+  yield* buildDescription(type.description, undefined, type.deprecated?.value);
   if (type.properties.length) {
     yield `export type ${buildTypeName(type)} = {`;
     for (const prop of type.properties) {
-      yield* buildDescription(prop.description);
+      yield* buildDescription(
+        prop.description,
+        undefined,
+        prop.deprecated?.value,
+      );
       yield `  ${buildPropertyName(prop)}${
         isRequired(prop) ? '' : '?'
       }: ${buildTypeName(prop)};`;
@@ -123,7 +132,7 @@ function* buildType(type: Type): Iterable<string> {
 }
 
 function* buildEnum(e: Enum): Iterable<string> {
-  yield* buildDescription(e.description);
+  yield* buildDescription(e.description, undefined, e.deprecated?.value);
   if (e.values.length) {
     yield `export type ${buildEnumName(e)} = ${e.values
       .map((v) => `'${v.content.value}'`)
@@ -135,10 +144,11 @@ function* buildEnum(e: Enum): Iterable<string> {
 
 export function* buildDescription(
   description: string | Scalar<string> | Scalar<string>[] | undefined,
-  defaultValue?: string,
+  defaultValue: string | undefined,
+  isDeprecated: boolean | undefined,
 ): Iterable<string> {
   const desc = description || defaultValue;
-  if (desc) {
+  if (desc || isDeprecated) {
     yield ``;
     yield `/**`;
 
@@ -148,8 +158,12 @@ export function* buildDescription(
       }
     } else if (typeof desc === 'string') {
       yield ` * ${desc}`;
-    } else {
+    } else if (desc) {
       yield ` * ${desc.value}`;
+    }
+
+    if (isDeprecated) {
+      yield ` * @deprecated`;
     }
 
     yield ` */`;
@@ -194,7 +208,11 @@ function* internalBuildParamsType(
 
   for (const param of sortedParams) {
     if (param.description) {
-      yield* buildDescription(param.description);
+      yield* buildDescription(
+        param.description,
+        undefined,
+        param.deprecated?.value,
+      );
     }
 
     yield `    ${buildParameterName(param)}${
