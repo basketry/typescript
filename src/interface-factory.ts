@@ -1,13 +1,16 @@
 import {
   Enum,
   Generator,
+  getTypeByName,
   Interface,
   isRequired,
   Method,
   Scalar,
+  Service,
   Type,
+  Union,
 } from 'basketry';
-import { title } from 'case';
+import { camel, title } from 'case';
 import {
   buildEnumName,
   buildFilePath,
@@ -52,15 +55,7 @@ export const generateTypes: Generator = (
     .map((e) => Array.from(buildEnum(e)).join('\n'))
     .join('\n\n');
 
-  const unions = service.unions
-    .sort((a, b) => a.name.value.localeCompare(b.name.value))
-    .map(
-      (union) =>
-        `export type ${buildUnionName(union)} = ${union.members
-          .map((member) => buildTypeName(member))
-          .join(' | ')}`,
-    )
-    .join('\n\n');
+  const unions = from(buildUnions(service));
 
   const header = warning(service, require('../package.json'), options);
 
@@ -83,6 +78,57 @@ export const generateTypes: Generator = (
     },
   ];
 };
+
+function* buildUnions(service: Service): Iterable<string> {
+  for (const union of [...service.unions].sort((a, b) =>
+    a.name.value.localeCompare(b.name.value),
+  )) {
+    yield '';
+    yield* buildUnion(service, union);
+  }
+}
+
+function* buildUnion(service: Service, union: Union): Iterable<string> {
+  const name = buildUnionName(union);
+
+  if (union.discriminator) {
+    yield `export type ${name} = ${union.members
+      .map((customValue) => buildTypeName(customValue))
+      .join(' | ')}`;
+
+    for (const customValue of union.members) {
+      const type = getTypeByName(service, customValue.typeName.value);
+      if (!type) continue;
+
+      const typeName = buildTypeName(customValue);
+      const methodName = camel(`is_${typeName}`);
+      const property = type.properties.find(
+        (prop) => camel(prop.name.value) === camel(union.discriminator.value),
+      );
+
+      if (!property) continue;
+      if (!property.isPrimitive) continue;
+
+      const propertyName = buildPropertyName(property);
+
+      const constant = property.constant?.value;
+      if (!constant) continue;
+
+      yield '';
+      yield `export function ${methodName}(obj: ${name}): obj is ${typeName} {`;
+      if (typeof constant === 'string') {
+        yield `  return obj.${propertyName} === '${constant}';`;
+      } else {
+        yield `  return obj.${propertyName} === ${constant};`;
+      }
+      yield '}';
+    }
+  } else {
+    yield `export type ${name} = ${union.members
+      .map((typedValue) => buildTypeName(typedValue))
+      .join(' | ')}`;
+  }
+}
 
 function* buildInterface(int: Interface): Iterable<string> {
   yield* buildDescription(
