@@ -24,11 +24,11 @@ export class ExpressIndexFactory extends BaseFactory {
   }
 
   private *buildContents(): Iterable<string> {
-    yield `export type * from './dtos';`;
+    yield `export * from './dtos';`;
     yield `export * from './errors';`;
     yield `export * from './handlers';`;
     yield `export * from './mappers';`;
     yield `export * from './router-factory';`;
-    yield `export type * from './types';`;
+    yield `export * from './types';`;
   }
 }

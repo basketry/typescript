@@ -31,15 +31,17 @@ const snapshotFiles = [
   ...new ExpressErrorsFactory(service, {}).build(),
 ];
 
-for (const file of snapshotFiles) {
-  const path = file.path.slice(0, file.path.length - 1);
-  const filename = file.path[file.path.length - 1];
+(async () => {
+  for (const file of snapshotFiles) {
+    const path = file.path.slice(0, file.path.length - 1);
+    const filename = file.path[file.path.length - 1];
 
-  const fullpath = [process.cwd(), 'src', 'snapshot', ...path];
+    const fullpath = [process.cwd(), 'src', 'snapshot', ...path];
 
-  mkdirSync(join(...fullpath), { recursive: true });
-  writeFileSync(
-    join(...fullpath, filename),
-    file.contents.replace(withVersion, withoutVersion),
-  );
-}
+    mkdirSync(join(...fullpath), { recursive: true });
+    writeFileSync(
+      join(...fullpath, filename),
+      (await file.contents).replace(withVersion, withoutVersion),
+    );
+  }
+})();

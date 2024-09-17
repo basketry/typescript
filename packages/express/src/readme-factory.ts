@@ -1,12 +1,11 @@
 import { File, Interface, Method, Service, warning } from 'basketry';
 import { NamespacedExpressOptions } from './types';
 import { buildFilePath, buildInterfaceName } from '@basketry/typescript';
-import { format as formatWithPrettier, Options } from 'prettier';
+import { format, Options } from 'prettier';
 import { BaseFactory } from './base-factory';
 import { join } from 'path';
 import { readFileSync } from 'fs';
 import { NamespacedTypescriptOptions } from '@basketry/typescript/lib/types';
-import { get } from 'http';
 import { camel, pascal } from 'case';
 import { ExpressErrorsFactory } from './errors-factory';
 
@@ -23,7 +22,10 @@ export class ExpressReadmeFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['express', 'README.md'], this.service, this.options),
-      contents: format([contents].join('\n\n'), this.options),
+      contents: formatMarkdown(
+        [contents].join('\n\n'),
+        this.options,
+      ) as any as string, // Prettier 3 hack until basketry types support promises
     });
 
     return files;
@@ -314,10 +316,10 @@ export const handler: RequestHandler = (err, req, res, next) => {
 }
 
 /** Formats the source content with Prettier. */
-export function format(
+export async function formatMarkdown(
   source: string,
   options: NamespacedTypescriptOptions | undefined,
-): string {
+): Promise<string> {
   try {
     let prettierOptions: Options = {
       parser: 'markdown',
@@ -330,7 +332,7 @@ export function format(
       prettierOptions = { ...prettierOptions, ...config };
     }
 
-    return formatWithPrettier(source, prettierOptions);
+    return format(source, prettierOptions);
   } catch (err) {
     return source;
   }

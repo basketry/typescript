@@ -12,9 +12,9 @@
  * About @basketry/express: https://github.com/basketry/express/wiki
  */
 
-export type * from './dtos';
+export * from './dtos';
 export * from './errors';
 export * from './handlers';
 export * from './mappers';
 export * from './router-factory';
-export type * from './types';
+export * from './types';
