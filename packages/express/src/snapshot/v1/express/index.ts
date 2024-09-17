@@ -12,12 +12,9 @@
  * About @basketry/express: https://github.com/basketry/express/wiki
  */
 
-import { AuthService } from './auth';
-
-declare global {
-  namespace Express {
-    interface Request {
-      basketry?: { context: AuthService };
-    }
-  }
-}
+export type * from './dtos';
+export * from './errors';
+export * from './handlers';
+export * from './mappers';
+export * from './router-factory';
+export type * from './types';
