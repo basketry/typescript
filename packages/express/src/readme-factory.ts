@@ -161,7 +161,7 @@ In the generated ExpressJS API code, we use two distinct sets of types: ${busine
 
 ### Why Two Sets of Types?
 
-- ${businessObjectTypes} are written in a way that is idiomatic to TypeScript. While they are generated from the API contract, they follow a naming and casing convention consistant with the rest of the codebase.
+- ${businessObjectTypes} are written in a way that is idiomatic to TypeScript. While they are generated from the API contract, they follow a naming and casing convention consistent with the rest of the codebase.
 
 - ${dtoTypes} represent the over-the-wire format defined by the API contract. These types are used to communicate with external clients, ensuring consistency in the structure and casing of the data being exposed or accepted by the API. These types may have different naming conventions (e.g., snake_case for JSON fields) and might not always align one-to-one with our internal types.
 
