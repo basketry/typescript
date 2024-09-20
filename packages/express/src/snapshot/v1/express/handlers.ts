@@ -71,10 +71,10 @@ export const handleCreateGizmo =
         size: req.query.size as types.CreateGizmoSize,
       };
 
-      // Validate parameters
-      const validationErrors = validators.validateCreateGizmoParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      // Validate request
+      const reqValidationErrors = validators.validateCreateGizmoParams(params);
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -85,6 +85,12 @@ export const handleCreateGizmo =
       // Respond
       const reponseDto = mappers.mapToGizmoDto(result);
       res.status(status).json(reponseDto);
+
+      // Validate response
+      const resValidationErrors = validators.validateGizmo(result);
+      if (resValidationErrors.length) {
+        next(errors.validationErrors(500, resValidationErrors));
+      }
     } catch (err) {
       next(errors.unhandledException(err));
     }
@@ -102,10 +108,10 @@ export const handleCreateWidget =
         body: mappers.mapFromCreateWidgetBodyDto(req.body),
       };
 
-      // Validate parameters
-      const validationErrors = validators.validateCreateWidgetParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      // Validate request
+      const reqValidationErrors = validators.validateCreateWidgetParams(params);
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -132,10 +138,11 @@ export const handleDeleteWidgetFoo =
         id: req.params.id,
       };
 
-      // Validate parameters
-      const validationErrors = validators.validateDeleteWidgetFooParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      // Validate request
+      const reqValidationErrors =
+        validators.validateDeleteWidgetFooParams(params);
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -170,11 +177,11 @@ export const handleExhaustiveFormats =
         stringNoFormat: req.query['string-no-format'],
       };
 
-      // Validate parameters
-      const validationErrors =
+      // Validate request
+      const reqValidationErrors =
         validators.validateExhaustiveFormatsParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -266,11 +273,11 @@ export const handleExhaustiveParams =
         queryStringArray: req.query['query-string-array']?.split(','),
       };
 
-      // Validate parameters
-      const validationErrors =
+      // Validate request
+      const reqValidationErrors =
         validators.validateExhaustiveParamsParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -297,10 +304,10 @@ export const handleGetGizmos =
         search: req.query.search,
       };
 
-      // Validate parameters
-      const validationErrors = validators.validateGetGizmosParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      // Validate request
+      const reqValidationErrors = validators.validateGetGizmosParams(params);
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -311,6 +318,12 @@ export const handleGetGizmos =
       // Respond
       const reponseDto = mappers.mapToGizmosResponseDto(result);
       res.status(status).json(reponseDto);
+
+      // Validate response
+      const resValidationErrors = validators.validateGizmosResponse(result);
+      if (resValidationErrors.length) {
+        next(errors.validationErrors(500, resValidationErrors));
+      }
     } catch (err) {
       next(errors.unhandledException(err));
     }
@@ -328,10 +341,10 @@ export const handleGetWidgetFoo =
         id: req.params.id,
       };
 
-      // Validate parameters
-      const validationErrors = validators.validateGetWidgetFooParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      // Validate request
+      const reqValidationErrors = validators.validateGetWidgetFooParams(params);
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -342,6 +355,12 @@ export const handleGetWidgetFoo =
       // Respond
       const reponseDto = mappers.mapToWidgetDto(result);
       res.status(status).json(reponseDto);
+
+      // Validate response
+      const resValidationErrors = validators.validateWidget(result);
+      if (resValidationErrors.length) {
+        next(errors.validationErrors(500, resValidationErrors));
+      }
     } catch (err) {
       next(errors.unhandledException(err));
     }
@@ -362,6 +381,12 @@ export const handleGetWidgets =
       // Respond
       const reponseDto = mappers.mapToWidgetDto(result);
       res.status(status).json(reponseDto);
+
+      // Validate response
+      const resValidationErrors = validators.validateWidget(result);
+      if (resValidationErrors.length) {
+        next(errors.validationErrors(500, resValidationErrors));
+      }
     } catch (err) {
       next(errors.unhandledException(err));
     }
@@ -398,10 +423,10 @@ export const handleUpdateGizmo =
         factors: req.query.factors?.split(','),
       };
 
-      // Validate parameters
-      const validationErrors = validators.validateUpdateGizmoParams(params);
-      if (validationErrors.length) {
-        return next(errors.validationErrors(validationErrors));
+      // Validate request
+      const reqValidationErrors = validators.validateUpdateGizmoParams(params);
+      if (reqValidationErrors.length) {
+        return next(errors.validationErrors(400, reqValidationErrors));
       }
 
       // Excetute service method
@@ -412,6 +437,12 @@ export const handleUpdateGizmo =
       // Respond
       const reponseDto = mappers.mapToGizmoDto(result);
       res.status(status).json(reponseDto);
+
+      // Validate response
+      const resValidationErrors = validators.validateGizmo(result);
+      if (resValidationErrors.length) {
+        next(errors.validationErrors(500, resValidationErrors));
+      }
     } catch (err) {
       next(errors.unhandledException(err));
     }

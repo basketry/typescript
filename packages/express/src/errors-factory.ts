@@ -30,7 +30,7 @@ export class ExpressErrorsFactory extends BaseFactory {
     yield `export type MethodNotAllowedError = { code: 'METHOD_NOT_ALLOWED'; status: number; title: string; };`;
 
     // VALIDATION_ERRORS
-    yield `export function validationErrors(errors: ${this.validatorsModule}.ValidationError[]): ValidationErrorsError { return { code: 'VALIDATION_ERRORS', status: 400, errors }; }`;
+    yield `export function validationErrors(status: 400 | 500, errors: ${this.validatorsModule}.ValidationError[]): ValidationErrorsError { return { code: 'VALIDATION_ERRORS', status, errors }; }`;
     yield `export function isValidationErrors(error: any): error is ValidationErrorsError { return error.code === 'VALIDATION_ERRORS'; }`;
     yield `export type ValidationErrorsError = { code: 'VALIDATION_ERRORS'; status: number; errors: ${this.validatorsModule}.ValidationError[]; };`;
 

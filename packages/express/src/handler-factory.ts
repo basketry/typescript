@@ -23,7 +23,10 @@ import {
 } from '@basketry/typescript';
 import { buildRequestHandlerTypeName } from './dto-factory';
 import { BaseFactory } from './base-factory';
-import { buildParamsValidatorName } from '@basketry/typescript-validators';
+import {
+  buildParamsValidatorName,
+  buildTypeValidatorName,
+} from '@basketry/typescript-validators';
 
 type Handler = {
   verb: string;
@@ -133,13 +136,13 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield* this.buildParamSource(method, httpMethod);
       yield '';
 
-      yield '// Validate parameters';
-      yield `const validationErrors = ${buildParamsValidatorName(
+      yield '// Validate request';
+      yield `const reqValidationErrors = ${buildParamsValidatorName(
         method,
         this.validatorsModule,
       )}(params);`;
-      yield `if (validationErrors.length) {`;
-      yield `  return next(${this.errorsModule}.validationErrors(validationErrors));`;
+      yield `if (reqValidationErrors.length) {`;
+      yield `  return next(${this.errorsModule}.validationErrors(400, reqValidationErrors));`;
       yield '}';
       yield '';
     }
@@ -175,6 +178,16 @@ export class ExpressHandlerFactory extends BaseFactory {
         'output',
       )}(result);`;
       yield `    res.status(status).json(reponseDto);`;
+      yield '';
+      yield '// Validate response';
+      yield `const resValidationErrors = ${buildTypeValidatorName(
+        returnType,
+        this.validatorsModule,
+      )}(result);`;
+      yield `if (resValidationErrors.length) {`;
+      yield `  next(${this.errorsModule}.validationErrors(500, resValidationErrors));`;
+      yield '}';
+      yield '';
     } else {
       yield `    res.sendStatus(status);`;
     }

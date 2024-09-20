@@ -33,9 +33,10 @@ export type MethodNotAllowedError = {
 };
 
 export function validationErrors(
+  status: 400 | 500,
   errors: validators.ValidationError[],
 ): ValidationErrorsError {
-  return { code: 'VALIDATION_ERRORS', status: 400, errors };
+  return { code: 'VALIDATION_ERRORS', status, errors };
 }
 
 export function isValidationErrors(error: any): error is ValidationErrorsError {
