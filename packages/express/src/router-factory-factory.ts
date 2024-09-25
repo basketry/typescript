@@ -224,7 +224,7 @@ function getRouteScore(route: string): number {
   return route
     .split('/')
     .filter(Boolean)
-    .reduce((acc, seg) => acc * 3 + (seg.startsWith(':') ? 2 : 1), 0);
+    .reduce((acc, seg) => acc * 3 + (seg.startsWith(':') ? 1 : 2), 0);
 }
 
 function compareRoutes(a: string, b: string): number {
