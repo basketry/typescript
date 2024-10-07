@@ -5,8 +5,8 @@ import {
   Interface,
   isRequired,
   Method,
-  Scalar,
   Service,
+  StringLiteral,
   Type,
   Union,
 } from 'basketry';
@@ -17,7 +17,7 @@ import {
   buildInterfaceName,
   buildMethodName,
   buildMethodParamsTypeName,
-  buildMethodReturnType,
+  buildMethodReturnValue,
   buildParameterName,
   buildPropertyName,
   buildTypeName,
@@ -91,7 +91,7 @@ function* buildUnions(service: Service): Iterable<string> {
 function* buildUnion(service: Service, union: Union): Iterable<string> {
   const name = buildUnionName(union);
 
-  if (union.discriminator) {
+  if (union.kind === 'DiscriminatedUnion') {
     yield `export type ${name} = ${union.members
       .map((customValue) => buildTypeName(customValue))
       .join(' | ')}`;
@@ -106,12 +106,11 @@ function* buildUnion(service: Service, union: Union): Iterable<string> {
         (prop) => camel(prop.name.value) === camel(union.discriminator.value),
       );
 
-      if (!property) continue;
-      if (!property.isPrimitive) continue;
+      if (property?.value.kind !== 'PrimitiveValue') continue;
 
       const propertyName = buildPropertyName(property);
 
-      const constant = property.constant?.value;
+      const constant = property.value.constant?.value;
       if (!constant) continue;
 
       yield '';
@@ -154,7 +153,7 @@ function* buildMethod(method: Method): Iterable<string> {
   );
   yield `async ${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
-  yield `): ${buildMethodReturnType(method)};`;
+  yield `): ${buildMethodReturnValue(method)};`;
 }
 
 function* buildType(type: Type): Iterable<string> {
@@ -168,8 +167,8 @@ function* buildType(type: Type): Iterable<string> {
         prop.deprecated?.value,
       );
       yield `  ${buildPropertyName(prop)}${
-        isRequired(prop) ? '' : '?'
-      }: ${buildTypeName(prop)};`;
+        isRequired(prop.value) ? '' : '?'
+      }: ${buildTypeName(prop.value)};`;
     }
     yield `}`;
   } else {
@@ -179,8 +178,8 @@ function* buildType(type: Type): Iterable<string> {
 
 function* buildEnum(e: Enum): Iterable<string> {
   yield* buildDescription(e.description, undefined, e.deprecated?.value);
-  if (e.values.length) {
-    yield `export type ${buildEnumName(e)} = ${e.values
+  if (e.members.length) {
+    yield `export type ${buildEnumName(e)} = ${e.members
       .map((v) => `'${v.content.value}'`)
       .join(' | ')}`;
   } else {
@@ -189,11 +188,21 @@ function* buildEnum(e: Enum): Iterable<string> {
 }
 
 export function* buildDescription(
-  description: string | Scalar<string> | Scalar<string>[] | undefined,
+  description: StringLiteral[] | undefined,
   defaultValue: string | undefined,
   isDeprecated: boolean | undefined,
 ): Iterable<string> {
-  const desc = description || defaultValue;
+  const desc: StringLiteral[] | undefined =
+    description ??
+    (defaultValue
+      ? [
+          {
+            kind: 'StringLiteral',
+            value: defaultValue,
+          },
+        ]
+      : undefined);
+
   if (desc || isDeprecated) {
     yield ``;
     yield `/**`;
@@ -202,10 +211,6 @@ export function* buildDescription(
       for (const line of desc) {
         yield ` * ${line.value}`;
       }
-    } else if (typeof desc === 'string') {
-      yield ` * ${desc}`;
-    } else if (desc) {
-      yield ` * ${desc.value}`;
     }
 
     if (isDeprecated) {
@@ -231,7 +236,7 @@ export function* buildMethodParams(
   if (!method.parameters.length) return;
 
   const paramName = 'params';
-  const hasRequiredParams = method.parameters.some((p) => isRequired(p));
+  const hasRequiredParams = method.parameters.some((p) => isRequired(p.value));
 
   if (hasRequiredParams) {
     yield `${paramName}:`;
@@ -246,8 +251,8 @@ function* internalBuildParamsType(
   method: Method,
   typeModule?: string,
 ): Iterable<string> {
-  const requiredParams = method.parameters.filter((p) => isRequired(p));
-  const optionalParams = method.parameters.filter((p) => !isRequired(p));
+  const requiredParams = method.parameters.filter((p) => isRequired(p.value));
+  const optionalParams = method.parameters.filter((p) => !isRequired(p.value));
   const sortedParams = [...requiredParams, ...optionalParams];
 
   yield '{';
@@ -262,8 +267,8 @@ function* internalBuildParamsType(
     }
 
     yield `    ${buildParameterName(param)}${
-      isRequired(param) ? '' : '?'
-    }: ${buildTypeName(param, typeModule)},`;
+      isRequired(param.value) ? '' : '?'
+    }: ${buildTypeName(param.value, typeModule)},`;
   }
 
   yield '}';

@@ -4,13 +4,12 @@ import {
   Enum,
   HttpParameter,
   Interface,
+  MemberValue,
   Method,
   Parameter,
   Property,
-  ReturnType,
   Service,
   Type,
-  TypedValue,
   Union,
 } from 'basketry';
 import { NamespacedTypescriptOptions } from './types';
@@ -70,7 +69,7 @@ export function buildMethodParamsTypeName(
  * @returns The name of the type in idiomatic TypeScript casing
  */
 export function buildTypeName(
-  type: Type | TypedValue | Enum | Union,
+  type: Type | MemberValue | Enum | Union,
   typeModule?: string,
 ): string {
   if (isUnion(type) || isType(type) || isEnum(type)) {
@@ -83,7 +82,7 @@ export function buildTypeName(
 
   const arrayify = (n: string) => (type.isArray ? `${n}[]` : n);
 
-  if (type.isPrimitive) {
+  if (type.kind === 'PrimitiveValue') {
     if (type.constant) {
       switch (typeof type.constant.value) {
         case 'string':
@@ -106,8 +105,8 @@ export function buildTypeName(
       case 'date':
       case 'date-time':
         return arrayify('Date');
-      case 'null':
-        return arrayify('null');
+      // case 'null': // TODO
+      //   return arrayify('null');
       case 'binary':
         return arrayify('Blob');
       case 'untyped':
@@ -131,7 +130,7 @@ export function buildTypeName(
  * @returns The name of the root type in idiomatic TypeScript casing.
  */
 export function buildRootTypeName(
-  type: Type | TypedValue | Enum | Union,
+  type: Type | MemberValue | Enum | Union,
   typeModule?: string,
 ): string {
   if (isUnion(type) || isType(type) || isEnum(type)) {
@@ -142,7 +141,7 @@ export function buildRootTypeName(
     }
   }
 
-  if (type.isPrimitive) {
+  if (type.kind === 'PrimitiveValue') {
     if (type.constant) {
       switch (typeof type.constant.value) {
         case 'string':
@@ -165,8 +164,8 @@ export function buildRootTypeName(
       case 'date':
       case 'date-time':
         return 'Date';
-      case 'null':
-        return 'null';
+      // case 'null': // TODO
+      //   return 'null';
       case 'binary':
         return 'Blob';
       case 'untyped':
@@ -183,25 +182,29 @@ export function buildRootTypeName(
   }
 }
 
-export function buildMethodReturnType(
+export function buildMethodReturnValue(
   method: Method,
   typeModule?: string,
 ): string {
   return `Promise<${
-    method.returnType ? buildTypeName(method.returnType, typeModule) : 'void'
+    method.returns ? buildTypeName(method.returns.value, typeModule) : 'void'
   }>`;
 }
 
-function isUnion(type: Type | TypedValue | Enum | Union): type is Union {
-  return type['members'] !== undefined;
+function isUnion(type: Type | MemberValue | Enum | Union): type is Union {
+  return (
+    type.kind === 'ComplexUnion' ||
+    type.kind === 'PrimitiveUnion' ||
+    type.kind === 'DiscriminatedUnion'
+  );
 }
 
-function isType(type: Type | TypedValue | Enum): type is Type {
-  return type['isPrimitive'] === undefined;
+function isType(type: Type | MemberValue | Enum): type is Type {
+  return type.kind === 'Type';
 }
 
-function isEnum(type: Type | TypedValue | Enum): type is Enum {
-  return type['values'] !== undefined;
+function isEnum(type: Type | MemberValue | Enum): type is Enum {
+  return type.kind === 'Enum';
 }
 
 export function buildEnumName(e: Enum): string {
