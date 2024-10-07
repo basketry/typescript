@@ -91,6 +91,7 @@ function* buildUnions(service: Service): Iterable<string> {
 function* buildUnion(service: Service, union: Union): Iterable<string> {
   const name = buildUnionName(union);
 
+  yield* buildDescription(union.description, union.deprecated?.value);
   if (union.kind === 'DiscriminatedUnion') {
     yield `export type ${name} = ${union.members
       .map((customValue) => buildTypeName(customValue))
@@ -131,8 +132,13 @@ function* buildUnion(service: Service, union: Union): Iterable<string> {
 
 function* buildInterface(int: Interface): Iterable<string> {
   yield* buildDescription(
-    int.description,
-    `Interface for the ${title(int.name.value)} Service`,
+    int.description ?? [
+      {
+        kind: 'StringLiteral',
+        value: `Interface for the ${title(int.name.value)} Service`,
+      },
+    ],
+
     int.deprecated?.value,
   );
   yield `export interface ${buildInterfaceName(int)} {`;
@@ -146,26 +152,18 @@ function* buildInterface(int: Interface): Iterable<string> {
 }
 
 function* buildMethod(method: Method): Iterable<string> {
-  yield* buildDescription(
-    method.description,
-    undefined,
-    method.deprecated?.value,
-  );
+  yield* buildDescription(method.description, method.deprecated?.value);
   yield `async ${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
   yield `): ${buildMethodReturnValue(method)};`;
 }
 
 function* buildType(type: Type): Iterable<string> {
-  yield* buildDescription(type.description, undefined, type.deprecated?.value);
+  yield* buildDescription(type.description, type.deprecated?.value);
   if (type.properties.length) {
     yield `export type ${buildTypeName(type)} = {`;
     for (const prop of type.properties) {
-      yield* buildDescription(
-        prop.description,
-        undefined,
-        prop.deprecated?.value,
-      );
+      yield* buildDescription(prop.description, prop.deprecated?.value);
       yield `  ${buildPropertyName(prop)}${
         isRequired(prop.value) ? '' : '?'
       }: ${buildTypeName(prop.value)};`;
@@ -177,7 +175,7 @@ function* buildType(type: Type): Iterable<string> {
 }
 
 function* buildEnum(e: Enum): Iterable<string> {
-  yield* buildDescription(e.description, undefined, e.deprecated?.value);
+  yield* buildDescription(e.description, e.deprecated?.value);
   if (e.members.length) {
     yield `export type ${buildEnumName(e)} = ${e.members
       .map((v) => `'${v.content.value}'`)
@@ -189,34 +187,31 @@ function* buildEnum(e: Enum): Iterable<string> {
 
 export function* buildDescription(
   description: StringLiteral[] | undefined,
-  defaultValue: string | undefined,
   isDeprecated: boolean | undefined,
 ): Iterable<string> {
-  const desc: StringLiteral[] | undefined =
-    description ??
-    (defaultValue
-      ? [
-          {
-            kind: 'StringLiteral',
-            value: defaultValue,
-          },
-        ]
-      : undefined);
+  const paragraphs: StringLiteral[] = description ?? [];
+  if (isDeprecated) {
+    paragraphs.push({ kind: 'StringLiteral', value: '@deprecated' });
+  }
 
-  if (desc || isDeprecated) {
+  if (paragraphs.length === 1 && paragraphs[0].value.length < 100) {
+    yield ``;
+    yield `/** ${paragraphs[0].value} */`;
+  } else if (paragraphs.length > 0) {
     yield ``;
     yield `/**`;
+    for (let i = 0; i < paragraphs.length; i++) {
+      if (i > 0) yield ` *`;
+      const paragraph = paragraphs[i].value;
 
-    if (Array.isArray(desc)) {
-      for (const line of desc) {
-        yield ` * ${line.value}`;
+      for (const line of paragraph.split('\n')) {
+        const sublines = splitString(line, 80);
+
+        for (const subline of sublines) {
+          yield ` * ${subline}`;
+        }
       }
     }
-
-    if (isDeprecated) {
-      yield ` * @deprecated`;
-    }
-
     yield ` */`;
   }
 }
@@ -259,11 +254,7 @@ function* internalBuildParamsType(
 
   for (const param of sortedParams) {
     if (param.description) {
-      yield* buildDescription(
-        param.description,
-        undefined,
-        param.deprecated?.value,
-      );
+      yield* buildDescription(param.description, param.deprecated?.value);
     }
 
     yield `    ${buildParameterName(param)}${
@@ -279,4 +270,25 @@ export function* buildParamsType(
   typeModule?: string,
 ): Iterable<string> {
   yield buildMethodParamsTypeName(method, typeModule);
+}
+
+function splitString(input: string, maxLength: number = 80): string[] {
+  const words = input.split(' ');
+  const chunks: string[] = [];
+  let currentChunk = '';
+
+  for (const word of words) {
+    if ((currentChunk + word).length <= maxLength) {
+      currentChunk += (currentChunk ? ' ' : '') + word;
+    } else {
+      chunks.push(currentChunk);
+      currentChunk = word;
+    }
+  }
+
+  if (currentChunk) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
 }
