@@ -41,7 +41,6 @@ export function getRouter({
   >(methodName: TName, defaultHandler: RequestHandler): RequestHandler[] {
     return [
       ...getMiddleware(middleware, methodName),
-      ...getMiddleware(middleware, '_exceptSwaggerUI'),
       ...getHandlers(handlerOverrides?.[methodName], defaultHandler),
     ];
   }
@@ -195,7 +194,16 @@ function getMiddleware<
   if (!middleware) return [];
   const middlewareArray = Array.isArray(middleware) ? middleware : [middleware];
 
-  return middlewareArray.flatMap((m) => (m[name] ? m[name] : []));
+  return middlewareArray.flatMap((m) => {
+    const _exceptSwaggerUI =
+      m['_exceptSwaggerUI'] && name !== '_onlySwaggerUI'
+        ? m['_exceptSwaggerUI']
+        : [];
+
+    const base = m[name] ? m[name] : [];
+    const baseArray = Array.isArray(base) ? base : [base];
+    return [...baseArray, ..._exceptSwaggerUI];
+  });
 }
 
 /**
