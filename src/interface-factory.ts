@@ -29,7 +29,7 @@ import { eslintDisable, format, from } from './utils';
 import { header as warning } from './warning';
 import { NamespacedTypescriptOptions } from './types';
 
-export const generateTypes: Generator = (
+export const generateTypes: Generator = async (
   service,
   options?: NamespacedTypescriptOptions,
 ) => {
@@ -74,7 +74,7 @@ export const generateTypes: Generator = (
   return [
     {
       path: buildFilePath(['types.ts'], service, options),
-      contents: format(contents, options),
+      contents: await format(contents, options),
     },
   ];
 };

@@ -20,8 +20,8 @@ export async function* generateFiles(): AsyncIterable<File> {
   });
 
   for (const engine of engines) {
-    engine.runParser();
-    engine.runGenerators();
+    await engine.runParser();
+    await engine.runGenerators();
 
     for (const file of engine.output.files) {
       if (file.path[0] !== '.gitattributes') {
