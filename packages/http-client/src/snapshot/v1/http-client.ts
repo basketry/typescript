@@ -120,7 +120,7 @@ export class HttpAuthPermutationService
 
       const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         headers,
       });
     } catch (unhandledException) {
@@ -171,7 +171,7 @@ export class HttpAuthPermutationService
 
       const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         method: 'PUT',
         headers,
       });
@@ -301,7 +301,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
 
       const path = [`${prefix}/exhaustive`, query.join('&')].join('?');
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         headers,
       });
     } catch (unhandledException) {
@@ -456,7 +456,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
           ? undefined
           : JSON.stringify(sanitizedParams.body);
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         headers,
         body,
       });
@@ -679,7 +679,7 @@ export class HttpGizmoService implements types.GizmoService {
 
       const path = [`${prefix}/gizmos/data`, query.join('&')].join('?');
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         method: 'POST',
         headers,
       });
@@ -762,7 +762,7 @@ export class HttpWidgetService implements types.WidgetService {
           ? undefined
           : JSON.stringify(sanitizedParams?.body);
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         method: 'POST',
         headers,
         body,
@@ -806,7 +806,7 @@ export class HttpWidgetService implements types.WidgetService {
         query.join('&'),
       ].join('?');
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         method: 'DELETE',
         headers,
       });
@@ -919,7 +919,7 @@ export class HttpWidgetService implements types.WidgetService {
 
       const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
-      const res = await this.fetch(path, {
+      await this.fetch(path, {
         method: 'PUT',
         headers,
       });

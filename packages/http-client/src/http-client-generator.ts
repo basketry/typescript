@@ -536,7 +536,11 @@ class MethodFactory {
       ? `<${buildTypeName(this.method.returnType, 'types')}>`
       : '';
 
-    yield `const res = await this.fetch${returnType}(path`;
+    if (this.method.returnType)
+      yield `const res = await this.fetch${returnType}(path`;
+    else {
+      yield `await this.fetch(path`;
+    }
 
     yield `  ,{`;
     if (this.httpMethod.verb.value.toUpperCase() !== 'GET') {
