@@ -13,7 +13,9 @@ const service = require('basketry/lib/example-ir.json');
 const snapshotFiles = [
   ...generateTypes(service),
   // ...generateValidators(service),
-  ...httpClientGenerator(service),
+  ...httpClientGenerator(service, {
+    typescriptHttpClient: { includeAuthSchemes: true },
+  }),
 ];
 
 for (const file of snapshotFiles) {

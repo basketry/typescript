@@ -50,7 +50,7 @@ export const httpClientGenerator: Generator = (service, options) => {
   const standardTypes = Array.from(
     buildStandardTypes(service, includeFormatDate, includeFormatDateTime),
   ).join('\n');
-  const classes = Array.from(buildClasses(service)).join('\n');
+  const classes = Array.from(buildClasses(service, options)).join('\n');
   const header = warning(service, require('../package.json'), options);
   const disable = from(eslintDisable(options || {}));
   const contents = [header, disable, imports, standardTypes, classes].join(
@@ -164,10 +164,13 @@ function* buildStandardTypes(
   }
 }
 
-function* buildAuth(int: Interface): Iterable<string> {
+function* buildAuth(
+  int: Interface,
+  options: NamespacedTypescriptHttpClientOptions,
+): Iterable<string> {
   const schemes = getSecuritySchemes(int);
 
-  if (schemes.length) {
+  if (schemes.length && options?.typescriptHttpClient?.includeAuthSchemes) {
     yield 'private readonly auth: {';
     for (const scheme of schemes) {
       if (isApiKeyScheme(scheme)) {
@@ -182,20 +185,27 @@ function* buildAuth(int: Interface): Iterable<string> {
   }
 }
 
-function* buildClasses(service: Service): Iterable<string> {
+function* buildClasses(
+  service: Service,
+  options: NamespacedTypescriptHttpClientOptions,
+): Iterable<string> {
   for (const int of service.interfaces) {
     yield '';
-    yield* buildClass(service, int);
+    yield* buildClass(service, int, options);
   }
 }
 
-function* buildClass(service: Service, int: Interface): Iterable<string> {
+function* buildClass(
+  service: Service,
+  int: Interface,
+  options: NamespacedTypescriptHttpClientOptions,
+): Iterable<string> {
   yield `export class ${buildHttpClientName(
     int,
   )} implements ${buildInterfaceName(int, 'types')} {`;
   yield `constructor(`;
   yield `private readonly fetch: FetchLike,`;
-  yield* buildAuth(int);
+  yield* buildAuth(int, options);
   yield `private readonly options?: ${pascal(
     `${service.title.value}Options`,
   )},`;
@@ -221,7 +231,7 @@ function* buildClass(service: Service, int: Interface): Iterable<string> {
 
     if (!httpPath || !httpMethod) continue;
     yield ``;
-    yield* MethodFactory.build(service, int, method);
+    yield* MethodFactory.build(service, int, method, options);
   }
 
   yield '';
@@ -300,6 +310,7 @@ class MethodFactory {
     service: Service,
     int: Interface,
     method: Method,
+    options: NamespacedTypescriptHttpClientOptions,
   ): Iterable<string> {
     const httpMethod = int.protocols.http
       .flatMap((p) => p.methods)
@@ -316,11 +327,13 @@ class MethodFactory {
         httpMethod,
         httpPath,
         getSecuritySchemes(int),
-      ).buildMethod();
+      ).buildMethod(options);
     }
   }
 
-  private *buildMethod(): Iterable<string> {
+  private *buildMethod(
+    options: NamespacedTypescriptHttpClientOptions,
+  ): Iterable<string> {
     yield* buildDescription(this.method.description);
     yield `async ${buildMethodName(this.method)}(`;
     yield* buildMethodParams(this.method, 'types');
@@ -334,7 +347,7 @@ class MethodFactory {
       yield `if (errors.length) { return { errors: this.mapErrors(errors) } as any }`;
     }
     yield '';
-    yield* this.buildHeaders();
+    yield* this.buildHeaders(options);
     yield '';
     yield* this.buildQuery();
     yield '';
@@ -350,7 +363,9 @@ class MethodFactory {
     yield '}';
   }
 
-  private *buildHeaders(): Iterable<string> {
+  private *buildHeaders(
+    options: NamespacedTypescriptHttpClientOptions,
+  ): Iterable<string> {
     const headerParams = this.httpMethod.parameters.filter(
       (p) => p.in.value === 'header',
     );
@@ -385,30 +400,32 @@ class MethodFactory {
       }
     }
 
-    for (const scheme of this.schemes) {
-      if (isApiKeyScheme(scheme)) {
-        if (scheme.in.value === 'header') {
+    if (options?.typescriptHttpClient?.includeAuthSchemes) {
+      for (const scheme of this.schemes) {
+        if (isApiKeyScheme(scheme)) {
+          if (scheme.in.value === 'header') {
+            yield `if(this.auth${safe(scheme.name.value)}) {`;
+            yield `  headers${safe(scheme.parameter.value)} = this.auth${safe(
+              scheme.name.value,
+            )}.key`;
+            yield '}';
+          }
+        } else if (isBasicScheme(scheme)) {
           yield `if(this.auth${safe(scheme.name.value)}) {`;
-          yield `  headers${safe(scheme.parameter.value)} = this.auth${safe(
+          yield `// TODO: remove deprecated method for node targets`;
+          yield `  headers.authorization = \`Basic $\{ btoa(\`$\{this.auth${safe(
             scheme.name.value,
-          )}.key`;
+          )}.username\}:$\{this.auth${safe(
+            scheme.name.value,
+          )}.password\}\`) \}\``;
+          yield '}';
+        } else if (isOAuth2Scheme(scheme)) {
+          yield `if(this.auth${safe(scheme.name.value)}) {`;
+          yield `  headers.authorization = \`Bearer $\{ this.auth${safe(
+            scheme.name.value,
+          )}.accessToken \}\``;
           yield '}';
         }
-      } else if (isBasicScheme(scheme)) {
-        yield `if(this.auth${safe(scheme.name.value)}) {`;
-        yield `// TODO: remove deprecated method for node targets`;
-        yield `  headers.authorization = \`Basic $\{ btoa(\`$\{this.auth${safe(
-          scheme.name.value,
-        )}.username\}:$\{this.auth${safe(
-          scheme.name.value,
-        )}.password\}\`) \}\``;
-        yield '}';
-      } else if (isOAuth2Scheme(scheme)) {
-        yield `if(this.auth${safe(scheme.name.value)}) {`;
-        yield `  headers.authorization = \`Bearer $\{ this.auth${safe(
-          scheme.name.value,
-        )}.accessToken \}\``;
-        yield '}';
       }
     }
   }

@@ -17,7 +17,9 @@ describe('InterfaceFactory', () => {
     const snapshotFiles = [
       ...generateTypes(service),
       // ...generateValidators(service),
-      ...httpClientGenerator(service),
+      ...httpClientGenerator(service, {
+        typescriptHttpClient: { includeAuthSchemes: true },
+      }),
     ];
 
     // ASSERT
