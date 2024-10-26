@@ -16,41 +16,51 @@ import type * as types from '../types';
 
 import type * as dtos from './dtos';
 
+function compact<T extends object>(obj: T): T {
+  return Object.keys(obj).reduce((acc, key) => {
+    const value = obj[key as keyof T];
+    if (value !== undefined) {
+      acc[key as keyof T] = value;
+    }
+    return acc;
+  }, {} as T);
+}
+
 export function mapFromCreateWidgetBodyDto(
   dto: dtos.CreateWidgetBodyDto,
 ): types.CreateWidgetBody {
-  return {
+  return compact({
     name: dto.name,
-  };
+  });
 }
 
 export function mapFromExhaustiveParamsBodyDto(
   dto: dtos.ExhaustiveParamsBodyDto,
 ): types.ExhaustiveParamsBody {
-  return {
+  return compact({
     bar: dto.bar,
     foo: dto.foo,
-  };
+  });
 }
 
 export function mapToGizmoDto(obj: types.Gizmo): dtos.GizmoDto {
-  return {
+  return compact({
     id: obj.id,
     name: obj.name,
     size: obj.size,
-  };
+  });
 }
 
 export function mapToGizmosResponseDto(
   obj: types.GizmosResponse,
 ): dtos.GizmosResponseDto {
-  return {
+  return compact({
     data: obj.data?.map(mapToGizmoDto),
-  };
+  });
 }
 
 export function mapToWidgetDto(obj: types.Widget): dtos.WidgetDto {
-  return {
+  return compact({
     buzz: obj.buzz,
     fiz: obj.fiz,
     fizbuzz: obj.fizbuzz,
@@ -59,12 +69,12 @@ export function mapToWidgetDto(obj: types.Widget): dtos.WidgetDto {
     id: obj.id,
     name: obj.name,
     size: obj.size,
-  };
+  });
 }
 
 export function mapToWidgetFooDto(obj: types.WidgetFoo): dtos.WidgetFooDto {
-  return {
+  return compact({
     buzz: obj.buzz,
     fiz: obj.fiz,
-  };
+  });
 }
