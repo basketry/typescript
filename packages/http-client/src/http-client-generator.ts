@@ -476,7 +476,7 @@ class MethodFactory {
             {
               includeOptionalChaining: false,
             },
-          )}}.map(encodeURIComponent).join('${sep(httpParam)}')\}\`)`; // TODO: format date/date-time
+          )}.map(encodeURIComponent).join('${sep(httpParam)}')\}\`)`; // TODO: format date/date-time
           break;
         }
       }
