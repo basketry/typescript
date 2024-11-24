@@ -206,7 +206,7 @@ export class HttpAuthPermutationService
       }
     }
 
-    return result;
+    return result as any;
   }
 }
 
@@ -501,7 +501,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       }
     }
 
-    return result;
+    return result as any;
   }
 }
 
@@ -726,7 +726,7 @@ export class HttpGizmoService implements types.GizmoService {
       }
     }
 
-    return result;
+    return result as any;
   }
 }
 
@@ -966,6 +966,6 @@ export class HttpWidgetService implements types.WidgetService {
       }
     }
 
-    return result;
+    return result as any;
   }
 }

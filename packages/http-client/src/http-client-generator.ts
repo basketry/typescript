@@ -264,7 +264,7 @@ function* buildClass(
       }
     }
 
-    return result;
+    return result as any;
   }`;
 
   yield `}`;
