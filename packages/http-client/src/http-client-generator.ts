@@ -20,6 +20,7 @@ import { header as warning } from '@basketry/typescript/lib/warning';
 import { eslintDisable, format, from } from '@basketry/typescript/lib/utils';
 import {
   buildDescription,
+  buildFilePath,
   buildInterfaceName,
   buildMethodName,
   buildMethodParams,
@@ -58,7 +59,7 @@ export const httpClientGenerator: Generator = (service, options) => {
   );
   return [
     {
-      path: [`v${service.majorVersion.value}`, 'http-client.ts'],
+      path: buildFilePath(['http-client.ts'], service, options),
       contents: format(contents, options),
     },
   ];
