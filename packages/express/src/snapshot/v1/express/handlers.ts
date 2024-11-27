@@ -12,7 +12,7 @@
  * About @basketry/express: https://github.com/basketry/express/wiki
  */
 
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
 import type * as types from '../types';
 import * as validators from '../validators';
@@ -24,12 +24,12 @@ import type * as expressTypes from './types';
 /** GET /authPermutations */
 export const handleAllAuthSchemes =
   (
-    getService: (req: Request) => types.AuthPermutationService,
+    getService: (req: Request, res: Response) => types.AuthPermutationService,
   ): expressTypes.AllAuthSchemesRequestHandler =>
   async (req, res, next) => {
     try {
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.allAuthSchemes();
       const status = 200;
 
@@ -43,12 +43,12 @@ export const handleAllAuthSchemes =
 /** PUT /authPermutations */
 export const handleComboAuthSchemes =
   (
-    getService: (req: Request) => types.AuthPermutationService,
+    getService: (req: Request, res: Response) => types.AuthPermutationService,
   ): expressTypes.ComboAuthSchemesRequestHandler =>
   async (req, res, next) => {
     try {
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.comboAuthSchemes();
       const status = 200;
 
@@ -62,7 +62,7 @@ export const handleComboAuthSchemes =
 /** POST /gizmos */
 export const handleCreateGizmo =
   (
-    getService: (req: Request) => types.GizmoService,
+    getService: (req: Request, res: Response) => types.GizmoService,
   ): expressTypes.CreateGizmoRequestHandler =>
   async (req, res, next) => {
     try {
@@ -78,7 +78,7 @@ export const handleCreateGizmo =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       const result = await service.createGizmo(params);
       const status = 201;
 
@@ -99,7 +99,7 @@ export const handleCreateGizmo =
 /** POST /widgets */
 export const handleCreateWidget =
   (
-    getService: (req: Request) => types.WidgetService,
+    getService: (req: Request, res: Response) => types.WidgetService,
   ): expressTypes.CreateWidgetRequestHandler =>
   async (req, res, next) => {
     try {
@@ -115,7 +115,7 @@ export const handleCreateWidget =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.createWidget(params);
       const status = 204;
 
@@ -129,7 +129,7 @@ export const handleCreateWidget =
 /** DELETE /widgets/:id/foo */
 export const handleDeleteWidgetFoo =
   (
-    getService: (req: Request) => types.WidgetService,
+    getService: (req: Request, res: Response) => types.WidgetService,
   ): expressTypes.DeleteWidgetFooRequestHandler =>
   async (req, res, next) => {
     try {
@@ -146,7 +146,7 @@ export const handleDeleteWidgetFoo =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.deleteWidgetFoo(params);
       const status = 204;
 
@@ -160,7 +160,7 @@ export const handleDeleteWidgetFoo =
 /** GET /exhaustive */
 export const handleExhaustiveFormats =
   (
-    getService: (req: Request) => types.ExhaustiveService,
+    getService: (req: Request, res: Response) => types.ExhaustiveService,
   ): expressTypes.ExhaustiveFormatsRequestHandler =>
   async (req, res, next) => {
     try {
@@ -185,7 +185,7 @@ export const handleExhaustiveFormats =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.exhaustiveFormats(params);
       const status = 204;
 
@@ -199,7 +199,7 @@ export const handleExhaustiveFormats =
 /** GET /exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array} */
 export const handleExhaustiveParams =
   (
-    getService: (req: Request) => types.ExhaustiveService,
+    getService: (req: Request, res: Response) => types.ExhaustiveService,
   ): expressTypes.ExhaustiveParamsRequestHandler =>
   async (req, res, next) => {
     try {
@@ -281,7 +281,7 @@ export const handleExhaustiveParams =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.exhaustiveParams(params);
       const status = 204;
 
@@ -295,7 +295,7 @@ export const handleExhaustiveParams =
 /** GET /gizmos @deprecated */
 export const handleGetGizmos =
   (
-    getService: (req: Request) => types.GizmoService,
+    getService: (req: Request, res: Response) => types.GizmoService,
   ): expressTypes.GetGizmosRequestHandler =>
   async (req, res, next) => {
     try {
@@ -311,7 +311,7 @@ export const handleGetGizmos =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       const result = await service.getGizmos(params);
       const status = 200;
 
@@ -332,7 +332,7 @@ export const handleGetGizmos =
 /** GET /widgets/:id/foo */
 export const handleGetWidgetFoo =
   (
-    getService: (req: Request) => types.WidgetService,
+    getService: (req: Request, res: Response) => types.WidgetService,
   ): expressTypes.GetWidgetFooRequestHandler =>
   async (req, res, next) => {
     try {
@@ -348,7 +348,7 @@ export const handleGetWidgetFoo =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       const result = await service.getWidgetFoo(params);
       const status = 200;
 
@@ -369,12 +369,12 @@ export const handleGetWidgetFoo =
 /** GET /widgets */
 export const handleGetWidgets =
   (
-    getService: (req: Request) => types.WidgetService,
+    getService: (req: Request, res: Response) => types.WidgetService,
   ): expressTypes.GetWidgetsRequestHandler =>
   async (req, res, next) => {
     try {
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       const result = await service.getWidgets();
       const status = 200;
 
@@ -395,12 +395,12 @@ export const handleGetWidgets =
 /** PUT /widgets */
 export const handlePutWidget =
   (
-    getService: (req: Request) => types.WidgetService,
+    getService: (req: Request, res: Response) => types.WidgetService,
   ): expressTypes.PutWidgetRequestHandler =>
   async (req, res, next) => {
     try {
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       await service.putWidget();
       const status = 200;
 
@@ -414,7 +414,7 @@ export const handlePutWidget =
 /** PUT /gizmos */
 export const handleUpdateGizmo =
   (
-    getService: (req: Request) => types.GizmoService,
+    getService: (req: Request, res: Response) => types.GizmoService,
   ): expressTypes.UpdateGizmoRequestHandler =>
   async (req, res, next) => {
     try {
@@ -430,7 +430,7 @@ export const handleUpdateGizmo =
       }
 
       // Excetute service method
-      const service = getService(req);
+      const service = getService(req, res);
       const result = await service.updateGizmo(params);
       const status = 200;
 

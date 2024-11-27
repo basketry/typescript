@@ -122,9 +122,10 @@ export class ExpressHandlerFactory extends BaseFactory {
       path,
     )} ${method.deprecated?.value ? '@deprecated ' : ''}*/`;
     this.touchRequestImport();
+    this.touchResponseImport();
     yield `export const ${camel(
       `handle_${snake(method.name.value)}`,
-    )} = (getService: (req: Request) => ${buildInterfaceName(
+    )} = (getService: (req: Request, res: Response) => ${buildInterfaceName(
       int,
       this.typesModule,
     )}): ${this.expressTypesModule}.${buildRequestHandlerTypeName(
@@ -147,7 +148,7 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield '';
     }
     yield '    // Excetute service method';
-    yield `    const service = getService(req);`;
+    yield `    const service = getService(req, res);`;
     if (returnType) {
       yield `    const result = await service.${buildMethodName(method)}(${
         hasParams ? 'params' : ''

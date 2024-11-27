@@ -12,7 +12,7 @@
  * About @basketry/express: https://github.com/basketry/express/wiki
  */
 
-import type { Request, RequestHandler } from 'express';
+import type { Request, Response, RequestHandler } from 'express';
 
 import type * as types from '../types';
 
@@ -22,10 +22,16 @@ export type RouterFactoryInput = {
   /** OpenAPI schema as a JSON object */
   schema: any;
 
-  getAuthPermutationService: (req: Request) => types.AuthPermutationService;
-  getExhaustiveService: (req: Request) => types.ExhaustiveService;
-  getGizmoService: (req: Request) => types.GizmoService;
-  getWidgetService: (req: Request) => types.WidgetService;
+  getAuthPermutationService: (
+    req: Request,
+    res: Response,
+  ) => types.AuthPermutationService;
+  getExhaustiveService: (
+    req: Request,
+    res: Response,
+  ) => types.ExhaustiveService;
+  getGizmoService: (req: Request, res: Response) => types.GizmoService;
+  getWidgetService: (req: Request, res: Response) => types.WidgetService;
 
   middleware?: Middleware | Middleware[];
   handlerOverrides?: Middleware;

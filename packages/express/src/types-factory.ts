@@ -80,7 +80,8 @@ export class ExpressTypesFactory extends BaseFactory {
     )) {
       const serviceGetterName = this.buildServiceGetterName(int);
       this.touchRequestImport();
-      yield `${serviceGetterName}: (req: Request) => ${buildInterfaceName(
+      this.touchResponseImport();
+      yield `${serviceGetterName}: (req: Request, res: Response) => ${buildInterfaceName(
         int,
         this.typesModule,
       )};`;

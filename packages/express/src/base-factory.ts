@@ -130,6 +130,11 @@ export abstract class BaseFactory {
     this._needsRequestImport = true;
   }
 
+  private _needsResponseImport = false;
+  protected touchResponseImport() {
+    this._needsResponseImport = true;
+  }
+
   private _needsRequestHandlerImport = false;
   protected touchRequestHandlerImport() {
     this._needsRequestHandlerImport = true;
@@ -146,6 +151,10 @@ export abstract class BaseFactory {
 
     if (this._needsRequestImport) {
       imports.push(allTypes ? 'Request' : 'type Request');
+    }
+
+    if (this._needsResponseImport) {
+      imports.push(allTypes ? 'Response' : 'type Response');
     }
 
     if (this._needsRequestHandlerImport) {
