@@ -1,6 +1,6 @@
 {
   "name": "@basketry/express",
-  "version": "0.2.0-rc.4",
+  "version": "0.2.0-rc.5",
   "description": "Basketry generator for generating Express JS routers",
   "main": "./lib/index.js",
   "scripts": {
