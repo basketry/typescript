@@ -80,8 +80,6 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             for (const member of element.members) {
               if (member.isPrimitive) continue;
 
-              console.error('Union members must be primitive');
-
               yield `${pascal(member.typeName.value)}Schema,`;
             }
 
