@@ -5,6 +5,7 @@ import { buildTypeName } from '@basketry/typescript/lib/name-factory';
 import { buildParamsType } from '@basketry/typescript';
 import {
   Enum,
+  getHttpMethodByName,
   isRequired,
   Method,
   Parameter,
@@ -103,6 +104,28 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
     const z = () => this.zod.fn('z');
     const name = camel(member.name.value);
 
+    const shouldCoerce = () => {
+      if (member.kind === 'Parameter' && parent.element.kind === 'Method') {
+        const httpMethod = getHttpMethodByName(
+          this.service,
+          parent.element.name.value,
+        );
+        if (!httpMethod) return false;
+        const httpParam = httpMethod?.parameters.find(
+          (p) => camel(p.name.value) === camel(member.name.value),
+        );
+        if (!httpParam) return false;
+
+        const location = httpParam?.in.value;
+
+        return (
+          location === 'header' || location === 'query' || location === 'path'
+        );
+      } else {
+        return false;
+      }
+    };
+
     const schema: string[] = [];
 
     if (member.isPrimitive) {
@@ -159,10 +182,13 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         case 'long':
         case 'float':
         case 'double': {
+          const coerce = shouldCoerce() ? `.coerce` : '';
+
           if (member.constant) {
+            // TODO: support literal coercion
             schema.push(`${z()}.literal(${member.constant.value})`);
           } else {
-            schema.push(`${z()}.number()`);
+            schema.push(`${z()}${coerce}.number()`);
 
             if (
               member.typeName.value === 'integer' ||
@@ -203,16 +229,20 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           break;
         }
         case 'boolean': {
+          const coerce = shouldCoerce() ? `.coerce` : '';
+
           if (member.constant) {
+            // TODO: support literal coercion
             schema.push(`${z()}.literal(${member.constant.value})`);
           } else {
-            schema.push(`${z()}.boolean()`);
+            schema.push(`${z()}${coerce}.boolean()`);
           }
           break;
         }
         case 'date':
         case 'date-time':
-          schema.push(`${z()}.date()`);
+          // Always coerce dates
+          schema.push(`${z()}.coerce.date()`);
           break;
         case 'binary':
         case 'untyped':
