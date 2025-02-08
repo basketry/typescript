@@ -24,15 +24,25 @@ export class ExpressErrorsFactory extends BaseFactory {
   }
 
   private *buildErrors(): Iterable<string> {
+    const ErrorType = () => {
+      switch (this.options.express?.validation) {
+        case 'zod':
+          this.touchZodIssueImport();
+          return 'ZodIssue';
+        default:
+          return `${this.validatorsModule}.ValidationError`;
+      }
+    };
+
     // METHOD_NOT_ALLOWED
     yield `export function methodNotAllowed(): MethodNotAllowedError { return { code: 'METHOD_NOT_ALLOWED', status: 405, title: 'Method Not Allowed' }; }`;
     yield `export function isMethodNotAllowed(error: any): error is MethodNotAllowedError { return error.code === 'METHOD_NOT_ALLOWED'; }`;
     yield `export type MethodNotAllowedError = { code: 'METHOD_NOT_ALLOWED'; status: number; title: string; };`;
 
     // VALIDATION_ERRORS
-    yield `export function validationErrors(status: 400 | 500, errors: ${this.validatorsModule}.ValidationError[]): ValidationErrorsError { return { code: 'VALIDATION_ERRORS', status, errors }; }`;
+    yield `export function validationErrors(status: 400 | 500, errors: ${ErrorType()}[]): ValidationErrorsError { return { code: 'VALIDATION_ERRORS', status, errors }; }`;
     yield `export function isValidationErrors(error: any): error is ValidationErrorsError { return error.code === 'VALIDATION_ERRORS'; }`;
-    yield `export type ValidationErrorsError = { code: 'VALIDATION_ERRORS'; status: number; errors: ${this.validatorsModule}.ValidationError[]; };`;
+    yield `export type ValidationErrorsError = { code: 'VALIDATION_ERRORS'; status: number; errors: ${ErrorType()}[]; };`;
 
     // HANDLED_EXCEPTION
     const errorTypes = ExpressErrorsFactory.getErrorTypes(this.service);

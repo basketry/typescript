@@ -11,6 +11,7 @@ const mappersModule = 'mappers';
 const typesModule = 'types';
 const validatorsModule = 'validators';
 const errorsModule = 'errors';
+const schemasModule = 'schemas';
 
 export abstract class BaseFactory {
   constructor(
@@ -27,9 +28,11 @@ export abstract class BaseFactory {
     yield header(this.service, require('../package.json'), this.options || {});
     yield '';
     yield* this.buildExpressImport();
+    yield* this.buildZodImport();
     yield '';
 
     yield* this.buildTypesImport();
+    yield* this.buildSchemasImport();
     yield* this.buildValidatorsImport();
     yield '';
     yield* this.buildDtosImport();
@@ -61,6 +64,19 @@ export abstract class BaseFactory {
     if (this._needsValidatorsImport) {
       yield `import * as ${validatorsModule} from "${
         this.options.express?.validatorsImportPath || '../validators'
+      }"`;
+    }
+  }
+
+  protected get schemasModule(): string {
+    this._needsSchemasImport = true;
+    return schemasModule;
+  }
+  private _needsSchemasImport = false;
+  private *buildSchemasImport(): Iterable<string> {
+    if (this._needsSchemasImport) {
+      yield `import * as ${schemasModule} from "${
+        this.options.express?.schemasImportPath || '../schemas'
       }"`;
     }
   }
@@ -117,6 +133,36 @@ export abstract class BaseFactory {
   private *buildMappersImport(): Iterable<string> {
     if (this._needsMappersImport) {
       yield `import * as ${this.mappersModule} from "./mappers"`;
+    }
+  }
+
+  private _needsZodErrorImport = false;
+  protected touchZodErrorImport() {
+    this._needsZodErrorImport = true;
+  }
+
+  private _needsZodIssueImport = false;
+  protected touchZodIssueImport() {
+    this._needsZodIssueImport = true;
+  }
+
+  private *buildZodImport(): Iterable<string> {
+    const allTypes = !this._needsZodErrorImport;
+
+    const imports: string[] = [];
+
+    if (this._needsZodErrorImport) {
+      imports.push('ZodError');
+    }
+
+    if (this._needsZodIssueImport) {
+      imports.push(allTypes ? 'ZodIssue' : 'type ZodIssue');
+    }
+
+    if (imports.length) {
+      yield `import ${allTypes ? 'type' : ''} { ${imports.join(
+        ', ',
+      )} } from "zod"`;
     }
   }
 

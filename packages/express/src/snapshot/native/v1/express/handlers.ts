@@ -166,15 +166,15 @@ export const handleExhaustiveFormats =
     try {
       // Parse parameters from request
       const params: types.ExhaustiveFormatsParams = {
-        integerInt32: coerceToNumber(req.query['integer-int32']),
-        integerInt64: coerceToNumber(req.query['integer-int64']),
-        integerNoFormat: coerceToNumber(req.query['integer-no-format']),
-        numberDouble: coerceToNumber(req.query['number-double']),
-        numberFloat: coerceToNumber(req.query['number-float']),
-        numberNoFormat: coerceToNumber(req.query['number-no-format']),
+        stringNoFormat: req.query['string-no-format'],
         stringDate: coerceToDate(req.query['string-date']),
         stringDateTime: coerceToDate(req.query['string-date-time']),
-        stringNoFormat: req.query['string-no-format'],
+        integerNoFormat: coerceToNumber(req.query['integer-no-format']),
+        integerInt32: coerceToNumber(req.query['integer-int32']),
+        integerInt64: coerceToNumber(req.query['integer-int64']),
+        numberNoFormat: coerceToNumber(req.query['number-no-format']),
+        numberFloat: coerceToNumber(req.query['number-float']),
+        numberDouble: coerceToNumber(req.query['number-double']),
       };
 
       // Validate request
@@ -205,72 +205,72 @@ export const handleExhaustiveParams =
     try {
       // Parse parameters from request
       const params: types.ExhaustiveParamsParams = {
-        body: mappers.mapFromExhaustiveParamsBodyDto(req.body),
-        headerBoolean: coerceToBoolean(req.header['header-boolean']),
-        headerBooleanArray: req.header['header-boolean-array']
-          ?.split('\t')
-          .map(coerceToBoolean)
-          .filter(definedBooleans),
-        headerEnum: req.header[
-          'header-enum'
-        ] as types.ExhaustiveParamsHeaderEnum,
-        headerEnumArray: req.header['header-enum-array']?.split(
-          ',',
-        ) as types.ExhaustiveParamsHeaderEnumArray[],
-        headerInteger: coerceToNumber(req.header['header-integer']),
-        headerIntegerArray: req.header['header-integer-array']
-          ?.split(' ')
-          .map(coerceToNumber)
-          .filter(definedNumbers),
-        headerNumber: coerceToNumber(req.header['header-number']),
-        headerNumberArray: req.header['header-number-array']
-          ?.split('|')
-          .map(coerceToNumber)
-          .filter(definedNumbers),
-        headerString: req.header['header-string'],
-        headerStringArray: req.header['header-string-array']?.split(','),
-        pathBoolean: coerceToBoolean(req.params['path-boolean']),
-        pathBooleanArray: req.params['path-boolean-array']
-          .split(',')
-          .map(coerceToBoolean)
-          .filter(definedBooleans),
-        pathEnum: req.params['path-enum'] as types.ExhaustiveParamsPathEnum,
-        pathEnumArray: req.params['path-enum-array'].split(
-          '|',
-        ) as types.ExhaustiveParamsPathEnumArray[],
-        pathInteger: coerceToNumber(req.params['path-integer']),
-        pathIntegerArray: req.params['path-integer-array']
-          .split('\t')
-          .map(coerceToNumber)
-          .filter(definedNumbers),
-        pathNumber: coerceToNumber(req.params['path-number']),
-        pathNumberArray: req.params['path-number-array']
-          .split(' ')
-          .map(coerceToNumber)
-          .filter(definedNumbers),
-        pathString: req.params['path-string'],
-        pathStringArray: req.params['path-string-array'].split(','),
-        queryBoolean: coerceToBoolean(req.query['query-boolean']),
-        queryBooleanArray: req.query['query-boolean-array']
-          ?.split(',')
-          .map(coerceToBoolean)
-          .filter(definedBooleans),
+        queryString: req.query['query-string'],
         queryEnum: req.query['query-enum'] as types.ExhaustiveParamsQueryEnum,
+        queryNumber: coerceToNumber(req.query['query-number']),
+        queryInteger: coerceToNumber(req.query['query-integer']),
+        queryBoolean: coerceToBoolean(req.query['query-boolean']),
+        queryStringArray: req.query['query-string-array']?.split(','),
         queryEnumArray: req.query['query-enum-array']?.split(
           ',',
         ) as types.ExhaustiveParamsQueryEnumArray[],
-        queryInteger: coerceToNumber(req.query['query-integer']),
-        queryIntegerArray: req.query['query-integer-array']
-          ?.split(',')
-          .map(coerceToNumber)
-          .filter(definedNumbers),
-        queryNumber: coerceToNumber(req.query['query-number']),
         queryNumberArray: req.query['query-number-array']
           ?.split(',')
           .map(coerceToNumber)
           .filter(definedNumbers),
-        queryString: req.query['query-string'],
-        queryStringArray: req.query['query-string-array']?.split(','),
+        queryIntegerArray: req.query['query-integer-array']
+          ?.split(',')
+          .map(coerceToNumber)
+          .filter(definedNumbers),
+        queryBooleanArray: req.query['query-boolean-array']
+          ?.split(',')
+          .map(coerceToBoolean)
+          .filter(definedBooleans),
+        pathString: req.params['path-string'],
+        pathEnum: req.params['path-enum'] as types.ExhaustiveParamsPathEnum,
+        pathNumber: coerceToNumber(req.params['path-number']),
+        pathInteger: coerceToNumber(req.params['path-integer']),
+        pathBoolean: coerceToBoolean(req.params['path-boolean']),
+        pathStringArray: req.params['path-string-array'].split(','),
+        pathEnumArray: req.params['path-enum-array'].split(
+          '|',
+        ) as types.ExhaustiveParamsPathEnumArray[],
+        pathNumberArray: req.params['path-number-array']
+          .split(' ')
+          .map(coerceToNumber)
+          .filter(definedNumbers),
+        pathIntegerArray: req.params['path-integer-array']
+          .split('\t')
+          .map(coerceToNumber)
+          .filter(definedNumbers),
+        pathBooleanArray: req.params['path-boolean-array']
+          .split(',')
+          .map(coerceToBoolean)
+          .filter(definedBooleans),
+        headerString: req.header['header-string'],
+        headerEnum: req.header[
+          'header-enum'
+        ] as types.ExhaustiveParamsHeaderEnum,
+        headerNumber: coerceToNumber(req.header['header-number']),
+        headerInteger: coerceToNumber(req.header['header-integer']),
+        headerBoolean: coerceToBoolean(req.header['header-boolean']),
+        headerStringArray: req.header['header-string-array']?.split(','),
+        headerEnumArray: req.header['header-enum-array']?.split(
+          ',',
+        ) as types.ExhaustiveParamsHeaderEnumArray[],
+        headerNumberArray: req.header['header-number-array']
+          ?.split('|')
+          .map(coerceToNumber)
+          .filter(definedNumbers),
+        headerIntegerArray: req.header['header-integer-array']
+          ?.split(' ')
+          .map(coerceToNumber)
+          .filter(definedNumbers),
+        headerBooleanArray: req.header['header-boolean-array']
+          ?.split('\t')
+          .map(coerceToBoolean)
+          .filter(definedBooleans),
+        body: mappers.mapFromExhaustiveParamsBodyDto(req.body),
       };
 
       // Validate request

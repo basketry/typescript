@@ -133,19 +133,27 @@ export class ExpressHandlerFactory extends BaseFactory {
     )} => async (req, res, next) => {`;
     yield '  try {';
     if (hasParams) {
-      yield '// Parse parameters from request';
-      yield* this.buildParamSource(method, httpMethod);
-      yield '';
+      if (this.options.express?.validation === 'zod') {
+        yield `// Parse parameters from request`;
+        yield `const params: ${buildMethodParamsTypeName(method, this.typesModule)} = ${this.schemasModule}.${buildMethodParamsTypeName(method)}Schema.parse({`;
+        yield* this.buildParamsSourceObject(method, httpMethod);
+        yield `});`;
+        yield '';
+      } else {
+        yield '// Parse parameters from request';
+        yield* this.buildParamSource(method, httpMethod);
+        yield '';
 
-      yield '// Validate request';
-      yield `const reqValidationErrors = ${buildParamsValidatorName(
-        method,
-        this.validatorsModule,
-      )}(params);`;
-      yield `if (reqValidationErrors.length) {`;
-      yield `  return next(${this.errorsModule}.validationErrors(400, reqValidationErrors));`;
-      yield '}';
-      yield '';
+        yield '// Validate request';
+        yield `const reqValidationErrors = ${buildParamsValidatorName(
+          method,
+          this.validatorsModule,
+        )}(params);`;
+        yield `if (reqValidationErrors.length) {`;
+        yield `  return next(${this.errorsModule}.validationErrors(400, reqValidationErrors));`;
+        yield '}';
+        yield '';
+      }
     }
     yield '    // Excetute service method';
     yield `    const service = getService(req, res);`;
@@ -180,14 +188,24 @@ export class ExpressHandlerFactory extends BaseFactory {
       )}(result);`;
       yield `    res.status(status).json(reponseDto);`;
       yield '';
-      yield '// Validate response';
-      yield `const resValidationErrors = ${buildTypeValidatorName(
-        returnType,
-        this.validatorsModule,
-      )}(result);`;
-      yield `if (resValidationErrors.length) {`;
-      yield `  next(${this.errorsModule}.validationErrors(500, resValidationErrors));`;
-      yield '}';
+      switch (this.options.express?.validation) {
+        case 'zod': {
+          yield `// Validate response`;
+          yield `${this.schemasModule}.${buildTypeName(returnType)}Schema.parse(result);`;
+          break;
+        }
+        default: {
+          yield '// Validate response';
+          yield `const resValidationErrors = ${buildTypeValidatorName(
+            returnType,
+            this.validatorsModule,
+          )}(result);`;
+          yield `if (resValidationErrors.length) {`;
+          yield `  next(${this.errorsModule}.validationErrors(500, resValidationErrors));`;
+          yield '}';
+        }
+      }
+
       yield '';
     } else {
       yield `    res.sendStatus(status);`;
@@ -196,7 +214,21 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield '}';
     }
     yield '  } catch (err) {';
-    yield `    next(${this.errorsModule}.unhandledException(err));`;
+    switch (this.options.express?.validation) {
+      case 'zod': {
+        this.touchZodErrorImport();
+        yield `if (err instanceof ZodError) {`;
+        yield `  const statusCode = res.headersSent ? 500 : 400;`;
+        yield `  return next(${this.errorsModule}.validationErrors(statusCode, err.errors));`;
+        yield `} else {`;
+        yield `  next(${this.errorsModule}.unhandledException(err));`;
+        yield `}`;
+        break;
+      }
+      default: {
+        yield `    next(${this.errorsModule}.unhandledException(err));`;
+      }
+    }
     yield '  }';
     yield '}';
   }
@@ -207,6 +239,14 @@ export class ExpressHandlerFactory extends BaseFactory {
   ): Iterable<string> {
     const paramsTypeName = buildMethodParamsTypeName(method, this.typesModule);
     yield `const params: ${paramsTypeName} = {`;
+    yield* this.buildParamsSourceObject(method, httpMethod);
+    yield '};';
+  }
+
+  private *buildParamsSourceObject(
+    method: Method,
+    httpMethod: HttpMethod,
+  ): Iterable<string> {
     for (const param of method.parameters) {
       const httpParam = httpMethod.parameters.find(
         (p) => p.name.value === param.name.value,
@@ -236,19 +276,23 @@ export class ExpressHandlerFactory extends BaseFactory {
           break;
       }
 
-      const e = getEnumByName(this.service, param.typeName.value);
-      const castArray = param.isArray ? '[]' : '';
-      const cast = e
-        ? ` as ${this.typesModule}.${buildTypeName(e)}${castArray}`
-        : '';
+      const cast = (): string => {
+        // We don't need to cast enums if we're using zod
+        if (this.options.express?.validation === 'zod') return '';
+
+        const e = getEnumByName(this.service, param.typeName.value);
+        const castArray = param.isArray ? '[]' : '';
+        return e
+          ? ` as ${this.typesModule}.${buildTypeName(e)}${castArray}`
+          : '';
+      };
 
       yield `  ${buildParameterName(param)}: ${this.withValueCoersion(
         param,
         valueClause,
         httpParam,
-      )}${cast},`;
+      )}${cast()},`;
     }
-    yield '};';
   }
 
   private withValueCoersion(
@@ -276,33 +320,70 @@ export class ExpressHandlerFactory extends BaseFactory {
     if (param.isPrimitive) {
       switch (param.typeName.value) {
         case 'boolean':
-          this.touchBooleanCoersion();
+          if (this.options.express?.validation !== 'zod') {
+            this.touchBooleanCoersion();
+          }
           if (param.isArray) {
-            this.touchBooleanFilter();
-            return `${valueClause}${split()}.map(coerceToBoolean).filter(definedBooleans)`;
+            if (this.options.express?.validation !== 'zod') {
+              this.touchBooleanFilter();
+            }
+            const coercion =
+              this.options.express?.validation !== 'zod'
+                ? '.map(coerceToBoolean).filter(definedBooleans)'
+                : '';
+
+            return `${valueClause}${split()}${coercion}`;
           } else {
-            return `coerceToBoolean(${valueClause})`;
+            const coercion =
+              this.options.express?.validation !== 'zod'
+                ? 'coerceToBoolean'
+                : '';
+            return `${coercion}(${valueClause})`;
           }
         case 'date':
         case 'date-time':
-          this.touchDateCoersion();
+          if (this.options.express?.validation !== 'zod') {
+            this.touchDateCoersion();
+          }
           if (param.isArray) {
-            this.touchDateFilter();
-            return `${valueClause}${split()}.map(coerceToDate).filter(definedDates)`;
+            if (this.options.express?.validation !== 'zod') {
+              this.touchDateFilter();
+            }
+            const coercion =
+              this.options.express?.validation !== 'zod'
+                ? '.map(coerceToDate).filter(definedDates)'
+                : '';
+
+            return `${valueClause}${split()}${coercion}`;
           } else {
-            return `coerceToDate(${valueClause})`;
+            const coercion =
+              this.options.express?.validation !== 'zod' ? 'coerceToDate' : '';
+            return `${coercion}(${valueClause})`;
           }
         case 'double':
         case 'float':
         case 'integer':
         case 'long':
         case 'number':
-          this.touchNumberCoersion();
+          if (this.options.express?.validation !== 'zod') {
+            this.touchNumberCoersion();
+          }
           if (param.isArray) {
-            this.touchNumberFilter();
-            return `${valueClause}${split()}.map(coerceToNumber).filter(definedNumbers)`;
+            if (this.options.express?.validation !== 'zod') {
+              this.touchNumberFilter();
+            }
+            const coercion =
+              this.options.express?.validation !== 'zod'
+                ? '.map(coerceToNumber).filter(definedNumbers)'
+                : '';
+
+            return `${valueClause}${split()}${coercion}`;
           } else {
-            return `coerceToNumber(${valueClause})`;
+            const coercion =
+              this.options.express?.validation !== 'zod'
+                ? 'coerceToNumber'
+                : '';
+            return `${coercion}(${valueClause})`;
           }
         case 'binary':
         case 'null':

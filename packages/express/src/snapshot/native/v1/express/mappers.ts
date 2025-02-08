@@ -38,8 +38,8 @@ export function mapFromExhaustiveParamsBodyDto(
   dto: dtos.ExhaustiveParamsBodyDto,
 ): types.ExhaustiveParamsBody {
   return compact({
-    bar: dto.bar,
     foo: dto.foo,
+    bar: dto.bar,
   });
 }
 
@@ -61,20 +61,20 @@ export function mapToGizmosResponseDto(
 
 export function mapToWidgetDto(obj: types.Widget): dtos.WidgetDto {
   return compact({
-    buzz: obj.buzz,
+    id: obj.id,
+    name: obj.name,
     fiz: obj.fiz,
+    buzz: obj.buzz,
     fizbuzz: obj.fizbuzz,
     foo:
       typeof obj.foo === 'undefined' ? undefined : mapToWidgetFooDto(obj.foo),
-    id: obj.id,
-    name: obj.name,
     size: obj.size,
   });
 }
 
 export function mapToWidgetFooDto(obj: types.WidgetFoo): dtos.WidgetFooDto {
   return compact({
-    buzz: obj.buzz,
     fiz: obj.fiz,
+    buzz: obj.buzz,
   });
 }
