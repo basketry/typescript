@@ -104,7 +104,7 @@ function getHandlers<TRequestHandler extends RequestHandler>(
     yield `}: ${this.expressTypesModule}.RouterFactoryInput): Router {`;
     yield `const router = Router();`;
     this.touchRequestHandlerImport();
-    yield `const methodNotAllowed: RequestHandler = ((_req, _res, next) => {return next(${this.errorsModule}.methodNotAllowed())});`;
+    yield `const methodNotAllowed: (allow: string) => RequestHandler = (allow) => ((_req, res, next) => {res.set('Allow', allow); return next(${this.errorsModule}.methodNotAllowed())});`;
     yield '';
     yield* this.buildHandlersFor();
     yield '';
@@ -184,6 +184,7 @@ function getHandlers<TRequestHandler extends RequestHandler>(
         .map((v) => v.toUpperCase())
         .join(', ');
       yield `.options((_, res) => res.set('Allow', '${allowMethods}').sendStatus(204))`;
+      yield `.all(methodNotAllowed('${allowMethods}'))`;
       yield `  `;
     }
   }
@@ -224,7 +225,7 @@ function getHandlers<TRequestHandler extends RequestHandler>(
     \`);`;
     yield '})';
     yield `.options((_, res) => res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204))`;
-    yield '.all(methodNotAllowed)';
+    yield `.all(methodNotAllowed('GET, HEAD, OPTIONS'))`;
   }
 }
 

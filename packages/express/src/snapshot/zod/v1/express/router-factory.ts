@@ -29,9 +29,11 @@ export function getRouter({
   swaggerUiVersion = '3.51.1',
 }: expressTypes.RouterFactoryInput): Router {
   const router = Router();
-  const methodNotAllowed: RequestHandler = (_req, _res, next) => {
-    return next(errors.methodNotAllowed());
-  };
+  const methodNotAllowed: (allow: string) => RequestHandler =
+    (allow) => (_req, res, next) => {
+      res.set('Allow', allow);
+      return next(errors.methodNotAllowed());
+    };
 
   function handlersFor<
     TName extends Exclude<
@@ -61,7 +63,8 @@ export function getRouter({
     )
     .options((_, res) =>
       res.set('Allow', 'GET, HEAD, OPTIONS, PUT').sendStatus(204),
-    );
+    )
+    .all(methodNotAllowed('GET, HEAD, OPTIONS, PUT'));
 
   router
     .route(
@@ -73,9 +76,8 @@ export function getRouter({
         handlers.handleExhaustiveParams(getExhaustiveService),
       ),
     )
-    .options((_, res) =>
-      res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204),
-    );
+    .options((_, res) => res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204))
+    .all(methodNotAllowed('GET, HEAD, OPTIONS'));
 
   router
     .route('/exhaustive')
@@ -85,9 +87,8 @@ export function getRouter({
         handlers.handleExhaustiveFormats(getExhaustiveService),
       ),
     )
-    .options((_, res) =>
-      res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204),
-    );
+    .options((_, res) => res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204))
+    .all(methodNotAllowed('GET, HEAD, OPTIONS'));
 
   router
     .route('/gizmos')
@@ -100,7 +101,8 @@ export function getRouter({
     )
     .options((_, res) =>
       res.set('Allow', 'GET, HEAD, OPTIONS, POST, PUT').sendStatus(204),
-    );
+    )
+    .all(methodNotAllowed('GET, HEAD, OPTIONS, POST, PUT'));
 
   router
     .route('/widgets/:id/foo')
@@ -118,7 +120,8 @@ export function getRouter({
     )
     .options((_, res) =>
       res.set('Allow', 'DELETE, GET, HEAD, OPTIONS').sendStatus(204),
-    );
+    )
+    .all(methodNotAllowed('DELETE, GET, HEAD, OPTIONS'));
 
   router
     .route('/widgets')
@@ -132,7 +135,8 @@ export function getRouter({
     .put(handlersFor('putWidget', handlers.handlePutWidget(getWidgetService)))
     .options((_, res) =>
       res.set('Allow', 'GET, HEAD, OPTIONS, POST, PUT').sendStatus(204),
-    );
+    )
+    .all(methodNotAllowed('GET, HEAD, OPTIONS, POST, PUT'));
 
   router
     .route('/')
@@ -171,7 +175,7 @@ export function getRouter({
     `);
     })
     .options((_, res) => res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204))
-    .all(methodNotAllowed);
+    .all(methodNotAllowed('GET, HEAD, OPTIONS'));
   return router;
 }
 /**
