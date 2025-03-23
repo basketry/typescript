@@ -175,6 +175,10 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             }
           }
 
+          if (member.default) {
+            schema.push(`default('${member.default.value}')`);
+          }
+
           break;
         }
         case 'number':
@@ -226,6 +230,10 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             }
           }
 
+          if (member.default) {
+            schema.push(`default(${member.default.value})`);
+          }
+
           break;
         }
         case 'boolean': {
@@ -237,6 +245,11 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           } else {
             schema.push(`${z()}${coerce}.boolean()`);
           }
+
+          if (member.default) {
+            schema.push(`default(${member.default.value})`);
+          }
+
           break;
         }
         case 'date':
@@ -274,7 +287,9 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
     }
 
     if (!isRequired(member)) {
-      schema.push(`optional()`);
+      if (!member.isPrimitive || !member.default) {
+        schema.push(`optional()`);
+      }
     }
 
     yield `${name}: ${schema.join('.')},`;
