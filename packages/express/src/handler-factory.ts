@@ -301,19 +301,18 @@ export class ExpressHandlerFactory extends BaseFactory {
     httpParam: HttpParameter,
   ): string {
     function split() {
-      const q = isRequired(param) ? '' : '?';
       switch (httpParam.array?.value) {
         case 'ssv':
-          return `${q}.split(" ")`;
+          return `?.split(" ")`;
         case 'tsv':
-          return `${q}.split("\\t")`;
+          return `?.split("\\t")`;
         case 'pipes':
-          return `${q}.split("|")`;
+          return `?.split("|")`;
         case 'multi':
-          return q;
+          return '';
         case 'csv':
         default:
-          return `${q}.split(",")`;
+          return `?.split(",")`;
       }
     }
 

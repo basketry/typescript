@@ -231,20 +231,20 @@ export const handleExhaustiveParams =
         pathNumber: coerceToNumber(req.params['path-number']),
         pathInteger: coerceToNumber(req.params['path-integer']),
         pathBoolean: coerceToBoolean(req.params['path-boolean']),
-        pathStringArray: req.params['path-string-array'].split(','),
-        pathEnumArray: req.params['path-enum-array'].split(
+        pathStringArray: req.params['path-string-array']?.split(','),
+        pathEnumArray: req.params['path-enum-array']?.split(
           '|',
         ) as types.ExhaustiveParamsPathEnumArray[],
         pathNumberArray: req.params['path-number-array']
-          .split(' ')
+          ?.split(' ')
           .map(coerceToNumber)
           .filter(definedNumbers),
         pathIntegerArray: req.params['path-integer-array']
-          .split('\t')
+          ?.split('\t')
           .map(coerceToNumber)
           .filter(definedNumbers),
         pathBooleanArray: req.params['path-boolean-array']
-          .split(',')
+          ?.split(',')
           .map(coerceToBoolean)
           .filter(definedBooleans),
         headerString: req.header['header-string'],
