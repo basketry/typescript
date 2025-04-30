@@ -7,6 +7,8 @@ import {
   Enum,
   getHttpMethodByName,
   isRequired,
+  MapKey,
+  MapValue,
   Method,
   Parameter,
   Property,
@@ -46,11 +48,117 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
 
       switch (element.kind) {
         case 'Type':
-          yield `export const ${pascal(name)}Schema = ${z()}.object({`;
-          for (const member of element.properties) {
-            yield* this.buildMember(member, schema);
+          const keySetName = ` __${camel(name)}Keys`;
+          const keySchemaName = ` __${pascal(name)}KeySchema`;
+
+          if (element.mapProperties?.key.rules.length) {
+            if (element.properties.length) {
+              yield `const ${keySetName} = new Set([${element.properties
+                .map((p) => `'${p.name.value}'`)
+                .join(', ')}]);`;
+            }
+            yield `const ${keySchemaName} = ${this.buildMemberSchema(
+              element.mapProperties?.key,
+              schema,
+            )}`;
           }
-          yield `});`;
+
+          yield `export const ${pascal(name)}Schema = `;
+
+          const maxPropCount = element.rules.find(
+            (r) => r.id === 'object-max-properties',
+          )?.max.value;
+          let emittedPropCount = 0;
+
+          if (
+            element.properties.length ||
+            element.mapProperties?.requiredKeys.length
+          ) {
+            yield `${z()}.object({`;
+            for (const member of element.properties) {
+              yield* this.buildMember(member, schema);
+              emittedPropCount++;
+            }
+            if (element.mapProperties) {
+              for (const key of element.mapProperties.requiredKeys) {
+                yield* this.buildRequiredKey(
+                  camel(key.value),
+                  element.mapProperties.value,
+                  schema,
+                );
+                emittedPropCount++;
+              }
+            }
+            yield `})`;
+
+            if (
+              element.mapProperties &&
+              (typeof maxPropCount === 'undefined' ||
+                maxPropCount > emittedPropCount)
+            ) {
+              yield `.catchall(${this.buildMemberSchema(
+                element.mapProperties.value,
+                schema,
+              )})`;
+            }
+          } else if (element.mapProperties) {
+            yield `${z()}.record(${this.buildMemberSchema(
+              element.mapProperties.value,
+              schema,
+            )})`;
+          }
+
+          if (element.mapProperties) {
+            const maxRule = element.rules.find(
+              (r) => r.id === 'object-max-properties',
+            );
+            const minRule = element.rules.find(
+              (r) => r.id === 'object-min-properties',
+            );
+
+            if (maxRule) {
+              yield `.refine(`;
+              yield `  data => Object.keys(data).length <= ${maxRule.max.value},`;
+              yield `  { message: 'Object must have at most ${maxRule.max.value} keys' },`;
+              yield `)`;
+            }
+            if (minRule) {
+              yield `.refine(`;
+              yield `  data => Object.keys(data).length >= ${minRule.min.value},`;
+              yield `  { message: 'Object must have at least ${minRule.min.value} keys' },`;
+              yield `)`;
+            }
+          }
+
+          if (element.mapProperties) {
+            const { key } = element.mapProperties;
+
+            const schemaName = key.isPrimitive
+              ? keySchemaName
+              : `${pascal(key.typeName.value)}Schema`;
+
+            if (key.rules.length || !key.isPrimitive) {
+              yield `.superRefine((data, ctx) => {`;
+              yield `  for (const key of Object.keys(data)) {`;
+              if (element.properties.length) {
+                yield `    if (${keySetName}.has(key)) continue;`;
+                yield ``;
+              }
+              yield `    const result = ${schemaName}.safeParse(key);`;
+              yield `    if (result.success) continue;`;
+              yield ``;
+              yield `    for (const error of result.error.errors) {`;
+              yield `      ctx.addIssue({`;
+              yield `        code: z.ZodIssueCode.custom,`;
+              yield `        message: \`Invalid key: \${error.message}\`,`;
+              yield `        path: [key],`;
+              yield `      });`;
+              yield `    }`;
+              yield `  }`;
+              yield `})`;
+            }
+          }
+
           break;
         case 'Method':
           yield `export const ${pascal(name)}Schema = ${z()}.object({`;
@@ -101,8 +209,24 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
   }
 
   *buildMember(member: Parameter | Property, parent: Schema): Iterable<string> {
-    const z = () => this.zod.fn('z');
     const name = camel(member.name.value);
+
+    const schema = this.buildMemberSchema(member, parent);
+
+    yield `${name}: ${schema},`;
+  }
+
+  *buildRequiredKey(name: string, value: MapValue, parent: Schema) {
+    const schema = this.buildMemberSchema(value, parent);
+
+    yield `${name}: ${schema},`;
+  }
+
+  buildMemberSchema(
+    member: Parameter | Property | MapKey | MapValue,
+    parent: Schema,
+  ): string {
+    const z = () => this.zod.fn('z');
 
     const shouldCoerce = () => {
       if (member.kind === 'Parameter' && parent.element.kind === 'Method') {
@@ -286,13 +410,17 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
       if (maxRule) schema.push(`max(${maxRule.max.value})`);
     }
 
-    if (!isRequired(member)) {
+    if (
+      !isRequired(member) &&
+      member.kind !== 'MapKey' &&
+      member.kind !== 'MapValue'
+    ) {
       if (!member.isPrimitive || !member.default) {
         schema.push(`optional()`);
       }
     }
 
-    yield `${name}: ${schema.join('.')},`;
+    return schema.join('.');
   }
 }
 
@@ -315,9 +443,25 @@ function sort(iterable: Iterable<Schema>) {
 
       switch (schema.element.kind) {
         case 'Type':
-          complexMembers = schema.element.properties
+          const propertyMembers = schema.element.properties
             .filter((p) => !p.isPrimitive)
             .map((p) => pascal(p.typeName.value));
+
+          const mapKeyMembers =
+            schema.element.mapProperties?.key.isPrimitive === false
+              ? [pascal(schema.element.mapProperties.key.typeName.value)]
+              : [];
+
+          const mapValueMembers =
+            schema.element.mapProperties?.value.isPrimitive === false
+              ? [pascal(schema.element.mapProperties.value.typeName.value)]
+              : [];
+
+          complexMembers = [
+            ...propertyMembers,
+            ...mapKeyMembers,
+            ...mapValueMembers,
+          ];
           break;
         case 'Method':
           complexMembers = schema.element.parameters
