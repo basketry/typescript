@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/express: https://github.com/basketry/express/wiki
+ * About Basketry: https://basketry.io
+ * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
 import type * as types from '../types';
@@ -26,11 +26,44 @@ function compact<T extends object>(obj: T): T {
   }, {} as T);
 }
 
+export function mapFromAllMapsDto(dto: dtos.AllMapsDto): types.AllMaps {
+  return compact({
+    complexKeyMapA: mapFromComplexKeyMapADto(dto.complexKeyMapA),
+    pureMapA: mapFromPureMapADto(dto.pureMapA),
+    pureMapB: mapFromPureMapBDto(dto.pureMapB),
+    pureMapC: mapFromPureMapCDto(dto.pureMapC),
+    pureMapD: mapFromPureMapDDto(dto.pureMapD),
+    mixedMapA: mapFromMixedMapADto(dto.mixedMapA),
+    mixedMapB: mapFromMixedMapBDto(dto.mixedMapB),
+    mixedMapC: mapFromMixedMapCDto(dto.mixedMapC),
+    mixedMapD: mapFromMixedMapDDto(dto.mixedMapD),
+  });
+}
+
+export function mapFromComplexKeyMapADto(
+  dto: dtos.ComplexKeyMapADto,
+): types.ComplexKeyMapA {
+  return Object.keys(dto).reduce((acc, key) => {
+    const value = dto[key];
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, {} as types.ComplexKeyMapA);
+}
+
 export function mapFromCreateWidgetBodyDto(
   dto: dtos.CreateWidgetBodyDto,
 ): types.CreateWidgetBody {
   return compact({
     name: dto.name,
+  });
+}
+
+export function mapFromExampleMapValueDto(
+  dto: dtos.ExampleMapValueDto,
+): types.ExampleMapValue {
+  return compact({
+    foo: dto.foo,
+    bar: dto.bar,
+    createdAt: new Date(dto['created-at']),
   });
 }
 
@@ -43,11 +76,199 @@ export function mapFromExhaustiveParamsBodyDto(
   });
 }
 
-export function mapToGizmoDto(obj: types.Gizmo): dtos.GizmoDto {
+export function mapFromMixedMapADto(dto: dtos.MixedMapADto): types.MixedMapA {
+  const { 'obj-id': objId, 'obj-name': objName, ...__rest__ } = dto;
+
+  const __defined__ = compact({
+    objId,
+    objName,
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof dto[key] === 'undefined'
+        ? undefined
+        : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as types.MixedMapA);
+}
+
+export function mapFromMixedMapBDto(dto: dtos.MixedMapBDto): types.MixedMapB {
+  const {
+    'obj-id': objId,
+    'obj-name': objName,
+    'obj-fizz': objFizz,
+    'obj-buzz': objBuzz,
+    ...__rest__
+  } = dto;
+
+  const __defined__ = compact({
+    objId,
+    objName,
+    objFizz: mapFromExampleMapValueDto(objFizz),
+    objBuzz: mapFromExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof dto[key] === 'undefined'
+        ? undefined
+        : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as types.MixedMapB);
+}
+
+export function mapFromMixedMapCDto(dto: dtos.MixedMapCDto): types.MixedMapC {
+  const {
+    'obj-id': objId,
+    'obj-name': objName,
+    'obj-fizz': objFizz,
+    'obj-buzz': objBuzz,
+    ...__rest__
+  } = dto;
+
+  const __defined__ = compact({
+    objId,
+    objName,
+    objFizz: mapFromExampleMapValueDto(objFizz),
+    objBuzz: mapFromExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof dto[key] === 'undefined'
+        ? undefined
+        : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as types.MixedMapC);
+}
+
+export function mapFromMixedMapDDto(dto: dtos.MixedMapDDto): types.MixedMapD {
+  const {
+    'obj-id': objId,
+    'obj-name': objName,
+    'obj-fizz': objFizz,
+    'obj-buzz': objBuzz,
+  } = dto;
+
   return compact({
-    id: obj.id,
-    name: obj.name,
-    size: obj.size,
+    objId,
+    objName,
+    objFizz: mapFromExampleMapValueDto(objFizz),
+    objBuzz: mapFromExampleMapValueDto(objBuzz),
+  });
+}
+
+export function mapFromPureMapADto(dto: dtos.PureMapADto): types.PureMapA {
+  return Object.keys(dto).reduce((acc, key) => {
+    const value =
+      typeof dto[key] === 'undefined'
+        ? undefined
+        : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, {} as types.PureMapA);
+}
+
+export function mapFromPureMapBDto(dto: dtos.PureMapBDto): types.PureMapB {
+  const { 'obj-fizz': objFizz, 'obj-buzz': objBuzz, ...__rest__ } = dto;
+
+  const __defined__ = compact({
+    objFizz: mapFromExampleMapValueDto(objFizz),
+    objBuzz: mapFromExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof dto[key] === 'undefined'
+        ? undefined
+        : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as types.PureMapB);
+}
+
+export function mapFromPureMapCDto(dto: dtos.PureMapCDto): types.PureMapC {
+  const { 'obj-fizz': objFizz, 'obj-buzz': objBuzz, ...__rest__ } = dto;
+
+  const __defined__ = compact({
+    objFizz: mapFromExampleMapValueDto(objFizz),
+    objBuzz: mapFromExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof dto[key] === 'undefined'
+        ? undefined
+        : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as types.PureMapC);
+}
+
+export function mapFromPureMapDDto(dto: dtos.PureMapDDto): types.PureMapD {
+  const { 'obj-fizz': objFizz, 'obj-buzz': objBuzz } = dto;
+
+  return compact({
+    objFizz: mapFromExampleMapValueDto(objFizz),
+    objBuzz: mapFromExampleMapValueDto(objBuzz),
+  });
+}
+
+export function mapToAllMapsDto(obj: types.AllMaps): dtos.AllMapsDto {
+  return compact({
+    complexKeyMapA: mapToComplexKeyMapADto(obj.complexKeyMapA),
+    pureMapA: mapToPureMapADto(obj.pureMapA),
+    pureMapB: mapToPureMapBDto(obj.pureMapB),
+    pureMapC: mapToPureMapCDto(obj.pureMapC),
+    pureMapD: mapToPureMapDDto(obj.pureMapD),
+    mixedMapA: mapToMixedMapADto(obj.mixedMapA),
+    mixedMapB: mapToMixedMapBDto(obj.mixedMapB),
+    mixedMapC: mapToMixedMapCDto(obj.mixedMapC),
+    mixedMapD: mapToMixedMapDDto(obj.mixedMapD),
+  });
+}
+
+export function mapToComplexKeyMapADto(
+  obj: types.ComplexKeyMapA,
+): dtos.ComplexKeyMapADto {
+  return Object.keys(obj).reduce((acc, key) => {
+    const value = obj[key];
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, {} as dtos.ComplexKeyMapADto);
+}
+
+export function mapToExampleMapValueDto(
+  obj: types.ExampleMapValue,
+): dtos.ExampleMapValueDto {
+  return compact({
+    foo: obj.foo,
+    bar: obj.bar,
+    'created-at': obj.createdAt.toISOString(),
+  });
+}
+
+export function mapToGizmoDto(obj: types.Gizmo): dtos.GizmoDto {
+  const { id, name, size, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    id: id,
+    name: name,
+    size: size,
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToGizmoMapValueDto(obj[key] as types.GizmoMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.GizmoDto);
+}
+
+export function mapToGizmoMapValueDto(
+  obj: types.GizmoMapValue,
+): dtos.GizmoMapValueDto {
+  return compact({
+    foo: obj.foo,
+    bar: obj.bar,
   });
 }
 
@@ -56,6 +277,125 @@ export function mapToGizmosResponseDto(
 ): dtos.GizmosResponseDto {
   return compact({
     data: obj.data?.map(mapToGizmoDto),
+  });
+}
+
+export function mapToMixedMapADto(obj: types.MixedMapA): dtos.MixedMapADto {
+  const { objId, objName, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    'obj-id': objId,
+    'obj-name': objName,
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.MixedMapADto);
+}
+
+export function mapToMixedMapBDto(obj: types.MixedMapB): dtos.MixedMapBDto {
+  const { objId, objName, objFizz, objBuzz, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    'obj-id': objId,
+    'obj-name': objName,
+    'obj-fizz': mapToExampleMapValueDto(objFizz),
+    'obj-buzz': mapToExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.MixedMapBDto);
+}
+
+export function mapToMixedMapCDto(obj: types.MixedMapC): dtos.MixedMapCDto {
+  const { objId, objName, objFizz, objBuzz, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    'obj-id': objId,
+    'obj-name': objName,
+    'obj-fizz': mapToExampleMapValueDto(objFizz),
+    'obj-buzz': mapToExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.MixedMapCDto);
+}
+
+export function mapToMixedMapDDto(obj: types.MixedMapD): dtos.MixedMapDDto {
+  const { objId, objName, objFizz, objBuzz } = obj;
+
+  return compact({
+    'obj-id': objId,
+    'obj-name': objName,
+    'obj-fizz': mapToExampleMapValueDto(objFizz),
+    'obj-buzz': mapToExampleMapValueDto(objBuzz),
+  });
+}
+
+export function mapToPureMapADto(obj: types.PureMapA): dtos.PureMapADto {
+  return Object.keys(obj).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, {} as dtos.PureMapADto);
+}
+
+export function mapToPureMapBDto(obj: types.PureMapB): dtos.PureMapBDto {
+  const { objFizz, objBuzz, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    'obj-fizz': mapToExampleMapValueDto(objFizz),
+    'obj-buzz': mapToExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.PureMapBDto);
+}
+
+export function mapToPureMapCDto(obj: types.PureMapC): dtos.PureMapCDto {
+  const { objFizz, objBuzz, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    'obj-fizz': mapToExampleMapValueDto(objFizz),
+    'obj-buzz': mapToExampleMapValueDto(objBuzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.PureMapCDto);
+}
+
+export function mapToPureMapDDto(obj: types.PureMapD): dtos.PureMapDDto {
+  const { objFizz, objBuzz } = obj;
+
+  return compact({
+    'obj-fizz': mapToExampleMapValueDto(objFizz),
+    'obj-buzz': mapToExampleMapValueDto(objBuzz),
   });
 }
 
@@ -69,7 +409,25 @@ export function mapToWidgetDto(obj: types.Widget): dtos.WidgetDto {
     foo:
       typeof obj.foo === 'undefined' ? undefined : mapToWidgetFooDto(obj.foo),
     size: obj.size,
+    data: mapToWidgetDataDto(obj.data),
   });
+}
+
+export function mapToWidgetDataDto(obj: types.WidgetData): dtos.WidgetDataDto {
+  const { fizz, buzz, ...__rest__ } = obj;
+
+  const __defined__ = compact({
+    fizz: mapToGizmoMapValueDto(fizz),
+    buzz: mapToGizmoMapValueDto(buzz),
+  });
+
+  return Object.keys(__rest__).reduce((acc, key) => {
+    const value =
+      typeof obj[key] === 'undefined'
+        ? undefined
+        : mapToGizmoMapValueDto(obj[key] as types.GizmoMapValue);
+    return value === undefined ? acc : { ...acc, [key]: value };
+  }, __defined__ as dtos.WidgetDataDto);
 }
 
 export function mapToWidgetFooDto(obj: types.WidgetFoo): dtos.WidgetFooDto {

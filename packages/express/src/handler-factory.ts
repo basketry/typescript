@@ -155,7 +155,7 @@ export class ExpressHandlerFactory extends BaseFactory {
         yield '';
       }
     }
-    yield '    // Excetute service method';
+    yield '    // Execute service method';
     yield `    const service = getService(req, res);`;
     if (returnType) {
       yield `    const result = await service.${buildMethodName(method)}(${

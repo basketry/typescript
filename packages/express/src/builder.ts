@@ -1,12 +1,15 @@
 import {
+  MapKey,
   Parameter,
   Property,
+  Scalar,
   Service,
+  TypedValue,
   getEnumByName,
   isRequired,
 } from 'basketry';
 import { NamespacedExpressOptions } from './types';
-import { pascal } from 'case';
+import { camel, pascal } from 'case';
 import { buildParameterName, buildPropertyName } from '@basketry/typescript';
 
 const openAPIVariableRegex = /\{(\w+)\}/g;
@@ -17,7 +20,7 @@ export class Builder {
     private readonly options: NamespacedExpressOptions,
   ) {}
 
-  buildAccessor(p: Property | Parameter, mode: 'input' | 'output'): string {
+  buildAccessor(p: Parameter | Property, mode: 'input' | 'output'): string {
     const typescriptIdiomatic =
       p.kind === 'Parameter' ? buildParameterName(p) : buildPropertyName(p);
 
@@ -29,28 +32,37 @@ export class Builder {
   }
 
   buildPropertyValue(
-    prop: Property,
-    name: string,
+    prop: Parameter | Property,
+    parentName: string,
     mode: 'input' | 'output',
   ): string {
     const accessor = this.buildAccessor(prop, mode);
-    const value = `${name}${accessor}`;
+    const value = `${parentName}${accessor}`;
 
-    const mapperFn = `${this.buildMapperName(prop.typeName.value, mode)}`;
-    if (prop.isPrimitive) {
+    return this.buildValue(prop, mode, value);
+  }
+
+  buildValue(
+    typedValue: TypedValue,
+    mode: 'input' | 'output',
+    value: string,
+    asType?: string,
+  ): string {
+    const mapperFn = `${this.buildMapperName(typedValue.typeName.value, mode)}`;
+    if (typedValue.isPrimitive) {
       if (
-        prop.typeName.value === 'date' ||
-        prop.typeName.value === 'date-time'
+        typedValue.typeName.value === 'date' ||
+        typedValue.typeName.value === 'date-time'
       ) {
         switch (mode) {
           case 'input':
-            if (isRequired(prop)) {
+            if (isRequired(typedValue)) {
               return `new Date(${value})`;
             } else {
               return `typeof ${value} === 'undefined' ? undefined : new Date(${value})`;
             }
           case 'output':
-            if (isRequired(prop)) {
+            if (isRequired(typedValue)) {
               return `${value}.toISOString()`;
             } else {
               return `typeof ${value} === 'undefined' ? undefined : ${value}.toISOString()`;
@@ -60,21 +72,21 @@ export class Builder {
         return `${value}`;
       }
     } else {
-      const e = getEnumByName(this.service, prop.typeName.value);
+      const e = getEnumByName(this.service, typedValue.typeName.value);
       if (e) {
         return `${value}`;
       } else {
-        if (isRequired(prop)) {
-          if (prop.isArray) {
+        if (isRequired(typedValue)) {
+          if (typedValue.isArray) {
             return `${value}?.map(${mapperFn})`;
           } else {
-            return `${mapperFn}(${value})`;
+            return `${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
           }
         } else {
-          if (prop.isArray) {
+          if (typedValue.isArray) {
             return `${value}?.map(${mapperFn})`;
           } else {
-            return `typeof ${value} === 'undefined' ? undefined : ${mapperFn}(${value})`;
+            return `typeof ${value} === 'undefined' ? undefined : ${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
           }
         }
       }

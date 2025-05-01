@@ -1,18 +1,26 @@
 import {
   File,
+  MapProperties,
+  Parameter,
   Property,
+  Scalar,
   Service,
   Type,
+  TypedValue,
   Union,
   getTypeByName,
   getUnionByName,
   isRequired,
 } from 'basketry';
 import { NamespacedExpressOptions } from './types';
-import { buildFilePath, buildPropertyName } from '@basketry/typescript';
+import {
+  buildFilePath,
+  buildPropertyName,
+  buildTypeName,
+} from '@basketry/typescript';
 import { format } from '@basketry/typescript/lib/utils';
 import { BaseFactory } from './base-factory';
-import { pascal } from 'case';
+import { camel, pascal } from 'case';
 
 export class ExpressMapperFactory extends BaseFactory {
   constructor(service: Service, options: NamespacedExpressOptions) {
@@ -38,20 +46,29 @@ export class ExpressMapperFactory extends BaseFactory {
     return files;
   }
 
-  private buildSignature(
+  private buildTypeNames(
     typeName: string,
-    name: string,
     mode: 'input' | 'output',
-  ): string {
+  ): { input: string; output: string } {
     const dtoType = `${this.dtosModule}.${this.builder.buildDtoName(typeName)}`;
     const type = `${this.typesModule}.${pascal(typeName)}`;
+
+    return mode === 'input'
+      ? { input: dtoType, output: type }
+      : { input: type, output: dtoType };
+  }
+
+  private buildSignature(
+    typeName: string,
+    paramName: string,
+    mode: 'input' | 'output',
+  ): string {
+    const { input, output } = this.buildTypeNames(typeName, mode);
 
     return `export function ${this.builder.buildMapperName(
       typeName,
       mode,
-    )}(${name}: ${mode === 'input' ? dtoType : type}): ${
-      mode === 'input' ? type : dtoType
-    }`;
+    )}(${paramName}: ${input}): ${output}`;
   }
 
   private *buildMappers(): Iterable<string> {
@@ -72,18 +89,237 @@ export class ExpressMapperFactory extends BaseFactory {
     }
   }
 
-  private *buildTypeMapper(
+  /** Builds types with no map properties */
+  private *buildPureTypeMapper(
     type: Type,
+    paramName: string,
     mode: 'input' | 'output',
   ): Iterable<string> {
-    const paramName = mode === 'input' ? 'dto' : 'obj';
-    yield `${this.buildSignature(type.name.value, paramName, mode)} {`;
     this.touchCompact();
     yield `return compact({`;
     for (const prop of type.properties) {
       yield* this.buildProperty(prop, paramName, mode);
     }
     yield `});`;
+  }
+
+  /** Builds types with both defined and map properties */
+  private *buildMixedTypeMapper(
+    type: Type,
+    mapProperties: MapProperties,
+    paramName: string,
+    mode: 'input' | 'output',
+  ) {
+    const maxProperties =
+      type.rules.find((r) => r.id === 'object-max-properties')?.max.value ??
+      Number.MAX_SAFE_INTEGER;
+    const definedProperties =
+      type.properties.length + mapProperties.requiredKeys.length;
+
+    const reduceMap = maxProperties !== definedProperties;
+
+    yield `const {`;
+    for (const prop of type.properties) {
+      const propName = buildPropertyName(prop);
+      const leftName = mode === 'input' ? `'${prop.name.value}'` : propName;
+
+      if (leftName === propName) {
+        yield `${propName},`;
+      } else {
+        yield `${leftName}: ${propName},`;
+      }
+    }
+
+    for (const key of mapProperties.requiredKeys) {
+      const keyName = camel(key.value);
+      const leftName = mode === 'input' ? `'${key.value}'` : keyName;
+
+      if (leftName === keyName) {
+        yield `${keyName},`;
+      } else {
+        yield `${leftName}: ${keyName},`;
+      }
+    }
+
+    if (reduceMap) {
+      yield `...__rest__,`;
+    }
+
+    yield `} = ${paramName};`;
+    yield ``;
+
+    if (reduceMap) {
+      this.touchCompact();
+      yield `const __defined__ = compact({`;
+    } else {
+      this.touchCompact();
+      yield `return compact({`;
+    }
+    for (const prop of type.properties) {
+      const { propertyName } = this.buildKey(prop, mode);
+      const propertyValue = this.builder.buildValue(
+        prop,
+        mode,
+        buildPropertyName(prop),
+      );
+
+      if (propertyName === propertyValue) {
+        yield `${propertyName},`;
+      } else {
+        yield `${propertyName}: ${propertyValue},`;
+      }
+    }
+
+    for (const key of mapProperties.requiredKeys) {
+      const value = this.builder.buildValue(
+        makeItRequired(mapProperties.value),
+        mode,
+        camel(key.value),
+      );
+
+      const keyName = mode === 'output' ? `'${key.value}'` : camel(key.value);
+
+      if (keyName === value) {
+        yield `${keyName},`;
+      } else {
+        yield `${keyName}: ${value},`;
+      }
+    }
+    yield `});`;
+
+    if (reduceMap) {
+      const asType = this.buildTypeNames(
+        mapProperties.value.typeName.value,
+        mode,
+      ).input;
+
+      yield ``;
+      yield `return Object.keys(__rest__).reduce((acc, key) => {`;
+      yield `const value = ${this.builder.buildValue(mapProperties.value, mode, `${paramName}[key]`, asType)};`;
+      yield `return value === undefined ? acc : { ...acc, [key]: value };`;
+      yield `}, __defined__ as ${this.buildTypeNames(type.name.value, mode).output});`;
+    }
+  }
+
+  /** Builds types with ONLY map properties */
+  private *buildPureMapMapper(
+    type: Type,
+    mapProperties: MapProperties,
+    paramName: string,
+    mode: 'input' | 'output',
+  ): Iterable<string> {
+    const maxProperties =
+      type.rules.find((r) => r.id === 'object-max-properties')?.max.value ??
+      Number.MAX_SAFE_INTEGER;
+    const definedProperties = mapProperties.requiredKeys.length;
+
+    const destructure = !!definedProperties;
+    const reduceMap = maxProperties !== definedProperties;
+
+    if (destructure) {
+      yield `const {`;
+      for (const prop of type.properties) {
+        const propName = buildPropertyName(prop);
+        const leftName = mode === 'input' ? `'${prop.name.value}'` : propName;
+
+        if (leftName === propName) {
+          yield `${propName},`;
+        } else {
+          yield `${leftName}: ${propName},`;
+        }
+      }
+
+      for (const key of mapProperties.requiredKeys) {
+        const keyName = camel(key.value);
+        const leftName = mode === 'input' ? `'${key.value}'` : keyName;
+
+        if (leftName === keyName) {
+          yield `${keyName},`;
+        } else {
+          yield `${leftName}: ${keyName},`;
+        }
+      }
+
+      if (reduceMap) {
+        yield `...__rest__,`;
+      }
+
+      yield `} = ${paramName};`;
+      yield ``;
+    }
+
+    let needToCloseCompact = false;
+    if (reduceMap) {
+      if (destructure) {
+        this.touchCompact();
+        yield `const __defined__ = compact({`;
+        needToCloseCompact = true;
+      }
+    } else {
+      this.touchCompact();
+      yield `return compact({`;
+      needToCloseCompact = true;
+    }
+
+    for (const key of mapProperties.requiredKeys) {
+      const value = this.builder.buildValue(
+        makeItRequired(mapProperties.value),
+        mode,
+        camel(key.value),
+      );
+
+      const keyName = mode === 'output' ? `'${key.value}'` : camel(key.value);
+
+      if (keyName === value) {
+        yield `${keyName},`;
+      } else {
+        yield `${keyName}: ${value},`;
+      }
+    }
+
+    if (needToCloseCompact) {
+      yield `});`;
+    }
+
+    if (reduceMap) {
+      const asType = this.buildTypeNames(
+        mapProperties.value.typeName.value,
+        mode,
+      ).input;
+
+      const sourceName = destructure ? '__rest__' : paramName;
+      const initialObj = destructure ? '__defined__' : '{}';
+
+      yield ``;
+      yield `return Object.keys(${sourceName}).reduce((acc, key) => {`;
+      yield `const value = ${this.builder.buildValue(mapProperties.value, mode, `${paramName}[key]`, asType)};`;
+      yield `return value === undefined ? acc : { ...acc, [key]: value };`;
+      yield `}, ${initialObj} as ${this.buildTypeNames(type.name.value, mode).output});`;
+    }
+  }
+
+  private *buildTypeMapper(
+    type: Type,
+    mode: 'input' | 'output',
+  ): Iterable<string> {
+    const paramName = mode === 'input' ? 'dto' : 'obj';
+    yield `${this.buildSignature(type.name.value, paramName, mode)} {`;
+
+    if (type.properties.length && type.mapProperties) {
+      yield* this.buildMixedTypeMapper(
+        type,
+        type.mapProperties,
+        paramName,
+        mode,
+      );
+    } else if (type.properties.length) {
+      yield* this.buildPureTypeMapper(type, paramName, mode);
+    } else if (type.mapProperties) {
+      yield* this.buildPureMapMapper(type, type.mapProperties, paramName, mode);
+    } else {
+      yield `return {};`;
+    }
+
     yield `}`;
     yield '';
   }
@@ -170,16 +406,24 @@ export class ExpressMapperFactory extends BaseFactory {
     }
   }
 
-  private *buildProperty(
+  private buildKey(
     prop: Property,
-    name: string,
     mode: 'input' | 'output',
-  ): Iterable<string> {
+  ): { propertyName: string; optional: '' | '?' } {
     const optional = isRequired(prop) ? '' : '?';
 
     const propertyName =
       mode === 'input' ? buildPropertyName(prop) : `'${prop.name.value}'`;
 
+    return { propertyName, optional };
+  }
+
+  private *buildProperty(
+    prop: Property,
+    name: string,
+    mode: 'input' | 'output',
+  ): Iterable<string> {
+    const { propertyName, optional } = this.buildKey(prop, mode);
     const key = `${propertyName}${optional}`;
 
     const value = this.builder.buildPropertyValue(prop, name, mode);
@@ -204,4 +448,13 @@ export class ExpressMapperFactory extends BaseFactory {
       }`;
     }
   }
+}
+
+function makeItRequired(typedValue: TypedValue): TypedValue {
+  if (isRequired(typedValue)) return typedValue;
+  const { rules, ...rest } = typedValue;
+  return {
+    ...rest,
+    rules: [...rules, { kind: 'ValidationRule', id: 'required' }],
+  };
 }

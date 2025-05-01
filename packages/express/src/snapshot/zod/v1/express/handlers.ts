@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/express: https://github.com/basketry/express/wiki
+ * About Basketry: https://basketry.io
+ * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
 import type { Request, Response } from 'express';
@@ -29,7 +29,7 @@ export const handleAllAuthSchemes =
   ): expressTypes.AllAuthSchemesRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.allAuthSchemes();
       const status = 200;
@@ -53,7 +53,7 @@ export const handleComboAuthSchemes =
   ): expressTypes.ComboAuthSchemesRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.comboAuthSchemes();
       const status = 200;
@@ -83,7 +83,7 @@ export const handleCreateGizmo =
           size: req.query.size,
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.createGizmo(params);
       const status = 201;
@@ -117,7 +117,7 @@ export const handleCreateWidget =
           body: mappers.mapFromCreateWidgetBodyDto(req.body),
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.createWidget(params);
       const status = 204;
@@ -147,7 +147,7 @@ export const handleDeleteWidgetFoo =
           id: req.params.id,
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.deleteWidgetFoo(params);
       const status = 204;
@@ -185,7 +185,7 @@ export const handleExhaustiveFormats =
           numberDouble: req.query['number-double'],
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.exhaustiveFormats(params);
       const status = 204;
@@ -245,7 +245,7 @@ export const handleExhaustiveParams =
           body: mappers.mapFromExhaustiveParamsBodyDto(req.body),
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.exhaustiveParams(params);
       const status = 204;
@@ -276,7 +276,7 @@ export const handleGetGizmos =
         },
       );
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.getGizmos(params);
       const status = 200;
@@ -310,7 +310,7 @@ export const handleGetWidgetFoo =
           id: req.params.id,
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.getWidgetFoo(params);
       const status = 200;
@@ -338,7 +338,7 @@ export const handleGetWidgets =
   ): expressTypes.GetWidgetsRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.getWidgets();
       const status = 200;
@@ -366,9 +366,66 @@ export const handlePutWidget =
   ): expressTypes.PutWidgetRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.putWidget();
+      const status = 200;
+
+      // Respond
+      res.sendStatus(status);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const statusCode = res.headersSent ? 500 : 400;
+        return next(errors.validationErrors(statusCode, err.errors));
+      } else {
+        next(errors.unhandledException(err));
+      }
+    }
+  };
+
+/** GET /mapDemo */
+export const handleReturnMaps =
+  (
+    getService: (req: Request, res: Response) => types.MapDemoService,
+  ): expressTypes.ReturnMapsRequestHandler =>
+  async (req, res, next) => {
+    try {
+      // Execute service method
+      const service = getService(req, res);
+      const result = await service.returnMaps();
+      const status = 200;
+
+      // Respond
+      const reponseDto = mappers.mapToAllMapsDto(result);
+      res.status(status).json(reponseDto);
+
+      // Validate response
+      schemas.AllMapsSchema.parse(result);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const statusCode = res.headersSent ? 500 : 400;
+        return next(errors.validationErrors(statusCode, err.errors));
+      } else {
+        next(errors.unhandledException(err));
+      }
+    }
+  };
+
+/** POST /mapDemo */
+export const handleSendMaps =
+  (
+    getService: (req: Request, res: Response) => types.MapDemoService,
+  ): expressTypes.SendMapsRequestHandler =>
+  async (req, res, next) => {
+    try {
+      // Parse parameters from request
+      const params: types.SendMapsParams = schemas.SendMapsParamsSchema.parse({
+        allMaps: mappers.mapFromAllMapsDto(req.body),
+      });
+
+      // Execute service method
+      const service = getService(req, res);
+      await service.sendMaps(params);
       const status = 200;
 
       // Respond
@@ -396,7 +453,7 @@ export const handleUpdateGizmo =
           factors: req.query.factors?.split(','),
         });
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.updateGizmo(params);
       const status = 200;

@@ -134,6 +134,16 @@ export class ServiceInfo {
           yield* this.traverse(prop.typeName.value, mode);
         }
       }
+
+      if (type.mapProperties) {
+        const { key, value } = type.mapProperties;
+        if (!key.isPrimitive) {
+          yield* this.traverse(key.typeName.value, mode);
+        }
+        if (!value.isPrimitive) {
+          yield* this.traverse(value.typeName.value, mode);
+        }
+      }
     } else if (union) {
       if (mode === 'input') {
         this._inputUnions.set(typeName, union);

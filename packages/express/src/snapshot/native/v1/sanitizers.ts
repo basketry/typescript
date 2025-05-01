@@ -8,7 +8,7 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
+ * About Basketry: https://basketry.io
  * About @basketry/typescript-validators: https://github.com/basketry/typescript-validators
  */
 

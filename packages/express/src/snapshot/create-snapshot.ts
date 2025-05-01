@@ -21,7 +21,10 @@ const withoutVersion = `${pkg.name}@{{version}}`;
 const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 
 const generate = (options: NamespacedExpressOptions) => {
-  const service = require('./example-ir.json');
+  const service =
+    options.express?.validation === 'zod'
+      ? require('./zod-ir.json')
+      : require('./native-ir.json');
 
   return [
     ...generateTypes(deepClone(service), options),

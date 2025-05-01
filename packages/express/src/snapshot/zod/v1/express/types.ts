@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/express: https://github.com/basketry/express/wiki
+ * About Basketry: https://basketry.io
+ * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
 import type { Request, Response, RequestHandler } from 'express';
@@ -31,6 +31,7 @@ export type RouterFactoryInput = {
     res: Response,
   ) => types.ExhaustiveService;
   getGizmoService: (req: Request, res: Response) => types.GizmoService;
+  getMapDemoService: (req: Request, res: Response) => types.MapDemoService;
   getWidgetService: (req: Request, res: Response) => types.WidgetService;
 
   middleware?: Middleware | Middleware[];
@@ -65,6 +66,8 @@ export type Middleware = {
   getWidgetFoo?: GetWidgetFooRequestHandler | GetWidgetFooRequestHandler[];
   getWidgets?: GetWidgetsRequestHandler | GetWidgetsRequestHandler[];
   putWidget?: PutWidgetRequestHandler | PutWidgetRequestHandler[];
+  returnMaps?: ReturnMapsRequestHandler | ReturnMapsRequestHandler[];
+  sendMaps?: SendMapsRequestHandler | SendMapsRequestHandler[];
   updateGizmo?: UpdateGizmoRequestHandler | UpdateGizmoRequestHandler[];
 };
 
@@ -175,6 +178,20 @@ export type GetWidgetsRequestHandler = RequestHandler<
 >;
 
 export type PutWidgetRequestHandler = RequestHandler<{}, void, never, {}>;
+
+export type ReturnMapsRequestHandler = RequestHandler<
+  {},
+  dtos.AllMapsDto,
+  never,
+  {}
+>;
+
+export type SendMapsRequestHandler = RequestHandler<
+  {},
+  void,
+  dtos.AllMapsDto,
+  {}
+>;
 
 export type UpdateGizmoRequestHandler = RequestHandler<
   {},

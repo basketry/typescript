@@ -19,7 +19,7 @@ import {
   buildFilePath,
   buildTypeName,
 } from '@basketry/typescript';
-import { pascal } from 'case';
+import { camel, pascal } from 'case';
 import { BaseFactory } from './base-factory';
 
 export class ExpressDtoFactory extends BaseFactory {
@@ -55,19 +55,75 @@ export class ExpressDtoFactory extends BaseFactory {
   }
 
   private *buildType(type: Type): Iterable<string> {
-    const typeName = buildTypeName(type);
-    yield `/** The over-the-wire representation of the {@link ${this.typesModule}.${typeName}|${typeName}} type. */`;
-    yield `export type ${this.builder.buildDtoName(type.name.value)} = {`;
+    const xtypeName = buildTypeName(type);
+    yield `/** The over-the-wire representation of the {@link ${this.typesModule}.${xtypeName}|${xtypeName}} type. */`;
+    yield `export type ${this.builder.buildDtoName(type.name.value)} =`;
     const props = [...type.properties].sort((a, b) =>
       a.name.value.localeCompare(b.name.value),
     );
 
-    for (const prop of props) {
-      const optional = isRequired(prop) ? '' : '?';
+    const typeNames = new Set<string>();
 
-      yield `'${prop.name.value}'${optional}: ${this.buildTypeName(prop)};`;
+    const mapValue = type.mapProperties?.value;
+    const hasProps = !!props.length;
+    const hasMapProps = !!type.mapProperties;
+
+    const hasRequiredKeys =
+      type.mapProperties && type.mapProperties.requiredKeys.length > 0;
+
+    const maxPropCount = type.rules.find(
+      (rule) => rule.id === 'object-max-properties',
+    )?.max.value;
+
+    let emittedProps = 0;
+
+    if (!hasProps && !hasMapProps) {
+      yield `Record<string, unknown>;`;
+    } else {
+      if (hasProps || hasRequiredKeys) {
+        yield `{`;
+        for (const prop of props) {
+          if (!isRequired(prop)) typeNames.add('undefined');
+          const typeName = this.buildTypeName(prop);
+          typeNames.add(typeName);
+          yield `  '${prop.name.value}'${
+            isRequired(prop) ? '' : '?'
+          }: ${typeName};`;
+          emittedProps++;
+        }
+
+        if (type.mapProperties && type.mapProperties.requiredKeys.length > 0) {
+          const valueTypeName = this.buildTypeName(type.mapProperties.value);
+          for (const key of type.mapProperties.requiredKeys) {
+            yield `  '${key.value}': ${valueTypeName};`;
+            emittedProps++;
+          }
+        }
+
+        yield `}`;
+      }
+
+      if (typeof maxPropCount !== 'number' || maxPropCount > emittedProps) {
+        if ((hasProps || hasRequiredKeys) && hasMapProps && mapValue) {
+          yield ` & `;
+        }
+
+        if (hasMapProps && mapValue) {
+          const mapValueType = this.buildTypeName(mapValue);
+          typeNames.add(mapValueType);
+
+          // TODO: prevent this from making each of the enum keys required
+
+          const keyTypeName = type.mapProperties
+            ? this.buildTypeName(type.mapProperties.key)
+            : 'string';
+
+          yield `Record<${keyTypeName}, ${Array.from(typeNames)
+            .sort()
+            .join(' | ')}>`;
+        }
+      }
     }
-    yield '}';
   }
 
   private *buildUnion(union: Union): Iterable<string> {

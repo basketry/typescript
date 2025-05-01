@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/express: https://github.com/basketry/express/wiki
+ * About Basketry: https://basketry.io
+ * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
 import { Router, type RequestHandler } from 'express';
@@ -23,6 +23,7 @@ export function getRouter({
   getAuthPermutationService,
   getExhaustiveService,
   getGizmoService,
+  getMapDemoService,
   getWidgetService,
   middleware,
   handlerOverrides,
@@ -103,6 +104,17 @@ export function getRouter({
       res.set('Allow', 'GET, HEAD, OPTIONS, POST, PUT').sendStatus(204),
     )
     .all(methodNotAllowed('GET, HEAD, OPTIONS, POST, PUT'));
+
+  router
+    .route('/mapDemo')
+    .get(
+      handlersFor('returnMaps', handlers.handleReturnMaps(getMapDemoService)),
+    )
+    .post(handlersFor('sendMaps', handlers.handleSendMaps(getMapDemoService)))
+    .options((_, res) =>
+      res.set('Allow', 'GET, HEAD, OPTIONS, POST').sendStatus(204),
+    )
+    .all(methodNotAllowed('GET, HEAD, OPTIONS, POST'));
 
   router
     .route('/widgets/:id/foo')

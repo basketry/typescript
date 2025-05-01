@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/express: https://github.com/basketry/express/wiki
+ * About Basketry: https://basketry.io
+ * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
 import { Router, type RequestHandler } from 'express';

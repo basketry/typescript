@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/express: https://github.com/basketry/express/wiki
+ * About Basketry: https://basketry.io
+ * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
 import type { Request, Response } from 'express';
@@ -28,7 +28,7 @@ export const handleAllAuthSchemes =
   ): expressTypes.AllAuthSchemesRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.allAuthSchemes();
       const status = 200;
@@ -47,7 +47,7 @@ export const handleComboAuthSchemes =
   ): expressTypes.ComboAuthSchemesRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.comboAuthSchemes();
       const status = 200;
@@ -77,7 +77,7 @@ export const handleCreateGizmo =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.createGizmo(params);
       const status = 201;
@@ -114,7 +114,7 @@ export const handleCreateWidget =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.createWidget(params);
       const status = 204;
@@ -145,7 +145,7 @@ export const handleDeleteWidgetFoo =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.deleteWidgetFoo(params);
       const status = 204;
@@ -184,7 +184,7 @@ export const handleExhaustiveFormats =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.exhaustiveFormats(params);
       const status = 204;
@@ -280,7 +280,7 @@ export const handleExhaustiveParams =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.exhaustiveParams(params);
       const status = 204;
@@ -310,7 +310,7 @@ export const handleGetGizmos =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.getGizmos(params);
       const status = 200;
@@ -347,7 +347,7 @@ export const handleGetWidgetFoo =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.getWidgetFoo(params);
       const status = 200;
@@ -373,7 +373,7 @@ export const handleGetWidgets =
   ): expressTypes.GetWidgetsRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.getWidgets();
       const status = 200;
@@ -399,7 +399,7 @@ export const handlePutWidget =
   ): expressTypes.PutWidgetRequestHandler =>
   async (req, res, next) => {
     try {
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       await service.putWidget();
       const status = 200;
@@ -429,7 +429,7 @@ export const handleUpdateGizmo =
         return next(errors.validationErrors(400, reqValidationErrors));
       }
 
-      // Excetute service method
+      // Execute service method
       const service = getService(req, res);
       const result = await service.updateGizmo(params);
       const status = 200;
