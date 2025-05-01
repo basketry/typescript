@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/basketry/express/issues"
   },
-  "homepage": "https://github.com/basketry/express/wiki",
+  "homepage": "https://basketry.io/docs/components/@basketry/express",
   "funding": "https://github.com/basketry/express?sponsor=1",
   "devDependencies": {
     "@basketry/zod": "^0.1.2",
