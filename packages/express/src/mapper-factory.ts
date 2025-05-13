@@ -361,19 +361,44 @@ export class ExpressMapperFactory extends BaseFactory {
 
       yield `}`;
     } else {
-      yield `const union = ${paramName} as any;`;
-      this.touchCompact();
-      yield `return compact({`;
+      if (union.members.every((m) => m.isPrimitive)) {
+        const hasDate = union.members.some((m) => m.typeName.value === 'date');
+        const hasDateTime = union.members.some(
+          (m) => m.typeName.value === 'date-time',
+        );
 
-      const properties = new Map<string, Property>();
+        if (hasDate || hasDateTime) {
+          yield `if (${paramName} instanceof Date) {`;
+          if (mode === 'input') {
+            yield `return new Date(${paramName});`;
+          } else {
+            if (hasDateTime) {
+              yield `return ${paramName}.toISOString();`;
+            } else {
+              yield `return ${paramName}.toISOString().split('T')[0];`;
+            }
+          }
+          yield `} else {`;
+          yield `return ${paramName};`;
+          yield `}`;
+        } else {
+          yield `return ${paramName};`;
+        }
+      } else {
+        yield `const union = ${paramName} as any;`;
+        this.touchCompact();
+        yield `return compact({`;
 
-      for (const prop of this.traverseProperties(union)) {
-        properties.set(prop.name.value, prop);
+        const properties = new Map<string, Property>();
+
+        for (const prop of this.traverseProperties(union)) {
+          properties.set(prop.name.value, prop);
+        }
+        for (const prop of properties.values()) {
+          yield* this.buildProperty(prop, 'union', mode);
+        }
+        yield '}) as any;';
       }
-      for (const prop of properties.values()) {
-        yield* this.buildProperty(prop, 'union', mode);
-      }
-      yield '}) as any;';
     }
     yield '}';
     yield '';

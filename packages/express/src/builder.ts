@@ -63,9 +63,9 @@ export class Builder {
             }
           case 'output':
             if (isRequired(typedValue)) {
-              return `${value}.toISOString()`;
+              return `${value}.toISOString()${typedValue.typeName.value === 'date' ? '.split("T")[0]' : ''}`;
             } else {
-              return `typeof ${value} === 'undefined' ? undefined : ${value}.toISOString()`;
+              return `typeof ${value} === 'undefined' ? undefined : ${value}.toISOString()${typedValue.typeName.value === 'date' ? '.split("T")[0]' : ''}`;
             }
         }
       } else {
