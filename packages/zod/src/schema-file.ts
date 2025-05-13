@@ -13,6 +13,7 @@ import {
   Parameter,
   Property,
   Type,
+  TypedValue,
   Union,
 } from 'basketry';
 
@@ -189,9 +190,13 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             }
 
             for (const member of element.members) {
-              if (member.isPrimitive) continue;
-
-              yield `${pascal(member.typeName.value)}Schema,`;
+              if (member.isPrimitive) {
+                yield `${this.buildMemberSchema(member, schema, {
+                  preventOptional: true,
+                })},`;
+              } else {
+                yield `${pascal(member.typeName.value)}Schema,`;
+              }
             }
 
             yield `]);`;
@@ -225,13 +230,18 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
   }
 
   buildMemberSchema(
-    member: Parameter | Property | MapKey | MapValue,
+    member: Parameter | Property | MapKey | MapValue | TypedValue,
     parent: Schema,
+    options?: { preventOptional?: boolean },
   ): string {
     const z = () => this.zod.fn('z');
 
     const shouldCoerce = () => {
-      if (member.kind === 'Parameter' && parent.element.kind === 'Method') {
+      if (
+        hasKind(member) &&
+        member.kind === 'Parameter' &&
+        parent.element.kind === 'Method'
+      ) {
         const httpMethod = getHttpMethodByName(
           this.service,
           parent.element.name.value,
@@ -414,10 +424,13 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
 
     if (
       !isRequired(member) &&
-      member.kind !== 'MapKey' &&
-      member.kind !== 'MapValue'
+      (!hasKind(member) ||
+        (member.kind !== 'MapKey' && member.kind !== 'MapValue'))
     ) {
-      if (!member.isPrimitive || !member.default) {
+      if (
+        !options?.preventOptional &&
+        (!member.isPrimitive || !member.default)
+      ) {
         schema.push(`optional()`);
       }
     }
@@ -515,3 +528,9 @@ type Schema = {
   name: string;
   element: Type | Method | Union | Enum;
 };
+
+function hasKind(
+  member: Parameter | Property | MapKey | MapValue | TypedValue,
+): member is Parameter | Property | MapKey | MapValue {
+  return 'kind' in member;
+}
