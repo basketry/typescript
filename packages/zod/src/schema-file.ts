@@ -44,187 +44,209 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
       schemas.push({ name: buildTypeName(e), element: e });
     }
 
-    for (const schema of sort(schemas)) {
-      const { name, element } = schema;
+    const { sorted, circular } = sort(schemas);
 
-      switch (element.kind) {
-        case 'Type':
-          const keySetName = ` __${camel(name)}Keys`;
-          const keySchemaName = ` __${pascal(name)}KeySchema`;
+    for (const schema of sorted) {
+      yield* this.buildSchema(schema, []);
+      yield ``;
+    }
 
-          if (element.mapProperties?.key.rules.length) {
-            if (element.properties.length) {
-              yield `const ${keySetName} = new Set([${element.properties
-                .map((p) => `'${p.name.value}'`)
-                .join(', ')}]);`;
-            }
-            yield `const ${keySchemaName} = ${this.buildMemberSchema(
-              element.mapProperties?.key,
-              schema,
-            )}`;
-          }
-
-          yield `export const ${pascal(name)}Schema = `;
-
-          const maxPropCount = element.rules.find(
-            (r) => r.id === 'object-max-properties',
-          )?.max.value;
-          let emittedPropCount = 0;
-
-          if (
-            element.properties.length ||
-            element.mapProperties?.requiredKeys.length
-          ) {
-            yield `${z()}.object({`;
-            for (const member of element.properties) {
-              yield* this.buildMember(member, schema);
-              emittedPropCount++;
-            }
-            if (element.mapProperties) {
-              for (const key of element.mapProperties.requiredKeys) {
-                yield* this.buildRequiredKey(
-                  camel(key.value),
-                  element.mapProperties.value,
-                  schema,
-                );
-                emittedPropCount++;
-              }
-            }
-            yield `})`;
-
-            if (
-              element.mapProperties &&
-              (typeof maxPropCount === 'undefined' ||
-                maxPropCount > emittedPropCount)
-            ) {
-              yield `.catchall(${this.buildMemberSchema(
-                element.mapProperties.value,
-                schema,
-              )})`;
-            }
-          } else if (element.mapProperties) {
-            yield `${z()}.record(${this.buildMemberSchema(
-              element.mapProperties.value,
-              schema,
-            )})`;
-          } else {
-            yield `${z()}.record(${z()}.any())`;
-          }
-
-          if (element.mapProperties) {
-            const maxRule = element.rules.find(
-              (r) => r.id === 'object-max-properties',
-            );
-            const minRule = element.rules.find(
-              (r) => r.id === 'object-min-properties',
-            );
-
-            if (maxRule) {
-              yield `.refine(`;
-              yield `  data => Object.keys(data).length <= ${maxRule.max.value},`;
-              yield `  { message: 'Object must have at most ${maxRule.max.value} keys' },`;
-              yield `)`;
-            }
-            if (minRule) {
-              yield `.refine(`;
-              yield `  data => Object.keys(data).length >= ${minRule.min.value},`;
-              yield `  { message: 'Object must have at least ${minRule.min.value} keys' },`;
-              yield `)`;
-            }
-          }
-
-          if (element.mapProperties) {
-            const { key } = element.mapProperties;
-
-            const schemaName = key.isPrimitive
-              ? keySchemaName
-              : `${pascal(key.typeName.value)}Schema`;
-
-            if (key.rules.length || !key.isPrimitive) {
-              yield `.superRefine((data, ctx) => {`;
-              yield `  for (const key of Object.keys(data)) {`;
-              if (element.properties.length) {
-                yield `    if (${keySetName}.has(key)) continue;`;
-                yield ``;
-              }
-              yield `    const result = ${schemaName}.safeParse(key);`;
-              yield `    if (result.success) continue;`;
-              yield ``;
-              yield `    for (const error of result.error.errors) {`;
-              yield `      ctx.addIssue({`;
-              yield `        code: z.ZodIssueCode.custom,`;
-              yield `        message: \`Invalid key: \${error.message}\`,`;
-              yield `        path: [key],`;
-              yield `      });`;
-              yield `    }`;
-              yield `  }`;
-              yield `})`;
-            }
-          }
-
-          break;
-        case 'Method':
-          yield `export const ${pascal(name)}Schema = ${z()}.object({`;
-          for (const member of element.parameters) {
-            yield* this.buildMember(member, schema);
-          }
-          yield `});`;
-          break;
-        case 'Union':
-          const complexMembers = element.members.filter((m) => !m.isPrimitive);
-
-          if (complexMembers.length === 1) {
-            // If there is only one member, just export the schema for that member
-            yield `export const ${pascal(name)}Schema = ${pascal(
-              complexMembers[0].typeName.value,
-            )}Schema;`;
-          } else {
-            if (element.discriminator) {
-              yield `export const ${pascal(
-                name,
-              )}Schema = ${z()}.discriminatedUnion('${camel(
-                element.discriminator.value,
-              )}', [`;
-            } else {
-              yield `export const ${pascal(name)}Schema = ${z()}.union([`;
-            }
-
-            for (const member of element.members) {
-              if (member.isPrimitive) {
-                yield `${this.buildMemberSchema(member, schema, {
-                  preventOptional: true,
-                })},`;
-              } else {
-                yield `${pascal(member.typeName.value)}Schema,`;
-              }
-            }
-
-            yield `]);`;
-          }
-
-          break;
-        case 'Enum':
-          yield `export const ${pascal(name)}Schema = ${z()}.enum([`;
-          for (const member of element.values) {
-            yield `  '${member.content.value}',`;
-          }
-          yield `]);`;
-          break;
-      }
-      yield '';
+    for (const schema of circular) {
+      yield* this.buildSchema(schema, circular);
+      yield ``;
     }
   }
 
-  *buildMember(member: Parameter | Property, parent: Schema): Iterable<string> {
+  *buildSchema(schema: Schema, circular: Schema[]): Iterable<string> {
+    const z = () => this.zod.fn('z');
+    const { name, element } = schema;
+
+    switch (element.kind) {
+      case 'Type':
+        const keySetName = ` __${camel(name)}Keys`;
+        const keySchemaName = ` __${pascal(name)}KeySchema`;
+
+        if (element.mapProperties?.key.rules.length) {
+          if (element.properties.length) {
+            yield `const ${keySetName} = new Set([${element.properties
+              .map((p) => `'${p.name.value}'`)
+              .join(', ')}]);`;
+          }
+          yield `const ${keySchemaName} = ${this.buildMemberSchema(
+            element.mapProperties?.key,
+            schema,
+          )}`;
+        }
+
+        yield `export const ${pascal(name)}Schema = `;
+
+        const maxPropCount = element.rules.find(
+          (r) => r.id === 'object-max-properties',
+        )?.max.value;
+        let emittedPropCount = 0;
+
+        if (
+          element.properties.length ||
+          element.mapProperties?.requiredKeys.length
+        ) {
+          yield `${z()}.object({`;
+          for (const member of element.properties) {
+            yield* this.buildMember(member, schema, circular);
+            emittedPropCount++;
+          }
+          if (element.mapProperties) {
+            for (const key of element.mapProperties.requiredKeys) {
+              yield* this.buildRequiredKey(
+                camel(key.value),
+                element.mapProperties.value,
+                schema,
+                circular,
+              );
+              emittedPropCount++;
+            }
+          }
+          yield `})`;
+
+          if (
+            element.mapProperties &&
+            (typeof maxPropCount === 'undefined' ||
+              maxPropCount > emittedPropCount)
+          ) {
+            yield `.catchall(${this.buildMemberSchema(
+              element.mapProperties.value,
+              schema,
+            )})`;
+          }
+        } else if (element.mapProperties) {
+          yield `${z()}.record(${this.buildMemberSchema(
+            element.mapProperties.value,
+            schema,
+          )})`;
+        } else {
+          yield `${z()}.record(${z()}.any())`;
+        }
+
+        if (element.mapProperties) {
+          const maxRule = element.rules.find(
+            (r) => r.id === 'object-max-properties',
+          );
+          const minRule = element.rules.find(
+            (r) => r.id === 'object-min-properties',
+          );
+
+          if (maxRule) {
+            yield `.refine(`;
+            yield `  data => Object.keys(data).length <= ${maxRule.max.value},`;
+            yield `  { message: 'Object must have at most ${maxRule.max.value} keys' },`;
+            yield `)`;
+          }
+          if (minRule) {
+            yield `.refine(`;
+            yield `  data => Object.keys(data).length >= ${minRule.min.value},`;
+            yield `  { message: 'Object must have at least ${minRule.min.value} keys' },`;
+            yield `)`;
+          }
+        }
+
+        if (element.mapProperties) {
+          const { key } = element.mapProperties;
+
+          const schemaName = key.isPrimitive
+            ? keySchemaName
+            : `${pascal(key.typeName.value)}Schema`;
+
+          if (key.rules.length || !key.isPrimitive) {
+            yield `.superRefine((data, ctx) => {`;
+            yield `  for (const key of Object.keys(data)) {`;
+            if (element.properties.length) {
+              yield `    if (${keySetName}.has(key)) continue;`;
+              yield ``;
+            }
+            yield `    const result = ${schemaName}.safeParse(key);`;
+            yield `    if (result.success) continue;`;
+            yield ``;
+            yield `    for (const error of result.error.errors) {`;
+            yield `      ctx.addIssue({`;
+            yield `        code: z.ZodIssueCode.custom,`;
+            yield `        message: \`Invalid key: \${error.message}\`,`;
+            yield `        path: [key],`;
+            yield `      });`;
+            yield `    }`;
+            yield `  }`;
+            yield `})`;
+          }
+        }
+
+        break;
+      case 'Method':
+        yield `export const ${pascal(name)}Schema = ${z()}.object({`;
+        for (const member of element.parameters) {
+          yield* this.buildMember(member, schema, circular);
+        }
+        yield `});`;
+        break;
+      case 'Union':
+        const complexMembers = element.members.filter((m) => !m.isPrimitive);
+
+        if (complexMembers.length === 1) {
+          // If there is only one member, just export the schema for that member
+          yield `export const ${pascal(name)}Schema = ${pascal(
+            complexMembers[0].typeName.value,
+          )}Schema;`;
+        } else {
+          if (element.discriminator) {
+            yield `export const ${pascal(
+              name,
+            )}Schema = ${z()}.discriminatedUnion('${camel(
+              element.discriminator.value,
+            )}', [`;
+          } else {
+            yield `export const ${pascal(name)}Schema = ${z()}.union([`;
+          }
+
+          for (const member of element.members) {
+            if (member.isPrimitive) {
+              yield `${this.buildMemberSchema(member, schema, {
+                preventOptional: true,
+              })},`;
+            } else {
+              yield `${pascal(member.typeName.value)}Schema,`;
+            }
+          }
+
+          yield `]);`;
+        }
+
+        break;
+      case 'Enum':
+        yield `export const ${pascal(name)}Schema = ${z()}.enum([`;
+        for (const member of element.values) {
+          yield `  '${member.content.value}',`;
+        }
+        yield `]);`;
+        break;
+    }
+  }
+
+  *buildMember(
+    member: Parameter | Property,
+    parent: Schema,
+    circular: Schema[],
+  ): Iterable<string> {
     const name = camel(member.name.value);
 
-    const schema = this.buildMemberSchema(member, parent);
+    const schema = this.buildMemberSchema(member, parent, { circular });
 
     yield `${name}: ${schema},`;
   }
 
-  *buildRequiredKey(name: string, value: MapValue, parent: Schema) {
-    const schema = this.buildMemberSchema(value, parent);
+  *buildRequiredKey(
+    name: string,
+    value: MapValue,
+    parent: Schema,
+    circular: Schema[],
+  ) {
+    const schema = this.buildMemberSchema(value, parent, { circular });
 
     yield `${name}: ${schema},`;
   }
@@ -232,7 +254,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
   buildMemberSchema(
     member: Parameter | Property | MapKey | MapValue | TypedValue,
     parent: Schema,
-    options?: { preventOptional?: boolean },
+    options?: { preventOptional?: boolean; circular?: Schema[] },
   ): string {
     const z = () => this.zod.fn('z');
 
@@ -399,8 +421,12 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           break;
       }
     } else {
-      // TODO: support recursive types
-      if (camel(member.typeName.value) === camel(parent.name)) {
+      if (
+        camel(member.typeName.value) === camel(parent.name) ||
+        options?.circular?.some(
+          (s) => camel(s.name) === camel(member.typeName.value),
+        )
+      ) {
         schema.push(`${z()}.lazy(()=>${pascal(member.typeName.value)}Schema)`);
       } else {
         schema.push(`${pascal(member.typeName.value)}Schema`);
@@ -439,7 +465,10 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
   }
 }
 
-function sort(iterable: Iterable<Schema>) {
+function sort(iterable: Iterable<Schema>): {
+  sorted: Schema[];
+  circular: Schema[];
+} {
   const sorted: Schema[] = [];
   let unsorted: Schema[] = Array.from(iterable);
 
@@ -513,15 +542,14 @@ function sort(iterable: Iterable<Schema>) {
     unsorted = unsortable;
 
     if (prevUnsortedLength === unsorted.length) {
-      console.error('Possible circular dependency detected');
-      console.error(unsorted.map((s) => s.name));
-      break;
+      // No progress was made, so we return the unsorted items as circular dependencies.
+      return { sorted, circular: unsorted };
     } else {
       prevUnsortedLength = unsorted.length;
     }
   }
 
-  return sorted;
+  return { sorted, circular: [] };
 }
 
 type Schema = {
