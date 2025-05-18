@@ -1,0 +1,11 @@
+name: build
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: basketry/workflows/.github/workflows/build.yml@main

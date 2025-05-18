@@ -1,0 +1,58 @@
+{
+  "name": "@basketry/typescript-dtos",
+  "version": "0.0.0",
+  "description": "Basketry generator for generating Express JS routers",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
+    "clean": "run-s -s clean:*",
+    "create-snapshot": "ts-node ./src/snapshot/create-snapshot.ts",
+    "lint": "run-s -s lint:*",
+    "fix": "run-s -s fix:*",
+    "clean:output": "rimraf lib",
+    "start": "node ./lib/index.js",
+    "prebuild": "run-s -s clean lint",
+    "build": "tsc",
+    "lint:eslint": "eslint src/**/*.*",
+    "fix:eslint": "eslint --fix src/**/*.*",
+    "lint:prettier": "prettier -c .",
+    "fix:prettier": "prettier -w .",
+    "clean:coverage": "rimraf coverage",
+    "pretest": "run-s -s clean",
+    "prepack": "run-s -s build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basketry/typescript-dtos.git"
+  },
+  "bugs": {
+    "url": "https://github.com/basketry/typescript-dtos/issues"
+  },
+  "homepage": "https://basketry.io/docs/components/@basketry/typescript-dtos",
+  "funding": "https://github.com/basketry/typescript-dtos?sponsor=1",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^17.0.10",
+    "@types/prettier": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
+    "eslint": "^8.5.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "jest": "^29.7.0",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^29.1.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "@basketry/typescript": "^0.1.3",
+    "basketry": "^0.1.4",
+    "case": "^1.6.3",
+    "prettier": "^3.3.3"
+  }
+}
