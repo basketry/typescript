@@ -8,13 +8,15 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
+ * About Basketry: https://basketry.io
  * About @basketry/typescript-http-client: https://github.com/basketry/typescript-http-client#readme
  */
 
+import * as z from 'zod';
+import * as dtos from './dtos/types';
+import * as mappers from './dtos/mappers';
 import * as types from './types';
-import * as validators from './validators';
-import * as sanitizers from './sanitizers';
+import * as schemas from './schemas';
 
 export type ClientError = {
   code: string;
@@ -24,7 +26,7 @@ export type ClientError = {
 
 export interface BasketryExampleOptions {
   root?: string;
-  mapValidationError?: (error: validators.ValidationError) => ClientError;
+  mapValidationError?: (error: z.ZodIssue) => ClientError;
   mapUnhandledException?: (error: any) => ClientError;
 }
 
@@ -63,48 +65,35 @@ function formatDateTime(date: Date): string {
   )}:${lpad(date.getUTCSeconds(), 2)}.${rpad(date.getMilliseconds(), 3)}Z`;
 }
 
-export class HttpAuthPermutationService
-  implements types.AuthPermutationService
-{
+export class HttpGizmoService implements types.GizmoService {
   constructor(
     private readonly fetch: FetchLike,
-    private readonly auth: {
-      basicAuth?: { username: string; password: string };
-      'alternate-basic-auth'?: { username: string; password: string };
-      apiKeyAuth?: { key: string };
-      oauth2Auth?: { accessToken: string };
-      alternateApiKeyAuth?: { key: string };
-    },
     private readonly options?: BasketryExampleOptions,
   ) {}
 
-  async allAuthSchemes(): Promise<void> {
+  /**
+   * Only has a summary
+   * @deprecated
+   */
+  async getGizmos(
+    params?: types.GetGizmosParams,
+  ): Promise<types.GizmosResponse> {
     try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.GetGizmosParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      if (this.auth.basicAuth) {
-        // TODO: remove deprecated method for node targets
-        headers.authorization = `Basic ${btoa(
-          `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
-        )}`;
-      }
-      if (this.auth['alternate-basic-auth']) {
-        // TODO: remove deprecated method for node targets
-        headers.authorization = `Basic ${btoa(
-          `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
-        )}`;
-      }
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
-      if (this.auth.oauth2Auth) {
-        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-      }
 
       const query: string[] = [];
-      if (this.auth.alternateApiKeyAuth) {
-        query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
+      if (typeof sanitizedParams?.search !== 'undefined') {
+        query.push(`search=${encodeURIComponent(sanitizedParams.search)}`);
       }
 
       let prefix = '';
@@ -118,10 +107,220 @@ export class HttpAuthPermutationService
           prefix = `/${prefix}`;
       }
 
-      const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+      const res = await this.fetch<dtos.GizmosResponseDto>(path, {
+        headers,
+      });
+
+      return mappers.mapFromGizmosResponseDto(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  /**
+   * Has a summary in addition to a description
+   * Has a description in addition to a summary
+   */
+  async createGizmo(params?: types.CreateGizmoParams): Promise<types.Gizmo> {
+    try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.CreateGizmoParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+      if (typeof sanitizedParams?.size !== 'undefined') {
+        query.push(`size=${encodeURIComponent(sanitizedParams.size)}`);
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+      const res = await this.fetch<dtos.GizmoDto>(path, {
+        method: 'POST',
+        headers,
+      });
+
+      return mappers.mapFromGizmoDto(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async updateGizmo(params?: types.UpdateGizmoParams): Promise<types.Gizmo> {
+    try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.UpdateGizmoParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+      if (typeof sanitizedParams?.factors !== 'undefined') {
+        query.push(
+          `factors=${sanitizedParams.factors
+            .map(encodeURIComponent)
+            .join(',')}`,
+        );
+      }
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
+
+      const res = await this.fetch<dtos.GizmoDto>(path, {
+        method: 'PUT',
+        headers,
+      });
+
+      return mappers.mapFromGizmoDto(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  private mapErrors(
+    validationErrors: z.ZodIssue[],
+    unhandledException?: any,
+  ): ClientError[] {
+    const mapError =
+      this.options?.mapValidationError ||
+      ((error) => ({
+        code: error.code as any,
+        status: 400,
+        title: error.message,
+      }));
+    const result = validationErrors.map(mapError);
+
+    if (unhandledException) {
+      if (this.options?.mapUnhandledException) {
+        result.push(this.options.mapUnhandledException(unhandledException));
+      } else {
+        result.push({
+          code: 'UNHANDLED CLIENT EXCEPTION' as any,
+          status: 400,
+          title: 'Unhandled client exception',
+        });
+      }
+    }
+
+    return result as any;
+  }
+}
+
+export class HttpWidgetService implements types.WidgetService {
+  constructor(
+    private readonly fetch: FetchLike,
+    private readonly options?: BasketryExampleOptions,
+  ) {}
+
+  async getWidgets(): Promise<types.Widget> {
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+      const res = await this.fetch<dtos.WidgetDto>(path, {
+        headers,
+      });
+
+      return mappers.mapFromWidgetDto(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async createWidget(params?: types.CreateWidgetParams): Promise<void> {
+    try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.CreateWidgetParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/widgets`, query.join('&')].join('?');
+
+      const body =
+        sanitizedParams?.body === undefined
+          ? undefined
+          : JSON.stringify(sanitizedParams?.body);
 
       await this.fetch(path, {
+        method: 'POST',
         headers,
+        body,
       });
     } catch (unhandledException) {
       console.error(unhandledException);
@@ -129,34 +328,13 @@ export class HttpAuthPermutationService
     }
   }
 
-  async comboAuthSchemes(): Promise<void> {
+  async putWidget(): Promise<void> {
     try {
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      if (this.auth.basicAuth) {
-        // TODO: remove deprecated method for node targets
-        headers.authorization = `Basic ${btoa(
-          `${this.auth.basicAuth.username}:${this.auth.basicAuth.password}`,
-        )}`;
-      }
-      if (this.auth['alternate-basic-auth']) {
-        // TODO: remove deprecated method for node targets
-        headers.authorization = `Basic ${btoa(
-          `${this.auth['alternate-basic-auth'].username}:${this.auth['alternate-basic-auth'].password}`,
-        )}`;
-      }
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
-      if (this.auth.oauth2Auth) {
-        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-      }
 
       const query: string[] = [];
-      if (this.auth.alternateApiKeyAuth) {
-        query.push(`apikey=${this.auth.alternateApiKeyAuth.key}`);
-      }
 
       let prefix = '';
       if (this.options?.root) {
@@ -169,7 +347,7 @@ export class HttpAuthPermutationService
           prefix = `/${prefix}`;
       }
 
-      const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+      const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
       await this.fetch(path, {
         method: 'PUT',
@@ -181,8 +359,93 @@ export class HttpAuthPermutationService
     }
   }
 
+  async getWidgetFoo(params: types.GetWidgetFooParams): Promise<types.Widget> {
+    try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.GetWidgetFooParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [
+        `${prefix}/widgets/${encodeURIComponent(sanitizedParams.id)}/foo`,
+        query.join('&'),
+      ].join('?');
+
+      const res = await this.fetch<dtos.WidgetDto>(path, {
+        headers,
+      });
+
+      return mappers.mapFromWidgetDto(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async deleteWidgetFoo(params: types.DeleteWidgetFooParams): Promise<void> {
+    try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.DeleteWidgetFooParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [
+        `${prefix}/widgets/${encodeURIComponent(sanitizedParams.id)}/foo`,
+        query.join('&'),
+      ].join('?');
+
+      await this.fetch(path, {
+        method: 'DELETE',
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
   private mapErrors(
-    validationErrors: validators.ValidationError[],
+    validationErrors: z.ZodIssue[],
     unhandledException?: any,
   ): ClientError[] {
     const mapError =
@@ -190,7 +453,7 @@ export class HttpAuthPermutationService
       ((error) => ({
         code: error.code as any,
         status: 400,
-        title: error.title,
+        title: error.message,
       }));
     const result = validationErrors.map(mapError);
 
@@ -220,12 +483,13 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
     params?: types.ExhaustiveFormatsParams,
   ): Promise<void> {
     try {
-      const sanitizedParams = params;
-      const errors =
-        validators.validateExhaustiveFormatsParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.ExhaustiveFormatsParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -312,11 +576,13 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
 
   async exhaustiveParams(params: types.ExhaustiveParamsParams): Promise<void> {
     try {
-      const sanitizedParams = params;
-      const errors = validators.validateExhaustiveParamsParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.ExhaustiveParamsParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -477,7 +743,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
   }
 
   private mapErrors(
-    validationErrors: validators.ValidationError[],
+    validationErrors: z.ZodIssue[],
     unhandledException?: any,
   ): ClientError[] {
     const mapError =
@@ -485,7 +751,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       ((error) => ({
         code: error.code as any,
         status: 400,
-        title: error.title,
+        title: error.message,
       }));
     const result = validationErrors.map(mapError);
 
@@ -505,176 +771,19 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
   }
 }
 
-export class HttpGizmoService implements types.GizmoService {
+export class HttpAuthPermutationService
+  implements types.AuthPermutationService
+{
   constructor(
     private readonly fetch: FetchLike,
-    private readonly auth: {
-      oauth2Auth?: { accessToken: string };
-    },
     private readonly options?: BasketryExampleOptions,
   ) {}
 
-  /**
-   * Has a summary in addition to a description
-   * Has a description in addition to a summary
-   */
-  async createGizmo(params?: types.CreateGizmoParams): Promise<types.Gizmo> {
+  async allAuthSchemes(): Promise<void> {
     try {
-      const sanitizedParams = params;
-      const errors = validators.validateCreateGizmoParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      if (this.auth.oauth2Auth) {
-        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-      }
-
-      const query: string[] = [];
-      if (typeof sanitizedParams?.size !== 'undefined') {
-        query.push(`size=${encodeURIComponent(sanitizedParams.size)}`);
-      }
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-      const res = await this.fetch<types.Gizmo>(path, {
-        method: 'POST',
-        headers,
-      });
-
-      return sanitizers.sanitizeGizmo(await res.json());
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
-  /**
-   * Only has a summary
-   */
-  async getGizmos(
-    params?: types.GetGizmosParams,
-  ): Promise<types.GizmosResponse> {
-    try {
-      const sanitizedParams = params;
-      const errors = validators.validateGetGizmosParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.oauth2Auth) {
-        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-      }
-
-      const query: string[] = [];
-      if (typeof sanitizedParams?.search !== 'undefined') {
-        query.push(`search=${encodeURIComponent(sanitizedParams.search)}`);
-      }
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-      const res = await this.fetch<types.GizmosResponse>(path, {
-        headers,
-      });
-
-      return sanitizers.sanitizeGizmosResponse(await res.json());
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
-  async updateGizmo(params?: types.UpdateGizmoParams): Promise<types.Gizmo> {
-    try {
-      const sanitizedParams = params;
-      const errors = validators.validateUpdateGizmoParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.oauth2Auth) {
-        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-      }
-
-      const query: string[] = [];
-      if (typeof sanitizedParams?.factors !== 'undefined') {
-        query.push(
-          `factors=${sanitizedParams.factors
-            .map(encodeURIComponent)
-            .join(',')}`,
-        );
-      }
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [`${prefix}/gizmos`, query.join('&')].join('?');
-
-      const res = await this.fetch<types.Gizmo>(path, {
-        method: 'PUT',
-        headers,
-      });
-
-      return sanitizers.sanitizeGizmo(await res.json());
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
-  async uploadGizmo(params: types.UploadGizmoParams): Promise<void> {
-    try {
-      const sanitizedParams = params;
-      const errors = validators.validateUploadGizmoParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.oauth2Auth) {
-        headers.authorization = `Bearer ${this.auth.oauth2Auth.accessToken}`;
-      }
 
       const query: string[] = [];
 
@@ -689,10 +798,40 @@ export class HttpGizmoService implements types.GizmoService {
           prefix = `/${prefix}`;
       }
 
-      const path = [`${prefix}/gizmos/data`, query.join('&')].join('?');
+      const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
 
       await this.fetch(path, {
-        method: 'POST',
+        headers,
+      });
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async comboAuthSchemes(): Promise<void> {
+    try {
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/authPermutations`, query.join('&')].join('?');
+
+      await this.fetch(path, {
+        method: 'PUT',
         headers,
       });
     } catch (unhandledException) {
@@ -702,7 +841,7 @@ export class HttpGizmoService implements types.GizmoService {
   }
 
   private mapErrors(
-    validationErrors: validators.ValidationError[],
+    validationErrors: z.ZodIssue[],
     unhandledException?: any,
   ): ClientError[] {
     const mapError =
@@ -710,7 +849,7 @@ export class HttpGizmoService implements types.GizmoService {
       ((error) => ({
         code: error.code as any,
         status: 400,
-        title: error.title,
+        title: error.message,
       }));
     const result = validationErrors.map(mapError);
 
@@ -730,29 +869,17 @@ export class HttpGizmoService implements types.GizmoService {
   }
 }
 
-export class HttpWidgetService implements types.WidgetService {
+export class HttpMapDemoService implements types.MapDemoService {
   constructor(
     private readonly fetch: FetchLike,
-    private readonly auth: {
-      apiKeyAuth?: { key: string };
-    },
     private readonly options?: BasketryExampleOptions,
   ) {}
 
-  async createWidget(params?: types.CreateWidgetParams): Promise<void> {
+  async returnMaps(): Promise<types.AllMaps> {
     try {
-      const sanitizedParams = params;
-      const errors = validators.validateCreateWidgetParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
       };
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
 
       const query: string[] = [];
 
@@ -767,12 +894,52 @@ export class HttpWidgetService implements types.WidgetService {
           prefix = `/${prefix}`;
       }
 
-      const path = [`${prefix}/widgets`, query.join('&')].join('?');
+      const path = [`${prefix}/mapDemo`, query.join('&')].join('?');
+
+      const res = await this.fetch<dtos.AllMapsDto>(path, {
+        headers,
+      });
+
+      return mappers.mapFromAllMapsDto(await res.json());
+    } catch (unhandledException) {
+      console.error(unhandledException);
+      return { errors: this.mapErrors([], unhandledException) } as any;
+    }
+  }
+
+  async sendMaps(params?: types.SendMapsParams): Promise<void> {
+    try {
+      const {
+        success,
+        data: sanitizedParams,
+        error,
+      } = schemas.SendMapsParamsSchema.safeParse(params);
+
+      if (!success) return { errors: this.mapErrors(error.issues) } as any;
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+
+      const query: string[] = [];
+
+      let prefix = '';
+      if (this.options?.root) {
+        prefix = this.options.root;
+        if (
+          !prefix.startsWith('/') &&
+          !prefix.toLowerCase().startsWith('http://') &&
+          !prefix.toLowerCase().startsWith('https://')
+        )
+          prefix = `/${prefix}`;
+      }
+
+      const path = [`${prefix}/mapDemo`, query.join('&')].join('?');
 
       const body =
-        sanitizedParams?.body === undefined
+        sanitizedParams?.allMaps === undefined
           ? undefined
-          : JSON.stringify(sanitizedParams?.body);
+          : JSON.stringify(sanitizedParams?.allMaps);
 
       await this.fetch(path, {
         method: 'POST',
@@ -785,164 +952,8 @@ export class HttpWidgetService implements types.WidgetService {
     }
   }
 
-  async deleteWidgetFoo(params: types.DeleteWidgetFooParams): Promise<void> {
-    try {
-      const sanitizedParams = params;
-      const errors = validators.validateDeleteWidgetFooParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
-
-      const query: string[] = [];
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [
-        `${prefix}/widgets/${encodeURIComponent(sanitizedParams.id)}/foo`,
-        query.join('&'),
-      ].join('?');
-
-      await this.fetch(path, {
-        method: 'DELETE',
-        headers,
-      });
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
-  async getWidgetFoo(params: types.GetWidgetFooParams): Promise<types.Widget> {
-    try {
-      const sanitizedParams = params;
-      const errors = validators.validateGetWidgetFooParams(sanitizedParams);
-      if (errors.length) {
-        return { errors: this.mapErrors(errors) } as any;
-      }
-
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
-
-      const query: string[] = [];
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [
-        `${prefix}/widgets/${encodeURIComponent(sanitizedParams.id)}/foo`,
-        query.join('&'),
-      ].join('?');
-
-      const res = await this.fetch<types.Widget>(path, {
-        headers,
-      });
-
-      return sanitizers.sanitizeWidget(await res.json());
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
-  async getWidgets(): Promise<types.Widget> {
-    try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
-
-      const query: string[] = [];
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [`${prefix}/widgets`, query.join('&')].join('?');
-
-      const res = await this.fetch<types.Widget>(path, {
-        headers,
-      });
-
-      return sanitizers.sanitizeWidget(await res.json());
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
-  async putWidget(): Promise<void> {
-    try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (this.auth.apiKeyAuth) {
-        headers['x-apikey'] = this.auth.apiKeyAuth.key;
-      }
-
-      const query: string[] = [];
-
-      let prefix = '';
-      if (this.options?.root) {
-        prefix = this.options.root;
-        if (
-          !prefix.startsWith('/') &&
-          !prefix.toLowerCase().startsWith('http://') &&
-          !prefix.toLowerCase().startsWith('https://')
-        )
-          prefix = `/${prefix}`;
-      }
-
-      const path = [`${prefix}/widgets`, query.join('&')].join('?');
-
-      await this.fetch(path, {
-        method: 'PUT',
-        headers,
-      });
-    } catch (unhandledException) {
-      console.error(unhandledException);
-      return { errors: this.mapErrors([], unhandledException) } as any;
-    }
-  }
-
   private mapErrors(
-    validationErrors: validators.ValidationError[],
+    validationErrors: z.ZodIssue[],
     unhandledException?: any,
   ): ClientError[] {
     const mapError =
@@ -950,7 +961,7 @@ export class HttpWidgetService implements types.WidgetService {
       ((error) => ({
         code: error.code as any,
         status: 400,
-        title: error.title,
+        title: error.message,
       }));
     const result = validationErrors.map(mapError);
 

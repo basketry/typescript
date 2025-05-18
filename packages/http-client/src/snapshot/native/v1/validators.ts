@@ -8,7 +8,7 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
+ * About Basketry: https://basketry.io
  * About @basketry/typescript-validators: https://github.com/basketry/typescript-validators
  */
 
@@ -504,20 +504,6 @@ export function validateUpdateGizmoParams(
   return validator.errors;
 }
 
-/**
- * Validates input parameters for the uploadGizmo() method.
- */
-export function validateUploadGizmoParams(
-  params: types.UploadGizmoParams,
-  parentPath?: string,
-): ValidationError[] {
-  const validator = new Validator(parentPath);
-
-  validator.required(params.data, 'data').ensure();
-
-  return validator.errors;
-}
-
 export function validateCreateWidgetBody(
   params: types.CreateWidgetBody,
   parentPath?: string,
@@ -781,6 +767,10 @@ export function validateExampleUnion(
   if (!gizmoErrors.length) return [];
   errors.push(...gizmoErrors);
 
+  const widgetErrors = validateWidget(params as types.Widget);
+  if (!widgetErrors.length) return [];
+  errors.push(...widgetErrors);
+
   return errors;
 }
 
@@ -857,7 +847,6 @@ export class ValidatedGizmoService implements types.GizmoService {
     private readonly handlers: {
       buildGizmo: ResponseBuilder<types.Gizmo>;
       buildGizmosResponse: ResponseBuilder<types.GizmosResponse>;
-      buildVoid: ResponseBuilder<void>;
     },
   ) {}
 
@@ -918,20 +907,6 @@ export class ValidatedGizmoService implements types.GizmoService {
       return sanitizers.sanitizeGizmo(
         this.handlers.buildGizmo(validationErrors, err),
       );
-    }
-  }
-
-  async uploadGizmo(params: types.UploadGizmoParams) {
-    let validationErrors: ValidationError[] = [];
-    try {
-      validationErrors = validateUploadGizmoParams(params);
-      if (validationErrors.length) {
-        return this.handlers.buildVoid(validationErrors, undefined);
-      }
-      const sanitizedParams = sanitizers.sanitizeUploadGizmoParams(params);
-      return this.service.uploadGizmo(sanitizedParams);
-    } catch (err) {
-      return this.handlers.buildVoid(validationErrors, err);
     }
   }
 }

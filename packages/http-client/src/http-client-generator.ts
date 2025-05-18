@@ -29,8 +29,9 @@ import {
   buildTypeName,
 } from '@basketry/typescript';
 import { buildHttpClientName } from './name-factory';
+import { Builder as DtoBuilder } from '@basketry/typescript-dtos/lib/builder';
 import { buildParamsValidatorName } from '@basketry/typescript-validators';
-import { needsDateConversion } from '@basketry/typescript-validators/lib/utils';
+
 import { camel, pascal, snake } from 'case';
 import { NamespacedTypescriptHttpClientOptions } from './types';
 
@@ -49,7 +50,12 @@ export const httpClientGenerator: Generator = (service, options) => {
 
   const imports = Array.from(buildImports(service, options)).join('\n');
   const standardTypes = Array.from(
-    buildStandardTypes(service, includeFormatDate, includeFormatDateTime),
+    buildStandardTypes(
+      service,
+      includeFormatDate,
+      includeFormatDateTime,
+      options,
+    ),
   ).join('\n');
   const classes = Array.from(buildClasses(service, options)).join('\n');
   const header = warning(service, require('../package.json'), options);
@@ -65,22 +71,42 @@ export const httpClientGenerator: Generator = (service, options) => {
   ];
 };
 
+function buildErrorType(
+  options?: NamespacedTypescriptHttpClientOptions,
+): string {
+  if (options?.httpClient?.validation === 'zod') {
+    return 'z.ZodIssue';
+  }
+  return 'validators.ValidationError';
+}
+
 function* buildImports(
   service: Service,
-  options: NamespacedTypescriptHttpClientOptions,
+  options?: NamespacedTypescriptHttpClientOptions,
 ): Iterable<string> {
+  if (options?.httpClient?.validation === 'zod') {
+    yield `import * as z from 'zod';`;
+  }
+
+  yield `import * as dtos from '${
+    options?.httpClient?.dtosImportPath ?? './dtos/types'
+  }';`;
+  yield `import * as mappers from '${
+    options?.httpClient?.mappersImportPath ?? './dtos/mappers'
+  }';`;
   yield `import * as types from '${
-    options?.typescriptHttpClient?.typesImportPath ?? './types'
+    options?.httpClient?.typesImportPath ?? './types'
   }';`;
-  yield `import * as validators from '${
-    options?.typescriptHttpClient?.validatorsImportPath ?? './validators'
-  }';`;
-  yield `import * as sanitizers from '${
-    options?.typescriptHttpClient?.sanitizersImportPath ?? './sanitizers'
-  }';`;
-  if (service.types.some((type) => needsDateConversion(service, type))) {
-    yield `import * as dateUtils from '${
-      options?.typescriptHttpClient?.dateUtilsImportPath ?? './date-utils'
+  if (options?.httpClient?.validation === 'zod') {
+    yield `import * as schemas from '${
+      options?.httpClient?.validatorsImportPath ?? './schemas'
+    }';`;
+  } else {
+    yield `import * as validators from '${
+      options?.httpClient?.validatorsImportPath ?? './validators'
+    }';`;
+    yield `import * as sanitizers from '${
+      options?.httpClient?.sanitizersImportPath ?? './sanitizers'
     }';`;
   }
   const errorType = getTypeByName(service, 'Error');
@@ -108,6 +134,7 @@ function* buildStandardTypes(
   service: Service,
   includeFormatDate: boolean,
   includeFormatDateTime: boolean,
+  options?: NamespacedTypescriptHttpClientOptions,
 ): Iterable<string> {
   const methods = new Set(
     service.interfaces
@@ -122,7 +149,9 @@ function* buildStandardTypes(
 
   yield `export interface ${pascal(`${service.title.value}Options`)} {`;
   yield `  root?: string;`;
-  yield `  mapValidationError?: (error: validators.ValidationError) => ${errorType};`;
+  yield `  mapValidationError?: (error: ${buildErrorType(
+    options,
+  )}) => ${errorType};`;
   yield `  mapUnhandledException?: (error: any) => ${errorType};`;
   yield `}`;
   yield ``;
@@ -171,7 +200,7 @@ function* buildAuth(
 ): Iterable<string> {
   const schemes = getSecuritySchemes(int);
 
-  if (schemes.length && options?.typescriptHttpClient?.includeAuthSchemes) {
+  if (schemes.length && options?.httpClient?.includeAuthSchemes) {
     yield 'private readonly auth: {';
     for (const scheme of schemes) {
       if (isApiKeyScheme(scheme)) {
@@ -240,7 +269,7 @@ function* buildClass(
   const errorType = getErrorType(service);
 
   yield `private mapErrors(
-    validationErrors: validators.ValidationError[],
+    validationErrors: ${buildErrorType(options)}[],
     unhandledException?: any,
   ): ${errorType}[] {
     const mapError =
@@ -248,7 +277,9 @@ function* buildClass(
       ((error) => ({
         code: error.code as any,
         status: 400,
-        title: error.title,
+        title: error.${
+          options?.httpClient?.validation === 'zod' ? 'message' : 'title'
+        },
       }));
     const result = validationErrors.map(mapError);
 
@@ -301,11 +332,14 @@ function getSecuritySchemes(int: Interface): SecurityScheme[] {
 class MethodFactory {
   private constructor(
     private readonly service: Service,
+    private readonly options: NamespacedTypescriptHttpClientOptions,
     private readonly method: Method,
     private readonly httpMethod: HttpMethod,
     private readonly httpPath: HttpPath,
     private readonly schemes: SecurityScheme[],
   ) {}
+
+  private readonly dtoBuilder = new DtoBuilder(this.service, this.options);
 
   public static *build(
     service: Service,
@@ -324,6 +358,7 @@ class MethodFactory {
     if (httpMethod && httpPath) {
       yield* new MethodFactory(
         service,
+        options,
         method,
         httpMethod,
         httpPath,
@@ -335,17 +370,32 @@ class MethodFactory {
   private *buildMethod(
     options: NamespacedTypescriptHttpClientOptions,
   ): Iterable<string> {
-    yield* buildDescription(this.method.description);
+    yield* buildDescription(
+      this.method.description,
+      undefined,
+      this.method.deprecated?.value,
+    );
     yield `async ${buildMethodName(this.method)}(`;
     yield* buildMethodParams(this.method, 'types');
     yield `): ${buildMethodReturnType(this.method, 'types')} {`;
     yield ` try {`;
 
     if (this.method.parameters.length) {
-      const validatorName = buildParamsValidatorName(this.method, 'validators');
-      yield `  const sanitizedParams = params;`;
-      yield `  const errors = ${validatorName}(sanitizedParams);`;
-      yield `if (errors.length) { return { errors: this.mapErrors(errors) } as any }`;
+      if (options?.httpClient?.validation === 'zod') {
+        yield `const { success, data: sanitizedParams, error } = schemas.${pascal(
+          this.method.name.value,
+        )}ParamsSchema.safeParse(params);`;
+        yield ``;
+        yield `if (!success) return { errors: this.mapErrors(error.issues) } as any;`;
+      } else {
+        const validatorName = buildParamsValidatorName(
+          this.method,
+          'validators',
+        );
+        yield `  const sanitizedParams = params;`;
+        yield `  const errors = ${validatorName}(sanitizedParams);`;
+        yield `if (errors.length) { return { errors: this.mapErrors(errors) } as any }`;
+      }
     }
     yield '';
     yield* this.buildHeaders(options);
@@ -401,7 +451,7 @@ class MethodFactory {
       }
     }
 
-    if (options?.typescriptHttpClient?.includeAuthSchemes) {
+    if (options?.httpClient?.includeAuthSchemes) {
       for (const scheme of this.schemes) {
         if (isApiKeyScheme(scheme)) {
           if (scheme.in.value === 'header') {
@@ -485,14 +535,16 @@ class MethodFactory {
       yield '}';
     }
 
-    for (const scheme of this.schemes) {
-      if (isApiKeyScheme(scheme)) {
-        if (scheme.in.value === 'query') {
-          yield `if(this.auth${safe(scheme.name.value)}) {`;
-          yield `  query.push(\`${scheme.parameter.value}=$\{this.auth${safe(
-            scheme.name.value,
-          )}.key\}\`);`;
-          yield '}';
+    if (this.options?.httpClient?.includeAuthSchemes) {
+      for (const scheme of this.schemes) {
+        if (isApiKeyScheme(scheme)) {
+          if (scheme.in.value === 'query') {
+            yield `if(this.auth${safe(scheme.name.value)}) {`;
+            yield `  query.push(\`${scheme.parameter.value}=$\{this.auth${safe(
+              scheme.name.value,
+            )}.key\}\`);`;
+            yield '}';
+          }
         }
       }
     }
@@ -550,8 +602,9 @@ class MethodFactory {
 
   private *buildFetch(): Iterable<string> {
     // const params = this.method.returnType ? `json, status` : `status`;
+
     const returnType = this.method.returnType
-      ? `<${buildTypeName(this.method.returnType, 'types')}>`
+      ? `<dtos.${pascal(this.method.returnType.typeName.value)}Dto>`
       : '';
 
     if (this.method.returnType)
@@ -578,17 +631,20 @@ class MethodFactory {
         this.service,
         this.method.returnType?.typeName.value,
       )!;
-      const sanitizerName = camel(
-        `sanitize_${snake(responseTypeName.name.value)}`,
+
+      const mapperName = this.dtoBuilder.buildMapperName(
+        responseTypeName.name.value,
+        'client-outbound',
       );
 
-      if (needsDateConversion(this.service, responseTypeName)) {
-        const converterName = camel(
-          `convert_${responseTypeName.name.value}_dates`,
-        );
-        yield `return sanitizers.${sanitizerName}(dateUtils.${converterName}(await res.json()));`;
+      if (this.options?.httpClient?.validation === 'zod') {
+        yield `return mappers.${mapperName}(await res.json());`;
       } else {
-        yield `return sanitizers.${sanitizerName}(await res.json());`;
+        const sanitizerName = camel(
+          `sanitize_${snake(responseTypeName.name.value)}`,
+        );
+
+        yield `return sanitizers.${sanitizerName}(mappers.${mapperName}(await res.json()));`;
       }
     }
   }

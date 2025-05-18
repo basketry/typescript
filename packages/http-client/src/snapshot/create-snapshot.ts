@@ -1,32 +1,27 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import generateTypes from '@basketry/typescript';
-import generateValidators from '@basketry/typescript-validators';
-import { httpClientGenerator } from '../http-client-generator';
+import { File } from 'basketry';
+import { generate, replaceVersion, snapshots } from './test-utils';
 
-const pkg = require('../../package.json');
-const withVersion = `${pkg.name}@${pkg.version}`;
-const withoutVersion = `${pkg.name}@{{version}}`;
+const writeFiles = async (snapshotFiles: File[], snapshot: string) => {
+  for (const file of snapshotFiles) {
+    if (file.path[file.path.length - 1] === 'date-utils.ts') continue;
 
-const service = require('basketry/lib/example-ir.json');
+    const path = file.path.slice(0, file.path.length - 1);
+    const filename = file.path[file.path.length - 1];
 
-const snapshotFiles = [
-  ...generateTypes(service),
-  // ...generateValidators(service),
-  ...httpClientGenerator(service, {
-    typescriptHttpClient: { includeAuthSchemes: true },
-  }),
-];
+    const fullpath = [process.cwd(), 'src', 'snapshot', snapshot, ...path];
 
-for (const file of snapshotFiles) {
-  const path = file.path.slice(0, file.path.length - 1);
-  const filename = file.path[file.path.length - 1];
+    mkdirSync(join(...fullpath), { recursive: true });
+    writeFileSync(
+      join(...fullpath, filename),
+      await replaceVersion(file.contents),
+    );
+  }
+};
 
-  const fullpath = [process.cwd(), 'src', 'snapshot', ...path];
-
-  mkdirSync(join(...fullpath), { recursive: true });
-  writeFileSync(
-    join(...fullpath, filename),
-    file.contents.replace(withVersion, withoutVersion),
-  );
-}
+(async () => {
+  for (const [snapshot, options] of Object.entries(snapshots)) {
+    await writeFiles(generate(options), snapshot);
+  }
+})();
