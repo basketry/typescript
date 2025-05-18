@@ -32,7 +32,7 @@
     "url": "https://github.com/basketry/express/issues"
   },
   "homepage": "https://basketry.io/docs/components/@basketry/express",
-  "funding": "https://github.com/basketry/express?sponsor=1",
+  "funding": "https://github.com/sponsors/basketry",
   "devDependencies": {
     "@basketry/zod": "^0.1.4",
     "@types/express": "^4.17.13",
