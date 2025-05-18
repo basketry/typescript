@@ -24,10 +24,8 @@ export class ExpressIndexFactory extends BaseFactory {
   }
 
   private *buildContents(): Iterable<string> {
-    yield `export * from './dtos';`;
     yield `export * from './errors';`;
     yield `export * from './handlers';`;
-    yield `export * from './mappers';`;
     yield `export * from './router-factory';`;
     yield `export * from './types';`;
   }

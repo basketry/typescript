@@ -4,7 +4,6 @@ export declare type ExpressOptions = {
   authImportPath?: string;
   typesImportPath?: string;
   validatorsImportPath?: string;
-  dateUtilsImportPath?: string;
   schemasImportPath?: string;
   validation?: 'zod';
 };

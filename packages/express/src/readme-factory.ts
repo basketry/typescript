@@ -155,46 +155,7 @@ export const handler: RequestHandler = (err, req, res, next) => {
 };
 \`\`\`
 
-## Data Transfer Objects (DTOs)
-
-In the generated ExpressJS API code, we use two distinct sets of types: ${businessObjectTypes} and ${dataTransferObjects}. These types serve different purposes and are essential for maintaining a clear separation of concerns between internal data structures and the external API contract.
-
-### Why Two Sets of Types?
-
-- ${businessObjectTypes} are written in a way that is idiomatic to TypeScript. While they are generated from the API contract, they follow a naming and casing convention consistent with the rest of the codebase.
-
-- ${dtoTypes} represent the over-the-wire format defined by the API contract. These types are used to communicate with external clients, ensuring consistency in the structure and casing of the data being exposed or accepted by the API. These types may have different naming conventions (e.g., snake_case for JSON fields) and might not always align one-to-one with our internal types.
-
-### When to Use ${businessObjectTypes} vs. ${dtoTypes}
-
-Use ${businessObjectTypes} when you are working within the server and need to interact with our business logic. The vast majority of hand-written code will use these types. Examples of this type of code include service class implementations that contain the actual business logic that powers the API. When in doubt, use ${businessObjectTypes}.
-
-Use ${dtoTypes} when interacting with external clients through the API. This includes:
-
-- Response Serialization: Transforming internal ${businessObjectTypes} into ${dtoTypes} before sending them in API responses. In most cases, this is handled by the generated [mappers](${mappersImportPath}.ts).
-- Custom Response handlers: Each service method has a generated [response handler](${handlersImportPath}.ts) that runs the appropriate service method and serializes the response into a DTO. You can override this behavior by providing a custom response handler.
-
 ## Handlers
-
-## Mappers
-
-The [mappers](${mappersImportPath}.ts) module exports generated mapper functions. These functions are responsible for mapping between ${businessObjectTypes} and ${dataTransferObjects}, both of which are generated from the API contract. The mapper functions guarantee correct transformations between these two sets of types, maintaining consistency between the internal business logic and the external API contract.
-
-### Why Use Generated Mapper Functions?
-
-- Consistency: Manually mapping between Business Object Types and DTO Types can lead to errors and inconsistencies. By generating the mapper types, we eliminate human error and ensure that the mappings always follow the API contract.
-
-- Maintainability: As the API evolves, regenerating the mapper types ensures that mappings between types are updated automatically. This significantly reduces the amount of manual work required when the API changes.
-
-### When to Use the Mapper Types
-
-The generated Express API code contains default implementations for the request handlers than can be used as-is. However, if you decide to hand-write custom Express handlers, there are several scenarios where you may need to interact with the mapper types directly:
-
-- Custom Response handlers: When writing custom response handlers, use the mapper types to convert ${businessObjectTypes} from and two ${dataTransferObjects} when interacting with the data on the Express request object.
-
-- Response Serialization: After processing a request, use the mapper types to convert Business Object Types back into DTO Types to send as the API response.
-
-- Integration Testing: When validating the interaction between internal logic and the external API, the mapper types can be used to ensure that data is being transformed correctly.
 
 ## Types
 

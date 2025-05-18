@@ -12,9 +12,7 @@
  * About @basketry/express: https://basketry.io/docs/components/@basketry/express
  */
 
-export * from './dtos';
 export * from './errors';
 export * from './handlers';
-export * from './mappers';
 export * from './router-factory';
 export * from './types';

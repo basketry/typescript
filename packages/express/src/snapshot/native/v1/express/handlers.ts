@@ -16,9 +16,9 @@ import type { Request, Response } from 'express';
 
 import type * as types from '../types';
 import * as validators from '../validators';
+import * as mappers from '../dtos/mappers';
 
 import * as errors from './errors';
-import * as mappers from './mappers';
 import type * as expressTypes from './types';
 
 /** GET /authPermutations */

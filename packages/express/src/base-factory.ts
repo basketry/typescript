@@ -34,11 +34,11 @@ export abstract class BaseFactory {
     yield* this.buildTypesImport();
     yield* this.buildSchemasImport();
     yield* this.buildValidatorsImport();
-    yield '';
     yield* this.buildDtosImport();
+    yield* this.buildMappersImport();
+    yield '';
     yield* this.buildHandlersImport();
     yield* this.buildErrorsImport();
-    yield* this.buildMappersImport();
     yield* this.buildExpressTypesImport();
   }
 
@@ -88,7 +88,7 @@ export abstract class BaseFactory {
   private _needsDtosModule = false;
   private *buildDtosImport(): Iterable<string> {
     if (this._needsDtosModule) {
-      yield `import type * as ${dtosModule} from "./dtos"`;
+      yield `import type * as ${dtosModule} from "../dtos/types"`;
     }
   }
 
@@ -132,7 +132,7 @@ export abstract class BaseFactory {
   private _needsMappersImport = false;
   private *buildMappersImport(): Iterable<string> {
     if (this._needsMappersImport) {
-      yield `import * as ${this.mappersModule} from "./mappers"`;
+      yield `import * as ${this.mappersModule} from "../dtos/mappers"`;
     }
   }
 

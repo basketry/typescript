@@ -21,7 +21,7 @@ import {
   buildParameterName,
   buildTypeName,
 } from '@basketry/typescript';
-import { buildRequestHandlerTypeName } from './dto-factory';
+import { buildRequestHandlerTypeName } from '@basketry/typescript-dtos/lib/dto-factory';
 import { BaseFactory } from './base-factory';
 import {
   buildParamsValidatorName,

@@ -15,8 +15,7 @@
 import type { Request, Response, RequestHandler } from 'express';
 
 import type * as types from '../types';
-
-import type * as dtos from './dtos';
+import type * as dtos from '../dtos/types';
 
 export type RouterFactoryInput = {
   /** OpenAPI schema as a JSON object */

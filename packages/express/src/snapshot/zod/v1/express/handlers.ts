@@ -17,9 +17,9 @@ import { ZodError } from 'zod';
 
 import type * as types from '../types';
 import * as schemas from '../schemas';
+import * as mappers from '../dtos/mappers';
 
 import * as errors from './errors';
-import * as mappers from './mappers';
 import type * as expressTypes from './types';
 
 /** GET /authPermutations */

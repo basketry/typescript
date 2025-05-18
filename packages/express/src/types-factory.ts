@@ -16,7 +16,7 @@ import {
   buildMethodName,
 } from '@basketry/typescript';
 import { pascal } from 'case';
-import { buildRequestHandlerTypeName } from './dto-factory';
+import { buildRequestHandlerTypeName } from '@basketry/typescript-dtos/lib/dto-factory';
 
 type MethodTypes = {
   verb: string;
