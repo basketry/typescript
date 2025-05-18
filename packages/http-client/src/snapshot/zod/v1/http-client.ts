@@ -9,7 +9,7 @@
  * 2. Run the Basketry CLI
  *
  * About Basketry: https://basketry.io
- * About @basketry/typescript-http-client: https://github.com/basketry/typescript-http-client#readme
+ * About @basketry/typescript-http-client: https://basketry.io/docs/components/@basketry/typescript-http-client
  */
 
 import * as z from 'zod';
