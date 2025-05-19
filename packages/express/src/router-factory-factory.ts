@@ -183,7 +183,7 @@ function getHandlers<TRequestHandler extends RequestHandler>(
         .sort()
         .map((v) => v.toUpperCase())
         .join(', ');
-      yield `.options((_, res) => res.set('Allow', '${allowMethods}').sendStatus(204))`;
+      yield `.options((_, res) => { res.set('Allow', '${allowMethods}').sendStatus(204); })`;
       yield `.all(methodNotAllowed('${allowMethods}'))`;
       yield `  `;
     }
@@ -224,7 +224,7 @@ function getHandlers<TRequestHandler extends RequestHandler>(
       </html>
     \`);`;
     yield '})';
-    yield `.options((_, res) => res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204))`;
+    yield `.options((_, res) => { res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204); })`;
     yield `.all(methodNotAllowed('GET, HEAD, OPTIONS'))`;
   }
 }
