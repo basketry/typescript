@@ -1,6 +1,6 @@
 {
   "name": "@basketry/typescript-dtos",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Basketry generator for generating Express JS routers",
   "main": "./lib/index.js",
   "scripts": {
