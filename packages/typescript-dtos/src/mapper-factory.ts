@@ -408,14 +408,11 @@ export class ExpressMapperFactory extends BaseFactory {
         );
 
         if (hasDate || hasDateTime) {
-          if (mode === 'server-inbound') {
-            yield `if (${paramName} instanceof Date) {`;
-          } else {
-            yield `if (typeof ${paramName} === 'string') {`;
-          }
           if (mode === 'server-inbound' || mode === 'client-outbound') {
+            yield `if (typeof ${paramName} === 'string') {`;
             yield `return new Date(${paramName});`;
           } else {
+            yield `if (${paramName} instanceof Date) {`;
             if (hasDateTime) {
               yield `return ${paramName}.toISOString();`;
             } else {
