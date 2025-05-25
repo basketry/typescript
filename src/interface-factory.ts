@@ -153,7 +153,7 @@ function* buildInterface(int: Interface): Iterable<string> {
 
 function* buildMethod(method: Method): Iterable<string> {
   yield* buildDescription(method.description, method.deprecated?.value);
-  yield `async ${buildMethodName(method)}(`;
+  yield `${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
   yield `): ${buildMethodReturnValue(method)};`;
 }
