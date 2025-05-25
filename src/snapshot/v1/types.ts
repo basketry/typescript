@@ -8,8 +8,8 @@
  * 1. Edit source/path.ext
  * 2. Run the Basketry CLI
  *
- * About Basketry: https://github.com/basketry/basketry/wiki
- * About @basketry/typescript: https://github.com/basketry/typescript#readme
+ * About Basketry: https://basketry.io
+ * About @basketry/typescript: https://basketry.io/docs/components/@basketry/typescript
  */
 
 /**
@@ -50,6 +50,15 @@ export interface GizmoService {
   updateGizmo(params?: UpdateGizmoParams): Promise<Gizmo>;
 
   uploadGizmo(params: UploadGizmoParams): Promise<void>;
+}
+
+/**
+ * Interface for the Map Demo Service
+ */
+export interface MapDemoService {
+  returnMaps(): Promise<AllMaps>;
+
+  sendMaps(params?: SendMapsParams): Promise<void>;
 }
 
 /**
@@ -146,6 +155,10 @@ export type GetWidgetFooParams = {
   id: string;
 };
 
+export type SendMapsParams = {
+  allMaps?: AllMaps;
+};
+
 export type UpdateGizmoParams = {
   /**
    * array of primitive
@@ -174,10 +187,41 @@ export type ExhaustiveParamsQueryEnum = 'one' | 'two' | 'three';
 
 export type ExhaustiveParamsQueryEnumArray = 'one' | 'two' | 'three';
 
+export type KeyEnum = 'firstKey' | 'secondKey' | 'thirdKey';
+
 export type ProductSize = 'small' | 'medium' | 'large';
+
+export type AllMaps = {
+  complexKeyMapA: ComplexKeyMapA;
+  complexKeyMapB: ComplexKeyMapB;
+  pureMapA: PureMapA;
+  pureMapB: PureMapB;
+  pureMapC: PureMapC;
+  pureMapD: PureMapD;
+  mixedMapA: MixedMapA;
+  mixedMapB: MixedMapB;
+  mixedMapC: MixedMapC;
+  mixedMapD: MixedMapD;
+};
+
+/**
+ * Has validation rules on the map key
+ */
+export type ComplexKeyMapA = Record<string, string>;
+
+/**
+ * Uses an enum as the map key
+ */
+export type ComplexKeyMapB = Record<KeyEnum, string>;
 
 export type CreateWidgetBody = {
   name: string;
+};
+
+export type ExampleMapValue = {
+  foo?: string;
+  bar?: string;
+  createdAt: Date;
 };
 
 export type ExhaustiveParamsBody = {
@@ -196,10 +240,53 @@ export type Gizmo = {
    * @deprecated
    */
   size?: ProductSize;
+} & Record<string, GizmoMapValue | ProductSize | string | undefined>;
+
+export type GizmoMapValue = {
+  foo: string;
+  bar: string;
 };
 
 export type GizmosResponse = {
   data: Gizmo[];
+};
+
+/**
+ * Has no required map keys
+ */
+export type MixedMapA = {
+  objId: string;
+  objName?: string;
+} & Record<string, ExampleMapValue | string | undefined>;
+
+/**
+ * Has required map keys
+ */
+export type MixedMapB = {
+  objId: string;
+  objName?: string;
+  objFizz: ExampleMapValue;
+  objBuzz: ExampleMapValue;
+} & Record<string, ExampleMapValue | string | undefined>;
+
+/**
+ * Has required map keys and max properties GREATER THAN the number of required props and keys
+ */
+export type MixedMapC = {
+  objId: string;
+  objName?: string;
+  objFizz: ExampleMapValue;
+  objBuzz: ExampleMapValue;
+} & Record<string, ExampleMapValue | string | undefined>;
+
+/**
+ * Has required map keys and max properties EQUAL TO the number of required props and keys
+ */
+export type MixedMapD = {
+  objId: string;
+  objName?: string;
+  objFizz: ExampleMapValue;
+  objBuzz: ExampleMapValue;
 };
 
 export type NewWidget = {
@@ -216,6 +303,35 @@ export type NewWidgetFoo = {
   buzz: number;
 };
 
+/**
+ * Has no required map keys
+ */
+export type PureMapA = Record<string, ExampleMapValue>;
+
+/**
+ * Has required map keys
+ */
+export type PureMapB = {
+  objFizz: ExampleMapValue;
+  objBuzz: ExampleMapValue;
+} & Record<string, ExampleMapValue>;
+
+/**
+ * Has required map keys and max properties GREATER THAN the number of required keys
+ */
+export type PureMapC = {
+  objFizz: ExampleMapValue;
+  objBuzz: ExampleMapValue;
+} & Record<string, ExampleMapValue>;
+
+/**
+ * Has required map keys and max properties EQUAL TO the number of required keys
+ */
+export type PureMapD = {
+  objFizz: ExampleMapValue;
+  objBuzz: ExampleMapValue;
+};
+
 export type Widget = {
   id: string;
   name?: string;
@@ -224,7 +340,13 @@ export type Widget = {
   fizbuzz?: number;
   foo?: WidgetFoo;
   size?: ProductSize;
+  data: WidgetData;
 };
+
+export type WidgetData = {
+  fizz: GizmoMapValue;
+  buzz: GizmoMapValue;
+} & Record<string, GizmoMapValue>;
 
 export type WidgetFoo = {
   fiz?: number;

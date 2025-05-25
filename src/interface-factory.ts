@@ -160,17 +160,71 @@ function* buildMethod(method: Method): Iterable<string> {
 
 function* buildType(type: Type): Iterable<string> {
   yield* buildDescription(type.description, type.deprecated?.value);
-  if (type.properties.length) {
-    yield `export type ${buildTypeName(type)} = {`;
-    for (const prop of type.properties) {
-      yield* buildDescription(prop.description, prop.deprecated?.value);
-      yield `  ${buildPropertyName(prop)}${
-        isRequired(prop.value) ? '' : '?'
-      }: ${buildTypeName(prop.value)};`;
-    }
-    yield `}`;
+
+  yield `export type ${buildTypeName(type)} =`;
+
+  const typeNames = new Set<string>();
+
+  const mapValue = type.mapProperties?.value;
+  const hasProps = !!type.properties.length;
+  const hasMapProps = !!type.mapProperties;
+
+  const hasRequiredKeys =
+    type.mapProperties && type.mapProperties.requiredKeys.length > 0;
+
+  const maxPropCount = type.rules.find(
+    (rule) => rule.id === 'ObjectMaxProperties',
+  )?.max.value;
+
+  let emittedProps = 0;
+
+  if (!hasProps && !hasMapProps) {
+    yield `Record<string, unknown>;`;
   } else {
-    yield `export type ${buildTypeName(type)} = Record<string, unknown>;`;
+    if (hasProps || hasRequiredKeys) {
+      yield `{`;
+      for (const prop of type.properties) {
+        if (!isRequired(prop.value)) typeNames.add('undefined');
+        const typeName = buildTypeName(prop.value);
+        typeNames.add(typeName);
+        yield* buildDescription(prop.description, prop.deprecated?.value);
+        yield `  ${buildPropertyName(prop)}${
+          isRequired(prop.value) ? '' : '?'
+        }: ${typeName};`;
+        emittedProps++;
+      }
+
+      if (type.mapProperties && type.mapProperties.requiredKeys.length > 0) {
+        const valueTypeName = buildTypeName(type.mapProperties.value.value);
+        for (const key of type.mapProperties.requiredKeys) {
+          yield `  ${camel(key.value)}: ${valueTypeName};`;
+          emittedProps++;
+        }
+      }
+
+      yield `}`;
+    }
+
+    if (typeof maxPropCount !== 'number' || maxPropCount > emittedProps) {
+      if ((hasProps || hasRequiredKeys) && hasMapProps && mapValue) {
+        yield ` & `;
+      }
+
+      if (hasMapProps && mapValue) {
+        const mapValueType = buildTypeName(mapValue.value);
+        typeNames.add(mapValueType);
+
+        // TODO: prevent this from making each of the enum keys required
+
+        const keyTypeName = type.mapProperties
+          ? buildTypeName(type.mapProperties.key.value)
+          : 'string';
+
+        yield `Record<${keyTypeName}, ${Array.from(typeNames)
+          .sort()
+          .join(' | ')}>`;
+      }
+    }
   }
 }
 
