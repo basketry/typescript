@@ -6,13 +6,8 @@ import importPlugin from 'eslint-plugin-import';
 export default [
   prettierConfig,
   {
-    files: ['**/*.ts', '**/*.js'],
-    ignores: [
-      'lib/**',
-      'coverage/**',
-      'node_modules/**',
-      'src/snapshot/service.json',
-    ],
+    files: ['**/*.ts', '**/*.js', '**/*.json'],
+    ignores: ['lib', 'coverage', 'node_modules', 'src/snapshot/service.json'],
     languageOptions: {
       parser,
     },
@@ -24,9 +19,10 @@ export default [
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
-          vars: 'all', // Check all declared variables
-          args: 'after-used', // Ignore unused function arguments unless they come after used ones
-          ignoreRestSiblings: true, // Ignore rest siblings like `{ ...rest }`
+          vars: 'all',
+          args: 'after-used',
+          ignoreRestSiblings: true,
+          argsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/adjacent-overload-signatures': 'error',
