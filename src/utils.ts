@@ -88,10 +88,10 @@ export function* eslintDisable(
 }
 
 /** Formats the source content with Prettier. */
-export function format(
+export async function format(
   source: string,
   options: NamespacedTypescriptOptions | undefined,
-): string {
+): Promise<string> {
   try {
     let prettierOptions: Options = {
       parser: 'typescript',
@@ -105,7 +105,7 @@ export function format(
     }
 
     return formatWithPrettier(source, prettierOptions);
-  } catch (err) {
+  } catch {
     return source;
   }
 }
