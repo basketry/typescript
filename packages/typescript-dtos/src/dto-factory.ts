@@ -131,17 +131,21 @@ export class ExpressDtoFactory extends BaseFactory {
     yield `/** The over-the-wire representation of the {@link ${this.typesModule}.${typeName}|${typeName}} type. */`;
     yield `export type ${this.builder.buildDtoName(union.name.value)} = ${union.members
       .map((m: CustomValue | TypedValue): string => {
-        if (m.isPrimitive) {
-          switch (m.typeName.value) {
-            case 'date':
-            case 'date-time':
-              return 'string';
-            default:
-              return buildTypeName(m);
+        const baseName = () => {
+          if (m.isPrimitive) {
+            switch (m.typeName.value) {
+              case 'date':
+              case 'date-time':
+                return 'string';
+              default:
+                return buildTypeName(m);
+            }
           }
-        }
 
-        return this.builder.buildDtoName(m.typeName.value);
+          return this.builder.buildDtoName(m.typeName.value);
+        };
+
+        return baseName() + (m.isArray ? '[]' : '');
       })
       .join(' | ')}`;
   }
