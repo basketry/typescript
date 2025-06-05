@@ -426,6 +426,7 @@ export class ExpressMapperFactory extends BaseFactory {
           yield `return ${paramName};`;
         }
       } else {
+        // TODO: attempt to discriminate based on the presence of required properties
         yield `const union = ${paramName} as any;`;
         this.touchCompact();
         yield `return compact({`;
@@ -436,7 +437,13 @@ export class ExpressMapperFactory extends BaseFactory {
           properties.set(prop.name.value, prop);
         }
         for (const prop of properties.values()) {
-          yield* this.buildProperty(prop, 'union', mode);
+          // In this context, only one of the union members will be present;
+          // therefore, let's assume that any property could be optional.
+          const notRequired = {
+            ...prop,
+            rules: prop.rules.filter((r) => r.id !== 'required'),
+          };
+          yield* this.buildProperty(notRequired, 'union', mode);
         }
         yield '}) as any;';
       }
