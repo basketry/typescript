@@ -78,8 +78,8 @@ export const handleCreateGizmo =
   async (req, res, next) => {
     try {
       // Parse parameters from request
-      const params: types.CreateGizmoParams =
-        schemas.CreateGizmoParamsSchema.parse({
+      const params: types.CreateGizmoParams | undefined =
+        schemas.CreateGizmoParamsSchema.optional().parse({
           size: req.query.size,
         });
 
@@ -112,8 +112,8 @@ export const handleCreateWidget =
   async (req, res, next) => {
     try {
       // Parse parameters from request
-      const params: types.CreateWidgetParams =
-        schemas.CreateWidgetParamsSchema.parse({
+      const params: types.CreateWidgetParams | undefined =
+        schemas.CreateWidgetParamsSchema.optional().parse({
           body: mappers.mapFromCreateWidgetBodyDto(req.body),
         });
 
@@ -172,8 +172,8 @@ export const handleExhaustiveFormats =
   async (req, res, next) => {
     try {
       // Parse parameters from request
-      const params: types.ExhaustiveFormatsParams =
-        schemas.ExhaustiveFormatsParamsSchema.parse({
+      const params: types.ExhaustiveFormatsParams | undefined =
+        schemas.ExhaustiveFormatsParamsSchema.optional().parse({
           stringNoFormat: req.query['string-no-format'],
           stringDate: req.query['string-date'],
           stringDateTime: req.query['string-date-time'],
@@ -270,11 +270,10 @@ export const handleGetGizmos =
   async (req, res, next) => {
     try {
       // Parse parameters from request
-      const params: types.GetGizmosParams = schemas.GetGizmosParamsSchema.parse(
-        {
+      const params: types.GetGizmosParams | undefined =
+        schemas.GetGizmosParamsSchema.optional().parse({
           search: req.query.search,
-        },
-      );
+        });
 
       // Execute service method
       const service = getService(req, res);
@@ -419,9 +418,10 @@ export const handleSendMaps =
   async (req, res, next) => {
     try {
       // Parse parameters from request
-      const params: types.SendMapsParams = schemas.SendMapsParamsSchema.parse({
-        allMaps: mappers.mapFromAllMapsDto(req.body),
-      });
+      const params: types.SendMapsParams | undefined =
+        schemas.SendMapsParamsSchema.optional().parse({
+          allMaps: mappers.mapFromAllMapsDto(req.body),
+        });
 
       // Execute service method
       const service = getService(req, res);
@@ -448,8 +448,8 @@ export const handleUpdateGizmo =
   async (req, res, next) => {
     try {
       // Parse parameters from request
-      const params: types.UpdateGizmoParams =
-        schemas.UpdateGizmoParamsSchema.parse({
+      const params: types.UpdateGizmoParams | undefined =
+        schemas.UpdateGizmoParamsSchema.optional().parse({
           factors: req.query.factors?.split(','),
         });
 

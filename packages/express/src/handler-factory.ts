@@ -134,8 +134,11 @@ export class ExpressHandlerFactory extends BaseFactory {
     yield '  try {';
     if (hasParams) {
       if (this.options.express?.validation === 'zod') {
+        const paramsRequired = method.parameters.some(isRequired);
+        const undefinedString = paramsRequired ? '' : ' | undefined';
+        const optionalString = paramsRequired ? '' : '.optional()';
         yield `// Parse parameters from request`;
-        yield `const params: ${buildMethodParamsTypeName(method, this.typesModule)} = ${this.schemasModule}.${buildMethodParamsTypeName(method)}Schema.parse({`;
+        yield `const params: ${buildMethodParamsTypeName(method, this.typesModule)}${undefinedString} = ${this.schemasModule}.${buildMethodParamsTypeName(method)}Schema${optionalString}.parse({`;
         yield* this.buildParamsSourceObject(method, httpMethod);
         yield `});`;
         yield '';
