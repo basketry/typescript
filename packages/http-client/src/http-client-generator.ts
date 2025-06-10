@@ -382,9 +382,11 @@ class MethodFactory {
 
     if (this.method.parameters.length) {
       if (options?.httpClient?.validation === 'zod') {
+        const paramsRequired = this.method.parameters.some(isRequired);
+        const optionalString = paramsRequired ? '' : '.optional()';
         yield `const { success, data: sanitizedParams, error } = schemas.${pascal(
           this.method.name.value,
-        )}ParamsSchema.safeParse(params);`;
+        )}ParamsSchema${optionalString}.safeParse(params);`;
         yield ``;
         yield `if (!success) return { errors: this.mapErrors(error.issues) } as any;`;
       } else {

@@ -83,7 +83,7 @@ export class HttpGizmoService implements types.GizmoService {
         success,
         data: sanitizedParams,
         error,
-      } = schemas.GetGizmosParamsSchema.safeParse(params);
+      } = schemas.GetGizmosParamsSchema.optional().safeParse(params);
 
       if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
@@ -130,7 +130,7 @@ export class HttpGizmoService implements types.GizmoService {
         success,
         data: sanitizedParams,
         error,
-      } = schemas.CreateGizmoParamsSchema.safeParse(params);
+      } = schemas.CreateGizmoParamsSchema.optional().safeParse(params);
 
       if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
@@ -174,7 +174,7 @@ export class HttpGizmoService implements types.GizmoService {
         success,
         data: sanitizedParams,
         error,
-      } = schemas.UpdateGizmoParamsSchema.safeParse(params);
+      } = schemas.UpdateGizmoParamsSchema.optional().safeParse(params);
 
       if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
@@ -289,7 +289,7 @@ export class HttpWidgetService implements types.WidgetService {
         success,
         data: sanitizedParams,
         error,
-      } = schemas.CreateWidgetParamsSchema.safeParse(params);
+      } = schemas.CreateWidgetParamsSchema.optional().safeParse(params);
 
       if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
@@ -487,7 +487,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
         success,
         data: sanitizedParams,
         error,
-      } = schemas.ExhaustiveFormatsParamsSchema.safeParse(params);
+      } = schemas.ExhaustiveFormatsParamsSchema.optional().safeParse(params);
 
       if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
@@ -913,7 +913,7 @@ export class HttpMapDemoService implements types.MapDemoService {
         success,
         data: sanitizedParams,
         error,
-      } = schemas.SendMapsParamsSchema.safeParse(params);
+      } = schemas.SendMapsParamsSchema.optional().safeParse(params);
 
       if (!success) return { errors: this.mapErrors(error.issues) } as any;
 
