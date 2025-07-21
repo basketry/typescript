@@ -83,8 +83,8 @@ export const handleCreateGizmo =
       const status = 201;
 
       // Respond
-      const reponseDto = mappers.mapToGizmoDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToGizmoDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       const resValidationErrors = validators.validateGizmo(result);
@@ -316,8 +316,8 @@ export const handleGetGizmos =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToGizmosResponseDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToGizmosResponseDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       const resValidationErrors = validators.validateGizmosResponse(result);
@@ -353,8 +353,8 @@ export const handleGetWidgetFoo =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToWidgetDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToWidgetDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       const resValidationErrors = validators.validateWidget(result);
@@ -379,8 +379,8 @@ export const handleGetWidgets =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToWidgetDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToWidgetDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       const resValidationErrors = validators.validateWidget(result);
@@ -435,8 +435,8 @@ export const handleUpdateGizmo =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToGizmoDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToGizmoDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       const resValidationErrors = validators.validateGizmo(result);

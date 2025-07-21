@@ -232,13 +232,13 @@ export class ExpressHandlerFactory extends BaseFactory {
 
   private *buildRespondStanza(returnType: Type): Iterable<string> {
     yield '// Respond';
-    yield `    const reponseDto = ${
+    yield `    const responseDto = ${
       this.mappersModule
     }.${this.builder.buildMapperName(
       returnType.name.value,
       'output',
     )}(result);`;
-    yield `    res.status(status).json(reponseDto);`;
+    yield `    res.status(status).json(responseDto);`;
     yield '';
   }
 

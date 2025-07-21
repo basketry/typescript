@@ -89,8 +89,8 @@ export const handleCreateGizmo =
       const status = 201;
 
       // Respond
-      const reponseDto = mappers.mapToGizmoDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToGizmoDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       schemas.GizmoSchema.parse(result);
@@ -281,8 +281,8 @@ export const handleGetGizmos =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToGizmosResponseDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToGizmosResponseDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       schemas.GizmosResponseSchema.parse(result);
@@ -315,8 +315,8 @@ export const handleGetWidgetFoo =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToWidgetDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToWidgetDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       schemas.WidgetSchema.parse(result);
@@ -343,8 +343,8 @@ export const handleGetWidgets =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToWidgetDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToWidgetDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       schemas.WidgetSchema.parse(result);
@@ -395,8 +395,8 @@ export const handleReturnMaps =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToAllMapsDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToAllMapsDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       schemas.AllMapsSchema.parse(result);
@@ -459,8 +459,8 @@ export const handleUpdateGizmo =
       const status = 200;
 
       // Respond
-      const reponseDto = mappers.mapToGizmoDto(result);
-      res.status(status).json(reponseDto);
+      const responseDto = mappers.mapToGizmoDto(result);
+      res.status(status).json(responseDto);
 
       // Validate response
       schemas.GizmoSchema.parse(result);
