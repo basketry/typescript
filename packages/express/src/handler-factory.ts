@@ -243,8 +243,6 @@ export class ExpressHandlerFactory extends BaseFactory {
   }
 
   private *buildResponseValidationStanza(returnType: Type): Iterable<string> {
-    if (this.options.express?.responseValidation === 'none') return;
-
     switch (this.options.express?.validation) {
       case 'zod': {
         yield `// Validate response`;
