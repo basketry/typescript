@@ -6,6 +6,7 @@ import {
   Method,
   Parameter,
   Service,
+  Type,
   getEnumByName,
   getTypeByName,
   isRequired,
@@ -176,41 +177,34 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield `    const status = ${httpMethod.successCode.value}`;
     }
     yield '';
-    yield '// Respond';
     if (isEnvelope) {
       yield `if (result.errors.length) {`;
       yield `  next(${this.errorsModule}.handledException(status, result.errors));`;
       yield '} else {';
     }
     if (returnType) {
-      yield `    const reponseDto = ${
-        this.mappersModule
-      }.${this.builder.buildMapperName(
-        returnType.name.value,
-        'output',
-      )}(result);`;
-      yield `    res.status(status).json(reponseDto);`;
-      yield '';
-      switch (this.options.express?.validation) {
-        case 'zod': {
-          yield `// Validate response`;
-          yield `${this.schemasModule}.${buildTypeName(returnType)}Schema.parse(result);`;
+      switch (this.options.express?.responseValidation) {
+        case 'none': {
+          // Only build respond stanza
+          yield* this.buildRespondStanza(returnType);
           break;
         }
+        case 'strict': {
+          // Build response validation stanza first, then respond stanza
+          yield* this.buildResponseValidationStanza(returnType);
+          yield* this.buildRespondStanza(returnType);
+          break;
+        }
+        case 'warn':
         default: {
-          yield '// Validate response';
-          yield `const resValidationErrors = ${buildTypeValidatorName(
-            returnType,
-            this.validatorsModule,
-          )}(result);`;
-          yield `if (resValidationErrors.length) {`;
-          yield `  next(${this.errorsModule}.validationErrors(500, resValidationErrors));`;
-          yield '}';
+          // Build respond stanza first, then response validation stanza
+          yield* this.buildRespondStanza(returnType);
+          yield* this.buildResponseValidationStanza(returnType);
+          break;
         }
       }
-
-      yield '';
     } else {
+      yield '// Respond';
       yield `    res.sendStatus(status);`;
     }
     if (isEnvelope) {
@@ -234,6 +228,41 @@ export class ExpressHandlerFactory extends BaseFactory {
     }
     yield '  }';
     yield '}';
+  }
+
+  private *buildRespondStanza(returnType: Type): Iterable<string> {
+    yield '// Respond';
+    yield `    const reponseDto = ${
+      this.mappersModule
+    }.${this.builder.buildMapperName(
+      returnType.name.value,
+      'output',
+    )}(result);`;
+    yield `    res.status(status).json(reponseDto);`;
+    yield '';
+  }
+
+  private *buildResponseValidationStanza(returnType: Type): Iterable<string> {
+    if (this.options.express?.responseValidation === 'none') return;
+
+    switch (this.options.express?.validation) {
+      case 'zod': {
+        yield `// Validate response`;
+        yield `${this.schemasModule}.${buildTypeName(returnType)}Schema.parse(result);`;
+        break;
+      }
+      default: {
+        yield '// Validate response';
+        yield `const resValidationErrors = ${buildTypeValidatorName(
+          returnType,
+          this.validatorsModule,
+        )}(result);`;
+        yield `if (resValidationErrors.length) {`;
+        yield `  next(${this.errorsModule}.validationErrors(500, resValidationErrors));`;
+        yield '}';
+      }
+    }
+    yield '';
   }
 
   private *buildParamSource(

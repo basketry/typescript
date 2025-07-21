@@ -6,6 +6,7 @@ export declare type ExpressOptions = {
   validatorsImportPath?: string;
   schemasImportPath?: string;
   validation?: 'zod';
+  responseValidation?: 'none' | 'warn' | 'strict';
 };
 
 export declare type NamespacedExpressOptions = NamespacedTypescriptOptions & {
