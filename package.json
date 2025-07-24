@@ -50,7 +50,7 @@
     "typescript": "^5.8.3"
   },
   "dependencies": {
-    "basketry": "^0.2.0-alpha.10",
+    "basketry": "^0.2.0-alpha.17",
     "case": "^1.6.3"
   }
 }

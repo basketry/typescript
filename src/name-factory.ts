@@ -192,11 +192,7 @@ export function buildMethodReturnValue(
 }
 
 function isUnion(type: Type | MemberValue | Enum | Union): type is Union {
-  return (
-    type.kind === 'ComplexUnion' ||
-    type.kind === 'PrimitiveUnion' ||
-    type.kind === 'DiscriminatedUnion'
-  );
+  return type.kind === 'SimpleUnion' || type.kind === 'DiscriminatedUnion';
 }
 
 function isType(type: Type | MemberValue | Enum): type is Type {
