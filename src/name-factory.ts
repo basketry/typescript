@@ -33,8 +33,10 @@ export function buildFilePath(
 export function buildInterfaceName(
   int: Interface,
   typeModule?: string,
+  options?: NamespacedTypescriptOptions,
 ): string {
-  return prefix(typeModule, `${pascal(`${int.name.value}_service`)}`);
+  const nomenclature = options?.typescript?.interfaceNomenclature ?? 'service';
+  return prefix(typeModule, `${pascal(`${int.name.value}_${nomenclature}`)}`);
 }
 
 export function buildMethodName(method: Method, typeModule?: string): string {

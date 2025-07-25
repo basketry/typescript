@@ -112,6 +112,36 @@ export type TestEnum = 'TestMember';`,
       );
     });
   });
+
+  it('uses custom interfaceNomenclature option', async () => {
+    const testService = service({
+      interfaces: [
+        int({ name: stringLiteral('gizmo') }),
+        int({ name: stringLiteral('authPermutation') }),
+        int({ name: stringLiteral('mapDemo') }),
+      ],
+    });
+
+    const options = {
+      typescript: {
+        interfaceNomenclature: 'client',
+      },
+    };
+
+    const files = await generateTypes(testService, options);
+
+    expect(files).toBeDefined();
+    expect(files.length).toBeGreaterThan(0);
+
+    const file = files[0];
+    expect(file.contents).toContain('GizmoClient');
+    expect(file.contents).toContain('AuthPermutationClient');
+    expect(file.contents).toContain('MapDemoClient');
+    expect(file.contents).toContain('This is a test interface');
+    expect(file.contents).not.toContain('GizmoService');
+    expect(file.contents).not.toContain('AuthPermutationService');
+    expect(file.contents).not.toContain('MapDemoService');
+  });
 });
 
 function service(obj?: Partial<Service>): Service {
