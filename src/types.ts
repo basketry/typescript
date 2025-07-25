@@ -5,6 +5,7 @@ export type TypescriptOptions = {
   prettierConfig?: string;
   typeImports?: boolean;
   includeVersion?: boolean;
+  interfaceNomenclature?: string;
 };
 
 export type NamespacedTypescriptOptions = NamespacedBasketryOptions & {
