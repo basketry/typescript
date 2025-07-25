@@ -34,7 +34,7 @@ export class ExpressRouterFactoryFactory extends BaseFactory {
   }
 
   private buildServiceGetterName(int: Interface): string {
-    return `get${pascal(buildInterfaceName(int))}`;
+    return `get${pascal(buildInterfaceName(int, undefined, this.options))}`;
   }
 
   private *buildHelpers(): Iterable<string> {

@@ -268,11 +268,11 @@ export const handler: RequestHandler = (err, req, res, next) => {
   }
 
   private buildServiceGetterName(int: Interface): string {
-    return `get${pascal(buildInterfaceName(int))}`;
+    return `get${pascal(buildInterfaceName(int, undefined, this.options))}`;
   }
 
   private buildServiceImplName(int: Interface): string {
-    return `My${pascal(buildInterfaceName(int))}`;
+    return `My${pascal(buildInterfaceName(int, undefined, this.options))}`;
   }
 }
 

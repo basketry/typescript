@@ -57,7 +57,7 @@ export class ExpressTypesFactory extends BaseFactory {
   }
 
   private buildServiceGetterName(int: Interface): string {
-    return `get${pascal(buildInterfaceName(int))}`;
+    return `get${pascal(buildInterfaceName(int, undefined, this.options))}`;
   }
 
   private *buildErrorTypes(): Iterable<string> {
@@ -84,6 +84,7 @@ export class ExpressTypesFactory extends BaseFactory {
       yield `${serviceGetterName}: (req: Request, res: Response) => ${buildInterfaceName(
         int,
         this.typesModule,
+        this.options,
       )};`;
     }
     yield '';

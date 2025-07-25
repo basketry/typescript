@@ -116,6 +116,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     )} = (getService: (req: Request, res: Response) => ${buildInterfaceName(
       int,
       this.typesModule,
+      this.options,
     )}): ${this.expressTypesModule}.${buildRequestHandlerTypeName(
       method.name.value,
     )} => async (req, res, next) => {`;
