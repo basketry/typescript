@@ -35,7 +35,7 @@ export const generateTypes: Generator = async (
 ) => {
   const interfaces = service.interfaces
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
-    .map((int) => Array.from(buildInterface(int)).join('\n'))
+    .map((int) => Array.from(buildInterface(int, options)).join('\n'))
     .join('\n\n');
 
   const params = service.interfaces
@@ -130,18 +130,24 @@ function* buildUnion(service: Service, union: Union): Iterable<string> {
   }
 }
 
-function* buildInterface(int: Interface): Iterable<string> {
+function* buildInterface(
+  int: Interface,
+  options?: NamespacedTypescriptOptions,
+): Iterable<string> {
+  const nomenclature = options?.typescript?.interfaceNomenclature ?? 'service';
+  const nomenclatureTitle = title(nomenclature);
+
   yield* buildDescription(
     int.description ?? [
       {
         kind: 'StringLiteral',
-        value: `Interface for the ${title(int.name.value)} Service`,
+        value: `Interface for the ${title(int.name.value)} ${nomenclatureTitle}`,
       },
     ],
 
     int.deprecated?.value,
   );
-  yield `export interface ${buildInterfaceName(int)} {`;
+  yield `export interface ${buildInterfaceName(int, undefined, options)} {`;
   for (const method of int.methods.sort((a, b) =>
     a.name.value.localeCompare(b.name.value),
   )) {
