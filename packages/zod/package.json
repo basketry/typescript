@@ -1,6 +1,6 @@
 {
   "name": "@basketry/zod",
-  "version": "0.1.8",
+  "version": "0.2.0-alpha.1",
   "description": "Basketry generator for generating zod schemas",
   "main": "./lib/index.js",
   "scripts": {
