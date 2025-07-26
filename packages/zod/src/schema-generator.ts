@@ -6,7 +6,7 @@ import { format, from } from '@basketry/typescript/lib/utils';
 import { NamespacedZodOptions } from './types';
 import { SchemaFile } from './schema-file';
 
-export const generateSchemas: Generator = (service, options) => {
+export const generateSchemas: Generator = async (service, options) => {
   return new HookGenerator(service, options).generate();
 };
 
@@ -16,12 +16,12 @@ class HookGenerator {
     private readonly options: NamespacedZodOptions,
   ) {}
 
-  generate(): File[] {
+  async generate(): Promise<File[]> {
     const files: File[] = [];
 
     files.push({
       path: buildFilePath(['schemas.ts'], this.service, this.options),
-      contents: format(
+      contents: await format(
         from(new SchemaFile(this.service, this.options).build()),
         this.options,
       ),

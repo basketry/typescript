@@ -13,7 +13,7 @@ import {
   Parameter,
   Property,
   Type,
-  TypedValue,
+  MemberValue,
   Union,
 } from 'basketry';
 
@@ -66,7 +66,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         const keySetName = ` __${camel(name)}Keys`;
         const keySchemaName = ` __${pascal(name)}KeySchema`;
 
-        if (element.mapProperties?.key.rules.length) {
+        if (element.mapProperties?.key.value.rules.length) {
           if (element.properties.length) {
             yield `const ${keySetName} = new Set([${element.properties
               .map((p) => `'${p.name.value}'`)
@@ -81,7 +81,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         yield `export const ${pascal(name)}Schema = `;
 
         const maxPropCount = element.rules.find(
-          (r) => r.id === 'object-max-properties',
+          (r) => r.id === 'ObjectMaxProperties',
         )?.max.value;
         let emittedPropCount = 0;
 
@@ -128,10 +128,10 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
 
         if (element.mapProperties) {
           const maxRule = element.rules.find(
-            (r) => r.id === 'object-max-properties',
+            (r) => r.id === 'ObjectMaxProperties',
           );
           const minRule = element.rules.find(
-            (r) => r.id === 'object-min-properties',
+            (r) => r.id === 'ObjectMinProperties',
           );
 
           if (maxRule) {
@@ -151,11 +151,11 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         if (element.mapProperties) {
           const { key } = element.mapProperties;
 
-          const schemaName = key.isPrimitive
+          const schemaName = isPrimitive(key)
             ? keySchemaName
-            : `${pascal(key.typeName.value)}Schema`;
+            : `${pascal(key.value.typeName.value)}Schema`;
 
-          if (key.rules.length || !key.isPrimitive) {
+          if (key.value.rules.length || !isPrimitive(key)) {
             yield `.superRefine((data, ctx) => {`;
             yield `  for (const key of Object.keys(data)) {`;
             if (element.properties.length) {
@@ -185,8 +185,9 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         }
         yield `});`;
         break;
-      case 'Union':
-        const complexMembers = element.members.filter((m) => !m.isPrimitive);
+      case 'SimpleUnion':
+      case 'DiscriminatedUnion':
+        const complexMembers = element.members.filter((m) => !isPrimitive(m));
 
         if (complexMembers.length === 1) {
           // If there is only one member, just export the schema for that member
@@ -194,7 +195,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             complexMembers[0].typeName.value,
           )}Schema;`;
         } else {
-          if (element.discriminator) {
+          if (element.kind === 'DiscriminatedUnion') {
             yield `export const ${pascal(
               name,
             )}Schema = ${z()}.discriminatedUnion('${camel(
@@ -205,7 +206,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           }
 
           for (const member of element.members) {
-            if (member.isPrimitive) {
+            if (member.kind === 'PrimitiveValue') {
               yield `${this.buildMemberSchema(member, schema, {
                 preventOptional: true,
               })},`;
@@ -220,7 +221,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         break;
       case 'Enum':
         yield `export const ${pascal(name)}Schema = ${z()}.enum([`;
-        for (const member of element.values) {
+        for (const member of element.members) {
           yield `  '${member.content.value}',`;
         }
         yield `]);`;
@@ -252,7 +253,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
   }
 
   buildMemberSchema(
-    member: Parameter | Property | MapKey | MapValue | TypedValue,
+    member: Parameter | Property | MapKey | MapValue | MemberValue,
     parent: Schema,
     options?: { preventOptional?: boolean; circular?: Schema[] },
   ): string {
@@ -274,7 +275,7 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         );
         if (!httpParam) return false;
 
-        const location = httpParam?.in.value;
+        const location = httpParam?.location.value;
 
         return (
           location === 'header' || location === 'query' || location === 'path'
@@ -286,33 +287,34 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
 
     const schema: string[] = [];
 
-    if (member.isPrimitive) {
-      switch (member.typeName.value) {
+    const value = getValue(member);
+    if (value.kind === 'PrimitiveValue') {
+      switch (value.typeName.value) {
         case 'null':
           schema.push(`${z()}.literal(null)`);
           break;
         case 'string': {
-          const enumRule = member.rules.find((r) => r.id === 'string-enum');
+          // const enumRule = value.rules.find((r) => r.id === 'string-enum');
 
-          if (member.constant) {
-            schema.push(`${z()}.literal('${member.constant.value}')`);
-          } else if (enumRule) {
-            schema.push(
-              `${z()}.enum(${enumRule.values
-                .map((v) => `'${v.value}'`)
-                .join(', ')})`,
-            );
+          if (value.constant) {
+            schema.push(`${z()}.literal('${value.constant.value}')`);
+            // } else if (enumRule) {
+            //   schema.push(
+            //     `${z()}.enum(${enumRule.values
+            //       .map((v) => `'${v.value}'`)
+            //       .join(', ')})`,
+            //   );
           } else {
             schema.push(`${z()}.string()`);
 
-            const minLengthRule = member.rules.find(
-              (r) => r.id === 'string-min-length',
+            const minLengthRule = value.rules.find(
+              (r) => r.id === 'StringMinLength',
             );
-            const maxLengthRule = member.rules.find(
-              (r) => r.id === 'string-max-length',
+            const maxLengthRule = value.rules.find(
+              (r) => r.id === 'StringMaxLength',
             );
-            const patternRule = member.rules.find(
-              (r) => r.id === 'string-pattern',
+            const patternRule = value.rules.find(
+              (r) => r.id === 'StringPattern',
             );
 
             if (
@@ -333,8 +335,8 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             }
           }
 
-          if (member.default) {
-            schema.push(`default('${member.default.value}')`);
+          if (value.default) {
+            schema.push(`default('${value.default.value}')`);
           }
 
           break;
@@ -346,25 +348,25 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         case 'double': {
           const coerce = shouldCoerce() ? `.coerce` : '';
 
-          if (member.constant) {
+          if (value.constant) {
             // TODO: support literal coercion
-            schema.push(`${z()}.literal(${member.constant.value})`);
+            schema.push(`${z()}.literal(${value.constant.value})`);
           } else {
             schema.push(`${z()}${coerce}.number()`);
 
             if (
-              member.typeName.value === 'integer' ||
-              member.typeName.value === 'long'
+              value.typeName.value === 'integer' ||
+              value.typeName.value === 'long'
             ) {
               schema.push(`int()`);
             }
 
-            const gtRule = member.rules.find((r) => r.id === 'number-gt');
-            const gteRule = member.rules.find((r) => r.id === 'number-gte');
-            const ltRule = member.rules.find((r) => r.id === 'number-lt');
-            const lteRule = member.rules.find((r) => r.id === 'number-lte');
-            const multipleOfRule = member.rules.find(
-              (r) => r.id === 'number-multiple-of',
+            const gtRule = value.rules.find((r) => r.id === 'NumberGT');
+            const gteRule = value.rules.find((r) => r.id === 'NumberGTE');
+            const ltRule = value.rules.find((r) => r.id === 'NumberLT');
+            const lteRule = value.rules.find((r) => r.id === 'NumberLTE');
+            const multipleOfRule = value.rules.find(
+              (r) => r.id === 'NumberMultipleOf',
             );
 
             if (gtRule) {
@@ -388,8 +390,8 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
             }
           }
 
-          if (member.default) {
-            schema.push(`default(${member.default.value})`);
+          if (value.default) {
+            schema.push(`default(${value.default.value})`);
           }
 
           break;
@@ -397,15 +399,15 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         case 'boolean': {
           const coerce = shouldCoerce() ? `.coerce` : '';
 
-          if (member.constant) {
+          if (value.constant) {
             // TODO: support literal coercion
-            schema.push(`${z()}.literal(${member.constant.value})`);
+            schema.push(`${z()}.literal(${value.constant.value})`);
           } else {
             schema.push(`${z()}${coerce}.boolean()`);
           }
 
-          if (member.default) {
-            schema.push(`default(${member.default.value})`);
+          if (value.default) {
+            schema.push(`default(${value.default.value})`);
           }
 
           break;
@@ -422,22 +424,22 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
       }
     } else {
       if (
-        camel(member.typeName.value) === camel(parent.name) ||
+        camel(value.typeName.value) === camel(parent.name) ||
         options?.circular?.some(
-          (s) => camel(s.name) === camel(member.typeName.value),
+          (s) => camel(s.name) === camel(value.typeName.value),
         )
       ) {
-        schema.push(`${z()}.lazy(()=>${pascal(member.typeName.value)}Schema)`);
+        schema.push(`${z()}.lazy(()=>${pascal(value.typeName.value)}Schema)`);
       } else {
-        schema.push(`${pascal(member.typeName.value)}Schema`);
+        schema.push(`${pascal(value.typeName.value)}Schema`);
       }
     }
 
-    if (member.isArray) {
+    if (value.isArray) {
       schema.push(`array()`);
 
-      const minRule = member.rules.find((r) => r.id === 'array-min-items');
-      const maxRule = member.rules.find((r) => r.id === 'array-max-items');
+      const minRule = value.rules.find((r) => r.id === 'ArrayMinItems');
+      const maxRule = value.rules.find((r) => r.id === 'ArrayMaxItems');
       // TODO: support array-unique-items
 
       if (minRule) {
@@ -449,13 +451,13 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
     }
 
     if (
-      !isRequired(member) &&
+      !isRequired(value) &&
       (!hasKind(member) ||
         (member.kind !== 'MapKey' && member.kind !== 'MapValue'))
     ) {
       if (
         !options?.preventOptional &&
-        (!member.isPrimitive || !member.default)
+        (value.kind !== 'PrimitiveValue' || !value.default)
       ) {
         schema.push(`optional()`);
       }
@@ -488,17 +490,21 @@ function sort(iterable: Iterable<Schema>): {
       switch (schema.element.kind) {
         case 'Type':
           const propertyMembers = schema.element.properties
-            .filter((p) => !p.isPrimitive)
-            .map((p) => pascal(p.typeName.value));
+            .filter((p) => p.value.kind === 'ComplexValue')
+            .map((p) => pascal(p.value.typeName.value));
 
           const mapKeyMembers =
-            schema.element.mapProperties?.key.isPrimitive === false
-              ? [pascal(schema.element.mapProperties.key.typeName.value)]
+            schema.element.mapProperties?.key.value.kind === 'ComplexValue'
+              ? [pascal(schema.element.mapProperties.key.value.typeName.value)]
               : [];
 
           const mapValueMembers =
-            schema.element.mapProperties?.value.isPrimitive === false
-              ? [pascal(schema.element.mapProperties.value.typeName.value)]
+            schema.element.mapProperties?.value.value.kind === 'ComplexValue'
+              ? [
+                  pascal(
+                    schema.element.mapProperties.value.value.typeName.value,
+                  ),
+                ]
               : [];
 
           complexMembers = [
@@ -509,12 +515,13 @@ function sort(iterable: Iterable<Schema>): {
           break;
         case 'Method':
           complexMembers = schema.element.parameters
-            .filter((p) => !p.isPrimitive)
-            .map((p) => pascal(p.typeName.value));
+            .filter((p) => p.value.kind === 'ComplexValue')
+            .map((p) => pascal(p.value.typeName.value));
           break;
-        case 'Union':
+        case 'SimpleUnion':
+        case 'DiscriminatedUnion':
           complexMembers = schema.element.members
-            .filter((m) => !m.isPrimitive)
+            .filter((m) => m.kind === 'ComplexValue')
             .map((m) => pascal(m.typeName.value));
           break;
         case 'Enum':
@@ -558,7 +565,23 @@ type Schema = {
 };
 
 function hasKind(
-  member: Parameter | Property | MapKey | MapValue | TypedValue,
+  member: Parameter | Property | MapKey | MapValue | MemberValue,
 ): member is Parameter | Property | MapKey | MapValue {
   return 'kind' in member;
+}
+
+function getValue(
+  member: Parameter | Property | MapKey | MapValue | MemberValue,
+): MemberValue {
+  if (member.kind === 'PrimitiveValue' || member.kind === 'ComplexValue') {
+    return member;
+  } else {
+    return member.value;
+  }
+}
+function isPrimitive(
+  member: Parameter | Property | MapKey | MapValue | MemberValue,
+): boolean {
+  const value = getValue(member);
+  return value.kind === 'PrimitiveValue';
 }
