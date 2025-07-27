@@ -1,10 +1,8 @@
 import {
-  MapKey,
   Parameter,
   Property,
-  Scalar,
   Service,
-  TypedValue,
+  MemberValue,
   getEnumByName,
   isRequired,
 } from 'basketry';
@@ -46,17 +44,17 @@ export class Builder {
     const accessor = this.buildAccessor(prop, mode);
     const value = `${parentName}${accessor}`;
 
-    return this.buildValue(prop, mode, value);
+    return this.buildValue(prop.value, mode, value);
   }
 
   buildValue(
-    typedValue: TypedValue,
+    typedValue: MemberValue,
     mode: Mode,
     value: string,
     asType?: string,
   ): string {
     const mapperFn = `${this.buildMapperName(typedValue.typeName.value, mode)}`;
-    if (typedValue.isPrimitive) {
+    if (typedValue.kind === 'PrimitiveValue') {
       if (
         typedValue.typeName.value === 'date' ||
         typedValue.typeName.value === 'date-time'

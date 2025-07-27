@@ -14,42 +14,20 @@
 
 import type * as types from '../types';
 
-/** The over-the-wire representation of the {@link types.AllMaps|AllMaps} type. */
-export type AllMapsDto = {
-  complexKeyMapA: ComplexKeyMapADto;
-  complexKeyMapB: ComplexKeyMapBDto;
-  mixedMapA: MixedMapADto;
-  mixedMapB: MixedMapBDto;
-  mixedMapC: MixedMapCDto;
-  mixedMapD: MixedMapDDto;
-  pureMapA: PureMapADto;
-  pureMapB: PureMapBDto;
-  pureMapC: PureMapCDto;
-  pureMapD: PureMapDDto;
+/** The over-the-wire representation of the {@link types.CreateWidgetString|CreateWidgetString} type. */
+export type CreateWidgetStringDto = {
+  name?: string;
 };
 
-/** The over-the-wire representation of the {@link types.ComplexKeyMapA|ComplexKeyMapA} type. */
-export type ComplexKeyMapADto = Record<string, string>;
-
-/** The over-the-wire representation of the {@link types.ComplexKeyMapB|ComplexKeyMapB} type. */
-export type ComplexKeyMapBDto = Record<types.KeyEnum, string>;
-
-/** The over-the-wire representation of the {@link types.CreateWidgetBody|CreateWidgetBody} type. */
-export type CreateWidgetBodyDto = {
-  name: string;
-};
-
-/** The over-the-wire representation of the {@link types.ExampleMapValue|ExampleMapValue} type. */
-export type ExampleMapValueDto = {
-  bar?: string;
-  'created-at': string;
-  foo?: string;
-};
-
-/** The over-the-wire representation of the {@link types.ExhaustiveParamsBody|ExhaustiveParamsBody} type. */
-export type ExhaustiveParamsBodyDto = {
+/** The over-the-wire representation of the {@link types.ExhaustiveParamsString|ExhaustiveParamsString} type. */
+export type ExhaustiveParamsStringDto = {
   bar?: string;
   foo?: string;
+};
+
+/** The over-the-wire representation of the {@link types.GetGizmosResponse|GetGizmosResponse} type. */
+export type GetGizmosResponseDto = {
+  data?: GizmoDto[];
 };
 
 /** The over-the-wire representation of the {@link types.Gizmo|Gizmo} type. */
@@ -57,90 +35,21 @@ export type GizmoDto = {
   id?: string;
   name?: string;
   size?: types.ProductSize;
-} & Record<string, GizmoMapValueDto | string | types.ProductSize | undefined>;
-
-/** The over-the-wire representation of the {@link types.GizmoMapValue|GizmoMapValue} type. */
-export type GizmoMapValueDto = {
-  bar: string;
-  foo: string;
-};
-
-/** The over-the-wire representation of the {@link types.GizmosResponse|GizmosResponse} type. */
-export type GizmosResponseDto = {
-  data: GizmoDto[];
-};
-
-/** The over-the-wire representation of the {@link types.MixedMapA|MixedMapA} type. */
-export type MixedMapADto = {
-  'obj-id': string;
-  'obj-name'?: string;
-} & Record<string, ExampleMapValueDto | string | undefined>;
-
-/** The over-the-wire representation of the {@link types.MixedMapB|MixedMapB} type. */
-export type MixedMapBDto = {
-  'obj-id': string;
-  'obj-name'?: string;
-  'obj-fizz': ExampleMapValueDto;
-  'obj-buzz': ExampleMapValueDto;
-} & Record<string, ExampleMapValueDto | string | undefined>;
-
-/** The over-the-wire representation of the {@link types.MixedMapC|MixedMapC} type. */
-export type MixedMapCDto = {
-  'obj-id': string;
-  'obj-name'?: string;
-  'obj-fizz': ExampleMapValueDto;
-  'obj-buzz': ExampleMapValueDto;
-} & Record<string, ExampleMapValueDto | string | undefined>;
-
-/** The over-the-wire representation of the {@link types.MixedMapD|MixedMapD} type. */
-export type MixedMapDDto = {
-  'obj-id': string;
-  'obj-name'?: string;
-  'obj-fizz': ExampleMapValueDto;
-  'obj-buzz': ExampleMapValueDto;
-};
-
-/** The over-the-wire representation of the {@link types.PureMapA|PureMapA} type. */
-export type PureMapADto = Record<string, ExampleMapValueDto>;
-
-/** The over-the-wire representation of the {@link types.PureMapB|PureMapB} type. */
-export type PureMapBDto = {
-  'obj-fizz': ExampleMapValueDto;
-  'obj-buzz': ExampleMapValueDto;
-} & Record<string, ExampleMapValueDto>;
-
-/** The over-the-wire representation of the {@link types.PureMapC|PureMapC} type. */
-export type PureMapCDto = {
-  'obj-fizz': ExampleMapValueDto;
-  'obj-buzz': ExampleMapValueDto;
-} & Record<string, ExampleMapValueDto>;
-
-/** The over-the-wire representation of the {@link types.PureMapD|PureMapD} type. */
-export type PureMapDDto = {
-  'obj-fizz': ExampleMapValueDto;
-  'obj-buzz': ExampleMapValueDto;
 };
 
 /** The over-the-wire representation of the {@link types.Widget|Widget} type. */
 export type WidgetDto = {
   buzz?: number;
-  data: WidgetDataDto;
-  fiz: number;
+  fiz?: number;
   fizbuzz?: number;
   foo?: WidgetFooDto;
-  id: string;
+  id?: string;
   name?: string;
   size?: types.ProductSize;
 };
 
-/** The over-the-wire representation of the {@link types.WidgetData|WidgetData} type. */
-export type WidgetDataDto = {
-  fizz: GizmoMapValueDto;
-  buzz: GizmoMapValueDto;
-} & Record<string, GizmoMapValueDto>;
-
 /** The over-the-wire representation of the {@link types.WidgetFoo|WidgetFoo} type. */
 export type WidgetFooDto = {
-  buzz: number;
-  fiz?: number;
+  buzz?: number;
+  fiz?: 123456;
 };

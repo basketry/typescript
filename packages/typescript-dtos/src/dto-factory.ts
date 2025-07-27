@@ -1,11 +1,11 @@
 import {
-  CustomValue,
+  ComplexValue,
   File,
   HttpMethod,
+  MemberValue,
   Method,
   Service,
   Type,
-  TypedValue,
   Union,
   getEnumByName,
   getTypeByName,
@@ -27,7 +27,7 @@ export class ExpressDtoFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     // const handlers = Array.from(this.buildHandlers()).join('\n');
@@ -36,7 +36,7 @@ export class ExpressDtoFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['dtos', 'types.ts'], this.service, this.options),
-      contents: format([preamble, types].join('\n\n'), this.options),
+      contents: await format([preamble, types].join('\n\n'), this.options),
     });
 
     return files;
@@ -72,7 +72,7 @@ export class ExpressDtoFactory extends BaseFactory {
       type.mapProperties && type.mapProperties.requiredKeys.length > 0;
 
     const maxPropCount = type.rules.find(
-      (rule) => rule.id === 'object-max-properties',
+      (rule) => rule.id === 'ObjectMaxProperties',
     )?.max.value;
 
     let emittedProps = 0;
@@ -83,17 +83,19 @@ export class ExpressDtoFactory extends BaseFactory {
       if (hasProps || hasRequiredKeys) {
         yield `{`;
         for (const prop of props) {
-          if (!isRequired(prop)) typeNames.add('undefined');
-          const typeName = this.buildTypeName(prop);
+          if (!isRequired(prop.value)) typeNames.add('undefined');
+          const typeName = this.buildTypeName(prop.value);
           typeNames.add(typeName);
           yield `  '${prop.name.value}'${
-            isRequired(prop) ? '' : '?'
+            isRequired(prop.value) ? '' : '?'
           }: ${typeName};`;
           emittedProps++;
         }
 
         if (type.mapProperties && type.mapProperties.requiredKeys.length > 0) {
-          const valueTypeName = this.buildTypeName(type.mapProperties.value);
+          const valueTypeName = this.buildTypeName(
+            type.mapProperties.value.value,
+          );
           for (const key of type.mapProperties.requiredKeys) {
             yield `  '${key.value}': ${valueTypeName};`;
             emittedProps++;
@@ -109,13 +111,13 @@ export class ExpressDtoFactory extends BaseFactory {
         }
 
         if (hasMapProps && mapValue) {
-          const mapValueType = this.buildTypeName(mapValue);
+          const mapValueType = this.buildTypeName(mapValue.value);
           typeNames.add(mapValueType);
 
           // TODO: prevent this from making each of the enum keys required
 
           const keyTypeName = type.mapProperties
-            ? this.buildTypeName(type.mapProperties.key)
+            ? this.buildTypeName(type.mapProperties.key.value)
             : 'string';
 
           yield `Record<${keyTypeName}, ${Array.from(typeNames)
@@ -130,8 +132,8 @@ export class ExpressDtoFactory extends BaseFactory {
     const typeName = buildTypeName(union);
     yield `/** The over-the-wire representation of the {@link ${this.typesModule}.${typeName}|${typeName}} type. */`;
     yield `export type ${this.builder.buildDtoName(union.name.value)} = ${union.members
-      .map((m: CustomValue | TypedValue): string => {
-        if (m.isPrimitive) {
+      .map((m: MemberValue): string => {
+        if (m.kind === 'PrimitiveValue') {
           switch (m.typeName.value) {
             case 'date':
             case 'date-time':
@@ -146,8 +148,8 @@ export class ExpressDtoFactory extends BaseFactory {
       .join(' | ')}`;
   }
 
-  private buildTypeName(member: TypedValue): string {
-    if (member.isPrimitive) {
+  private buildTypeName(member: MemberValue): string {
+    if (member.kind === 'PrimitiveValue') {
       switch (member.typeName.value) {
         case 'date':
         case 'date-time':
@@ -162,7 +164,7 @@ export class ExpressDtoFactory extends BaseFactory {
       : this.buildCustomTypeName(member);
   }
 
-  private buildCustomTypeName(member: CustomValue): string {
+  private buildCustomTypeName(member: ComplexValue): string {
     const type = getTypeByName(this.service, member.typeName.value);
     const e = getEnumByName(this.service, member.typeName.value);
     const union = getUnionByName(this.service, member.typeName.value);
@@ -186,9 +188,9 @@ export function buildRequestHandlerTypeName(methodName: string): string {
 }
 
 export function hasRequestDto(httpMethod: HttpMethod): boolean {
-  return httpMethod.parameters.some((p) => p.in.value === 'body');
+  return httpMethod.parameters.some((p) => p.location.value === 'body');
 }
 
 export function hasResponseDto(method: Method): boolean {
-  return !!method.returnType;
+  return !!method.returns;
 }

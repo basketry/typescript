@@ -1,12 +1,11 @@
 import {
   File,
   MapProperties,
+  MemberValue,
   Parameter,
   Property,
-  Scalar,
   Service,
   Type,
-  TypedValue,
   Union,
   getTypeByName,
   getUnionByName,
@@ -29,7 +28,7 @@ export class ExpressMapperFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const mappers = Array.from(this.buildMappers()).join('\n');
@@ -38,7 +37,10 @@ export class ExpressMapperFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['dtos', 'mappers.ts'], this.service, this.options),
-      contents: format([preamble, compact, mappers].join('\n\n'), this.options),
+      contents: await format(
+        [preamble, compact, mappers].join('\n\n'),
+        this.options,
+      ),
     });
 
     return files;
@@ -124,7 +126,7 @@ export class ExpressMapperFactory extends BaseFactory {
     this.touchCompact();
     yield `return compact({`;
     for (const prop of type.properties) {
-      yield* this.buildProperty(prop, paramName, mode);
+      yield* this.buildPropertyAssignment(prop, paramName, mode);
     }
     yield `});`;
   }
@@ -137,7 +139,7 @@ export class ExpressMapperFactory extends BaseFactory {
     mode: Mode,
   ) {
     const maxProperties =
-      type.rules.find((r) => r.id === 'object-max-properties')?.max.value ??
+      type.rules.find((r) => r.id === 'ObjectMaxProperties')?.max.value ??
       Number.MAX_SAFE_INTEGER;
     const definedProperties =
       type.properties.length + mapProperties.requiredKeys.length;
@@ -190,7 +192,7 @@ export class ExpressMapperFactory extends BaseFactory {
     for (const prop of type.properties) {
       const { propertyName } = this.buildKey(prop, mode);
       const propertyValue = this.builder.buildValue(
-        prop,
+        prop.value,
         mode,
         buildPropertyName(prop),
       );
@@ -204,7 +206,7 @@ export class ExpressMapperFactory extends BaseFactory {
 
     for (const key of mapProperties.requiredKeys) {
       const value = this.builder.buildValue(
-        makeItRequired(mapProperties.value),
+        makeItRequired(mapProperties.value.value),
         mode,
         camel(key.value),
       );
@@ -224,13 +226,13 @@ export class ExpressMapperFactory extends BaseFactory {
 
     if (reduceMap) {
       const asType = this.buildTypeNames(
-        mapProperties.value.typeName.value,
+        mapProperties.value.value.typeName.value,
         mode,
       ).input;
 
       yield ``;
       yield `return Object.keys(__rest__).reduce((acc, key) => {`;
-      yield `const value = ${this.builder.buildValue(mapProperties.value, mode, `${paramName}[key]`, asType)};`;
+      yield `const value = ${this.builder.buildValue(mapProperties.value.value, mode, `${paramName}[key]`, asType)};`;
       yield `return value === undefined ? acc : { ...acc, [key]: value };`;
       yield `}, __defined__ as ${this.buildTypeNames(type.name.value, mode).output});`;
     }
@@ -244,7 +246,7 @@ export class ExpressMapperFactory extends BaseFactory {
     mode: Mode,
   ): Iterable<string> {
     const maxProperties =
-      type.rules.find((r) => r.id === 'object-max-properties')?.max.value ??
+      type.rules.find((r) => r.id === 'ObjectMaxProperties')?.max.value ??
       Number.MAX_SAFE_INTEGER;
     const definedProperties = mapProperties.requiredKeys.length;
 
@@ -304,7 +306,7 @@ export class ExpressMapperFactory extends BaseFactory {
 
     for (const key of mapProperties.requiredKeys) {
       const value = this.builder.buildValue(
-        makeItRequired(mapProperties.value),
+        makeItRequired(mapProperties.value.value),
         mode,
         camel(key.value),
       );
@@ -327,7 +329,7 @@ export class ExpressMapperFactory extends BaseFactory {
 
     if (reduceMap) {
       const asType = this.buildTypeNames(
-        mapProperties.value.typeName.value,
+        mapProperties.value.value.typeName.value,
         mode,
       ).input;
 
@@ -336,7 +338,7 @@ export class ExpressMapperFactory extends BaseFactory {
 
       yield ``;
       yield `return Object.keys(${sourceName}).reduce((acc, key) => {`;
-      yield `const value = ${this.builder.buildValue(mapProperties.value, mode, `${paramName}[key]`, asType)};`;
+      yield `const value = ${this.builder.buildValue(mapProperties.value.value, mode, `${paramName}[key]`, asType)};`;
       yield `return value === undefined ? acc : { ...acc, [key]: value };`;
       yield `}, ${initialObj} as ${this.buildTypeNames(type.name.value, mode).output});`;
     }
@@ -370,7 +372,7 @@ export class ExpressMapperFactory extends BaseFactory {
     const paramName =
       mode === 'server-inbound' || mode === 'client-outbound' ? 'dto' : 'obj';
     yield `${this.buildSignature(union.name.value, paramName, mode)} {`;
-    if (union.discriminator) {
+    if (union.kind === 'DiscriminatedUnion') {
       yield `switch(${paramName}.${union.discriminator.value}) {`;
       let hasMissableKeys = false;
       for (const member of union.members) {
@@ -380,15 +382,15 @@ export class ExpressMapperFactory extends BaseFactory {
         const prop = type.properties.find(
           (p) => p.name.value === union.discriminator.value,
         );
-        if (!prop?.isPrimitive || !prop?.constant) {
+        if (prop?.value.kind === 'ComplexValue' || !prop?.value.constant) {
           hasMissableKeys = true;
           continue;
         }
 
         const value =
-          typeof prop.constant.value === 'string'
-            ? `'${prop.constant.value}'`
-            : prop.constant.value;
+          typeof prop.value.constant.value === 'string'
+            ? `'${prop.value.constant.value}'`
+            : prop.value.constant.value;
 
         yield `case ${value}: return ${this.builder.buildMapperName(
           member.typeName.value,
@@ -401,7 +403,7 @@ export class ExpressMapperFactory extends BaseFactory {
 
       yield `}`;
     } else {
-      if (union.members.every((m) => m.isPrimitive)) {
+      if (union.members.every((m) => m.kind === 'PrimitiveValue')) {
         const hasDate = union.members.some((m) => m.typeName.value === 'date');
         const hasDateTime = union.members.some(
           (m) => m.typeName.value === 'date-time',
@@ -439,11 +441,14 @@ export class ExpressMapperFactory extends BaseFactory {
         for (const prop of properties.values()) {
           // In this context, only one of the union members will be present;
           // therefore, let's assume that any property could be optional.
-          const notRequired = {
+          const notRequired: Property = {
             ...prop,
-            rules: prop.rules.filter((r) => r.id !== 'required'),
+            value: {
+              ...prop.value,
+              isOptional: { kind: 'TrueLiteral', value: true },
+            },
           };
-          yield* this.buildProperty(notRequired, 'union', mode);
+          yield* this.buildPropertyAssignment(notRequired, 'union', mode);
         }
         yield '}) as any;';
       }
@@ -483,7 +488,7 @@ export class ExpressMapperFactory extends BaseFactory {
     prop: Property,
     mode: Mode,
   ): { propertyName: string; optional: '' | '?' } {
-    const optional = isRequired(prop) ? '' : '?';
+    const optional = isRequired(prop.value) ? '' : '?';
 
     const propertyName =
       mode === 'server-inbound' || mode === 'client-outbound'
@@ -493,13 +498,26 @@ export class ExpressMapperFactory extends BaseFactory {
     return { propertyName, optional };
   }
 
-  private *buildProperty(
+  private *buildPropertyDefinition(
     prop: Property,
     name: string,
     mode: Mode,
   ): Iterable<string> {
     const { propertyName, optional } = this.buildKey(prop, mode);
     const key = `${propertyName}${optional}`;
+
+    const value = this.builder.buildPropertyValue(prop, name, mode);
+
+    yield `${key}: ${value},`;
+  }
+
+  private *buildPropertyAssignment(
+    prop: Property,
+    name: string,
+    mode: Mode,
+  ): Iterable<string> {
+    const { propertyName } = this.buildKey(prop, mode);
+    const key = `${propertyName}`;
 
     const value = this.builder.buildPropertyValue(prop, name, mode);
 
@@ -525,11 +543,8 @@ export class ExpressMapperFactory extends BaseFactory {
   }
 }
 
-function makeItRequired(typedValue: TypedValue): TypedValue {
-  if (isRequired(typedValue)) return typedValue;
-  const { rules, ...rest } = typedValue;
-  return {
-    ...rest,
-    rules: [...rules, { kind: 'ValidationRule', id: 'required' }],
-  };
+function makeItRequired(memberValue: MemberValue): MemberValue {
+  if (isRequired(memberValue)) return memberValue;
+  const { isOptional, ...rest } = memberValue;
+  return { ...rest };
 }

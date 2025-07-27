@@ -12,7 +12,7 @@ export class ExpressReadmeFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const contents = Array.from(this.buildContents()).join('\n');

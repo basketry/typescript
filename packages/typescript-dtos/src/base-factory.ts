@@ -13,7 +13,7 @@ export abstract class BaseFactory {
     protected readonly options?: NamespacedTypescriptDTOOptions,
   ) {}
 
-  abstract build(): File[];
+  abstract build(): Promise<File[]>;
 
   protected readonly serviceInfo = new ServiceInfo(this.service);
   protected readonly builder = new Builder(this.service, this.options);

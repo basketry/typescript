@@ -5,11 +5,11 @@ import { ExpressReadmeFactory } from './readme-factory';
 
 export * from './types';
 
-const generate: Generator = (service, options) => {
+const generate: Generator = async (service, options) => {
   return [
-    ...new ExpressDtoFactory(service, options).build(),
-    ...new ExpressMapperFactory(service, options).build(),
-    ...new ExpressReadmeFactory(service, options).build(),
+    ...(await new ExpressDtoFactory(service, options).build()),
+    ...(await new ExpressMapperFactory(service, options).build()),
+    ...(await new ExpressReadmeFactory(service, options).build()),
   ];
 };
 

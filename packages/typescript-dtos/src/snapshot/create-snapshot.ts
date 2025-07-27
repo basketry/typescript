@@ -13,14 +13,14 @@ const withoutVersion = `${pkg.name}@{{version}}`;
 
 const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 
-const generate = (options: NamespacedTypescriptDTOOptions) => {
-  const service = require('basketry/lib/example-ir.json');
+const generate = async (options: NamespacedTypescriptDTOOptions) => {
+  const service = require('@basketry/ir/lib/example.json');
 
   return [
-    ...generateTypes(deepClone(service), options),
-    ...new ExpressDtoFactory(deepClone(service), options).build(),
-    ...new ExpressMapperFactory(deepClone(service), options).build(),
-    ...new ExpressReadmeFactory(deepClone(service), options).build(),
+    ...(await generateTypes(deepClone(service), options)),
+    ...(await new ExpressDtoFactory(deepClone(service), options).build()),
+    ...(await new ExpressMapperFactory(deepClone(service), options).build()),
+    ...(await new ExpressReadmeFactory(deepClone(service), options).build()),
   ];
 };
 
@@ -46,6 +46,6 @@ const writeFiles = async (snapshotFiles: File[], snapshot: string) => {
   };
 
   for (const [snapshot, options] of Object.entries(snapshots)) {
-    await writeFiles(generate(options), snapshot);
+    await writeFiles(await generate(options), snapshot);
   }
 })();
