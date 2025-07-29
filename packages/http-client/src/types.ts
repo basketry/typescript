@@ -7,6 +7,7 @@ export declare type TypescriptHttpClientOptions = {
   mappersImportPath?: string;
   validatorsImportPath?: string;
   sanitizersImportPath?: string;
+  schemasImportPath?: string;
   validation?: 'zod';
 };
 

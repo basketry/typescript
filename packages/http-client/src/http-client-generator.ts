@@ -99,7 +99,7 @@ function* buildImports(
   }';`;
   if (options?.httpClient?.validation === 'zod') {
     yield `import * as schemas from '${
-      options?.httpClient?.validatorsImportPath ?? './schemas'
+      options?.httpClient?.schemasImportPath ?? './schemas'
     }';`;
   } else {
     yield `import * as validators from '${
