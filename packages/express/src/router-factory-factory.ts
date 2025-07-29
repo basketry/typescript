@@ -10,7 +10,7 @@ export class ExpressRouterFactoryFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const routers = Array.from(this.buildRouterFactory()).join('\n');
@@ -22,7 +22,7 @@ export class ExpressRouterFactoryFactory extends BaseFactory {
         this.service,
         this.options,
       ),
-      contents: format([preamble, routers].join('\n\n'), this.options),
+      contents: await format([preamble, routers].join('\n\n'), this.options),
     });
 
     return files;
@@ -137,14 +137,14 @@ function getHandlers<TRequestHandler extends RequestHandler>(
     >();
 
     for (const int of this.service.interfaces) {
-      for (const path of int.protocols.http) {
+      for (const path of int.protocols?.http ?? []) {
         for (const httpMethod of path.methods) {
           const method = int.methods.find(
             (m) => m.name.value === httpMethod.name.value,
           );
           if (!method) continue;
 
-          const route = this.builder.buildExpressRoute(path.path.value);
+          const route = this.builder.buildExpressRoute(path.pattern.value);
           const routeInfo = routeTable.get(route) ?? new Map();
           routeTable.set(route, routeInfo);
           routeInfo.set(httpMethod.verb.value, { method, int });

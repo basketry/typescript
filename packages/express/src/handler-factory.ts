@@ -7,7 +7,6 @@ import {
   Parameter,
   Service,
   Type,
-  getEnumByName,
   getTypeByName,
   isRequired,
 } from 'basketry';
@@ -24,10 +23,6 @@ import {
 } from '@basketry/typescript';
 import { buildRequestHandlerTypeName } from '@basketry/typescript-dtos/lib/dto-factory';
 import { BaseFactory } from './base-factory';
-import {
-  buildParamsValidatorName,
-  buildTypeValidatorName,
-} from '@basketry/typescript-validators';
 
 type Handler = {
   verb: string;
@@ -41,19 +36,11 @@ export class ExpressHandlerFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const handlers = Array.from(this.buildHanders()).join('\n');
-    const runtime = Array.from([
-      ...this.buildGetHttpStatus(),
-      ...this.buildBooleanCoersion(),
-      ...this.buildDateCoersion(),
-      ...this.buildNumberCoersion(),
-      ...this.buildBooleanFilter(),
-      ...this.buildDateFilter(),
-      ...this.buildNumberFilter(),
-    ]).join('\n');
+    const runtime = Array.from([...this.buildGetHttpStatus()]).join('\n');
     const preamble = Array.from(this.buildPreamble()).join('\n');
 
     files.push({
@@ -62,7 +49,7 @@ export class ExpressHandlerFactory extends BaseFactory {
         this.service,
         this.options,
       ),
-      contents: format(
+      contents: await format(
         [preamble, handlers, runtime].join('\n\n'),
         this.options,
       ),
@@ -75,7 +62,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     const handlers: Handler[] = [];
 
     for (const int of this.service.interfaces) {
-      for (const path of int.protocols.http) {
+      for (const path of int.protocols?.http ?? []) {
         for (const httpMethod of path.methods) {
           const method = int.methods.find(
             (m) => m.name.value === httpMethod.name.value,
@@ -84,12 +71,12 @@ export class ExpressHandlerFactory extends BaseFactory {
 
           handlers.push({
             verb: httpMethod.verb.value,
-            path: path.path.value,
+            path: path.pattern.value,
             name: method.name.value,
             expression: this.buildHandler(
               int,
               method,
-              path.path.value,
+              path.pattern.value,
               httpMethod,
             ),
           });
@@ -114,7 +101,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     const hasParams = method.parameters.length > 0;
     const returnType = getTypeByName(
       this.service,
-      method.returnType?.typeName.value,
+      method.returns?.value.typeName.value,
     );
     const isEnvelope = returnType?.properties.find(
       (prop) => prop.name.value === 'errors',
@@ -134,29 +121,20 @@ export class ExpressHandlerFactory extends BaseFactory {
     )} => async (req, res, next) => {`;
     yield '  try {';
     if (hasParams) {
-      if (this.options.express?.validation === 'zod') {
-        const paramsRequired = method.parameters.some(isRequired);
-        const undefinedString = paramsRequired ? '' : ' | undefined';
-        const optionalString = paramsRequired ? '' : '.optional()';
-        yield `// Parse parameters from request`;
-        yield `const params: ${buildMethodParamsTypeName(method, this.typesModule)}${undefinedString} = ${this.schemasModule}.${buildMethodParamsTypeName(method)}Schema${optionalString}.parse({`;
-        yield* this.buildParamsSourceObject(method, httpMethod);
-        yield `});`;
-        yield '';
-      } else {
-        yield '// Parse parameters from request';
-        yield* this.buildParamSource(method, httpMethod);
-        yield '';
-
-        yield '// Validate request';
-        yield `const reqValidationErrors = ${buildParamsValidatorName(
-          method,
-          this.validatorsModule,
-        )}(params);`;
-        yield `if (reqValidationErrors.length) {`;
-        yield `  return next(${this.errorsModule}.validationErrors(400, reqValidationErrors));`;
-        yield '}';
-        yield '';
+      switch (this.options.express?.validation) {
+        case 'zod':
+        default: {
+          const paramsRequired = method.parameters.some((p) =>
+            isRequired(p.value),
+          );
+          const undefinedString = paramsRequired ? '' : ' | undefined';
+          const optionalString = paramsRequired ? '' : '.optional()';
+          yield `// Parse parameters from request`;
+          yield `const params: ${buildMethodParamsTypeName(method, this.typesModule)}${undefinedString} = ${this.schemasModule}.${buildMethodParamsTypeName(method)}Schema${optionalString}.parse({`;
+          yield* this.buildParamsSourceObject(method, httpMethod);
+          yield `});`;
+          yield '';
+        }
       }
     }
     yield '    // Execute service method';
@@ -212,7 +190,8 @@ export class ExpressHandlerFactory extends BaseFactory {
     }
     yield '  } catch (err) {';
     switch (this.options.express?.validation) {
-      case 'zod': {
+      case 'zod':
+      default: {
         this.touchZodErrorImport();
         yield `if (err instanceof ZodError) {`;
         yield `  const statusCode = res.headersSent ? 500 : 400;`;
@@ -221,9 +200,6 @@ export class ExpressHandlerFactory extends BaseFactory {
         yield `  next(${this.errorsModule}.unhandledException(err));`;
         yield `}`;
         break;
-      }
-      default: {
-        yield `    next(${this.errorsModule}.unhandledException(err));`;
       }
     }
     yield '  }';
@@ -244,20 +220,11 @@ export class ExpressHandlerFactory extends BaseFactory {
 
   private *buildResponseValidationStanza(returnType: Type): Iterable<string> {
     switch (this.options.express?.validation) {
-      case 'zod': {
+      case 'zod':
+      default: {
         yield `// Validate response`;
         yield `${this.schemasModule}.${buildTypeName(returnType)}Schema.parse(result);`;
         break;
-      }
-      default: {
-        yield '// Validate response';
-        yield `const resValidationErrors = ${buildTypeValidatorName(
-          returnType,
-          this.validatorsModule,
-        )}(result);`;
-        yield `if (resValidationErrors.length) {`;
-        yield `  next(${this.errorsModule}.validationErrors(500, resValidationErrors));`;
-        yield '}';
       }
     }
     yield '';
@@ -285,7 +252,7 @@ export class ExpressHandlerFactory extends BaseFactory {
 
       const accessor = this.builder.buildAccessor(param, 'input');
       let valueClause: string = 'undefined';
-      switch (httpParam.in.value) {
+      switch (httpParam.location.value) {
         case 'path':
           valueClause = `req.params${accessor}`;
           break;
@@ -295,33 +262,22 @@ export class ExpressHandlerFactory extends BaseFactory {
         case 'body':
         case 'formData':
           const mapper = this.builder.buildMapperName(
-            param.typeName.value,
+            param.value.typeName.value,
             'input',
           );
 
           valueClause = `${this.mappersModule}.${mapper}(req.body)`;
           break;
         default:
-          valueClause = `req.${httpParam.in.value}${accessor}`;
+          valueClause = `req.${httpParam.location.value}${accessor}`;
           break;
       }
-
-      const cast = (): string => {
-        // We don't need to cast enums if we're using zod
-        if (this.options.express?.validation === 'zod') return '';
-
-        const e = getEnumByName(this.service, param.typeName.value);
-        const castArray = param.isArray ? '[]' : '';
-        return e
-          ? ` as ${this.typesModule}.${buildTypeName(e)}${castArray}`
-          : '';
-      };
 
       yield `  ${buildParameterName(param)}: ${this.withValueCoersion(
         param,
         valueClause,
         httpParam,
-      )}${cast()},`;
+      )},`;
     }
   }
 
@@ -331,7 +287,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     httpParam: HttpParameter,
   ): string {
     function split() {
-      switch (httpParam.array?.value) {
+      switch (httpParam.arrayFormat?.value) {
         case 'ssv':
           return `?.split(" ")`;
         case 'tsv':
@@ -346,87 +302,44 @@ export class ExpressHandlerFactory extends BaseFactory {
       }
     }
 
-    if (param.isPrimitive) {
-      switch (param.typeName.value) {
+    if (param.value.kind === 'PrimitiveValue') {
+      switch (param.value.typeName.value) {
         case 'boolean':
-          if (this.options.express?.validation !== 'zod') {
-            this.touchBooleanCoersion();
-          }
-          if (param.isArray) {
-            if (this.options.express?.validation !== 'zod') {
-              this.touchBooleanFilter();
-            }
-            const coercion =
-              this.options.express?.validation !== 'zod'
-                ? '.map(coerceToBoolean).filter(definedBooleans)'
-                : '';
-
-            return `${valueClause}${split()}${coercion}`;
+          if (param.value.isArray) {
+            return `${valueClause}${split()}`;
           } else {
-            const coercion =
-              this.options.express?.validation !== 'zod'
-                ? 'coerceToBoolean'
-                : '';
-            return `${coercion}(${valueClause})`;
+            return `(${valueClause})`;
           }
         case 'date':
         case 'date-time':
-          if (this.options.express?.validation !== 'zod') {
-            this.touchDateCoersion();
-          }
-          if (param.isArray) {
-            if (this.options.express?.validation !== 'zod') {
-              this.touchDateFilter();
-            }
-            const coercion =
-              this.options.express?.validation !== 'zod'
-                ? '.map(coerceToDate).filter(definedDates)'
-                : '';
-
-            return `${valueClause}${split()}${coercion}`;
+          if (param.value.isArray) {
+            return `${valueClause}${split()}`;
           } else {
-            const coercion =
-              this.options.express?.validation !== 'zod' ? 'coerceToDate' : '';
-            return `${coercion}(${valueClause})`;
+            return `(${valueClause})`;
           }
         case 'double':
         case 'float':
         case 'integer':
         case 'long':
         case 'number':
-          if (this.options.express?.validation !== 'zod') {
-            this.touchNumberCoersion();
-          }
-          if (param.isArray) {
-            if (this.options.express?.validation !== 'zod') {
-              this.touchNumberFilter();
-            }
-            const coercion =
-              this.options.express?.validation !== 'zod'
-                ? '.map(coerceToNumber).filter(definedNumbers)'
-                : '';
-
-            return `${valueClause}${split()}${coercion}`;
+          if (param.value.isArray) {
+            return `${valueClause}${split()}`;
           } else {
-            const coercion =
-              this.options.express?.validation !== 'zod'
-                ? 'coerceToNumber'
-                : '';
-            return `${coercion}(${valueClause})`;
+            return `(${valueClause})`;
           }
         case 'binary':
         case 'null':
         case 'string':
         case 'untyped':
         default:
-          if (param.isArray) {
+          if (param.value.isArray) {
             return `${valueClause}${split()}`;
           } else {
             return valueClause;
           }
       }
     } else {
-      if (param.isArray) {
+      if (param.value.isArray) {
         return `${valueClause}${split()}`;
       } else {
         return valueClause;
@@ -455,97 +368,6 @@ export class ExpressHandlerFactory extends BaseFactory {
     return success;
   }
 }`;
-    }
-  }
-
-  private _needsNumberCoersion = false;
-  private touchNumberCoersion(): void {
-    this._needsNumberCoersion = true;
-  }
-  private *buildNumberCoersion(): Iterable<string> {
-    if (this._needsNumberCoersion) {
-      yield `
-        function coerceToNumber(value: string | number): number;
-        function coerceToNumber(value: string | number | undefined): number | undefined;
-        function coerceToNumber(value: string | number | undefined): number | undefined {
-          if (value === undefined) return undefined;
-            
-          const output = Number(value);
-
-          return isNaN(output) ? (value as any) : output;
-        }
-      `;
-    }
-  }
-  private _needsNumberFilter = false;
-  private touchNumberFilter(): void {
-    this._needsNumberFilter = true;
-  }
-  private *buildNumberFilter(): Iterable<string> {
-    if (this._needsNumberFilter) {
-      yield `const definedNumbers = (value: number | undefined): value is number => value !== undefined`;
-    }
-  }
-
-  private _needsBooleanCoersion = false;
-  private touchBooleanCoersion(): void {
-    this._needsBooleanCoersion = true;
-  }
-  private *buildBooleanCoersion(): Iterable<string> {
-    if (this._needsBooleanCoersion) {
-      yield `
-        function coerceToBoolean(value: string | boolean): boolean;
-        function coerceToBoolean(value: string | boolean | undefined): boolean | undefined;
-        function coerceToBoolean(value: string | boolean | undefined): boolean | undefined {
-          if (value === undefined) return undefined;
-            
-          if (value === 'true') return true;
-          if (value === 'false') return false;
-          
-          return !!value;}
-      `;
-    }
-  }
-  private _needsBooleanFilter = false;
-  private touchBooleanFilter(): void {
-    this._needsBooleanFilter = true;
-  }
-  private *buildBooleanFilter(): Iterable<string> {
-    if (this._needsBooleanFilter) {
-      yield `const definedBooleans = (value: boolean | undefined): value is boolean => value !== undefined`;
-    }
-  }
-
-  private _needsDateCoersion = false;
-  private touchDateCoersion(): void {
-    this._needsDateCoersion = true;
-  }
-  private *buildDateCoersion(): Iterable<string> {
-    if (this._needsDateCoersion) {
-      yield `
-        function coerceToDate(value: string | Date): Date;
-        function coerceToDate(value: string | Date | undefined): Date | undefined;
-        function coerceToDate(value: string | Date | undefined): Date | undefined {
-          if (value === undefined) return undefined;
-            
-          try{
-            const output = new Date(value);
-            return isNaN(output.getTime()) ? (value as any) : output;
-          }
-          catch {
-            return value as any;
-          }
-        }
-      `;
-    }
-  }
-  private _needsDateFilter = false;
-  private touchDateFilter(): void {
-    this._needsDateFilter = true;
-  }
-  private *buildDateFilter(): Iterable<string> {
-    if (this._needsDateFilter) {
-      yield `const definedDates = (value: Date | undefined): value is Date => value !== undefined`;
     }
   }
 }

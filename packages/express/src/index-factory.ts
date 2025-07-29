@@ -9,7 +9,7 @@ export class ExpressIndexFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const contents = Array.from(this.buildContents()).join('\n');
@@ -17,7 +17,7 @@ export class ExpressIndexFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['express', 'index.ts'], this.service, this.options),
-      contents: format([preamble, contents].join('\n\n'), this.options),
+      contents: await format([preamble, contents].join('\n\n'), this.options),
     });
 
     return files;

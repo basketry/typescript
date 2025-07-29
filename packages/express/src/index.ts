@@ -8,14 +8,14 @@ import { ExpressErrorsFactory } from './errors-factory';
 
 export * from './types';
 
-const generate: Generator = (service, options) => {
+const generate: Generator = async (service, options) => {
   return [
-    ...new ExpressIndexFactory(service, options).build(),
-    ...new ExpressTypesFactory(service, options).build(),
-    ...new ExpressRouterFactoryFactory(service, options).build(),
-    ...new ExpressHandlerFactory(service, options).build(),
-    ...new ExpressReadmeFactory(service, options).build(),
-    ...new ExpressErrorsFactory(service, options).build(),
+    ...(await new ExpressIndexFactory(service, options).build()),
+    ...(await new ExpressTypesFactory(service, options).build()),
+    ...(await new ExpressRouterFactoryFactory(service, options).build()),
+    ...(await new ExpressHandlerFactory(service, options).build()),
+    ...(await new ExpressReadmeFactory(service, options).build()),
+    ...(await new ExpressErrorsFactory(service, options).build()),
   ];
 };
 

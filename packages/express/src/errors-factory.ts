@@ -1,4 +1,4 @@
-import { File, getTypeByName, Property, Service, Type } from 'basketry';
+import { File, getTypeByName, Service, Type } from 'basketry';
 import { NamespacedExpressOptions } from './types';
 import { buildFilePath, buildTypeName } from '@basketry/typescript';
 import { format } from '@basketry/typescript/lib/utils';
@@ -9,7 +9,7 @@ export class ExpressErrorsFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const contents = Array.from(this.buildErrors()).join('\n\n');
@@ -17,7 +17,7 @@ export class ExpressErrorsFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['express', 'errors.ts'], this.service, this.options),
-      contents: format([preamble, contents].join('\n\n'), this.options),
+      contents: await format([preamble, contents].join('\n\n'), this.options),
     });
 
     return files;
@@ -65,7 +65,7 @@ export class ExpressErrorsFactory extends BaseFactory {
     const returnTypes = service.interfaces
       .flatMap((int) => int.methods)
       .map((method) =>
-        getTypeByName(service, method.returnType?.typeName.value),
+        getTypeByName(service, method.returns?.value.typeName.value),
       )
       .filter((type): type is Type => type !== undefined);
 
@@ -76,8 +76,9 @@ export class ExpressErrorsFactory extends BaseFactory {
             (type) =>
               type.properties.find(
                 (prop) =>
-                  prop.isArray && prop.name.value.toLowerCase() === 'errors',
-              )?.typeName.value,
+                  prop.value.isArray &&
+                  prop.name.value.toLowerCase() === 'errors',
+              )?.value.typeName.value,
           )
           .filter((typeName): typeName is string => typeName !== undefined),
       ),

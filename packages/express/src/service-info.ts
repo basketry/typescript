@@ -89,14 +89,14 @@ export class ServiceInfo {
     for (const int of this.service.interfaces) {
       for (const method of int.methods) {
         for (const param of method.parameters) {
-          for (const t of this.traverse(param.typeName.value, 'input')) {
+          for (const t of this.traverse(param.value.typeName.value, 'input')) {
             // noop
           }
         }
 
-        if (method.returnType && !method.returnType.isPrimitive) {
+        if (method.returns && method.returns.value.kind === 'ComplexValue') {
           for (const t of this.traverse(
-            method.returnType.typeName.value,
+            method.returns.value.typeName.value,
             'output',
           )) {
             // noop
@@ -130,18 +130,18 @@ export class ServiceInfo {
       yield type;
 
       for (const prop of type.properties) {
-        if (!prop.isPrimitive) {
-          yield* this.traverse(prop.typeName.value, mode);
+        if (prop.value.kind === 'ComplexValue') {
+          yield* this.traverse(prop.value.typeName.value, mode);
         }
       }
 
       if (type.mapProperties) {
         const { key, value } = type.mapProperties;
-        if (!key.isPrimitive) {
-          yield* this.traverse(key.typeName.value, mode);
+        if (key.value.kind === 'ComplexValue') {
+          yield* this.traverse(key.value.typeName.value, mode);
         }
-        if (!value.isPrimitive) {
-          yield* this.traverse(value.typeName.value, mode);
+        if (value.value.kind === 'ComplexValue') {
+          yield* this.traverse(value.value.typeName.value, mode);
         }
       }
     } else if (union) {
