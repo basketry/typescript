@@ -1,7 +1,7 @@
 import { NamespacedTypescriptOptions } from '@basketry/typescript/lib/types';
 
 export declare type TypescriptHttpClientOptions = {
-  includeAuthSchemes?: boolean;
+  // includeAuthSchemes?: boolean;
   typesImportPath?: string;
   dtosImportPath?: string;
   mappersImportPath?: string;

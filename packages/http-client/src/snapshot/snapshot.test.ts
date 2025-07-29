@@ -18,7 +18,7 @@ describe('Http Client Generator', () => {
       // ARRANGE
 
       // ACT
-      const snapshotFiles = generate(options);
+      const snapshotFiles = await generate(options);
 
       // ASSERT
       for (const file of snapshotFiles) {

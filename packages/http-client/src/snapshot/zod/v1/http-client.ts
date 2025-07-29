@@ -73,6 +73,7 @@ export class HttpGizmoService implements types.GizmoService {
 
   /**
    * Only has a summary
+   *
    * @deprecated
    */
   async getGizmos(
@@ -122,6 +123,7 @@ export class HttpGizmoService implements types.GizmoService {
 
   /**
    * Has a summary in addition to a description
+   *
    * Has a description in addition to a summary
    */
   async createGizmo(params?: types.CreateGizmoParams): Promise<types.Gizmo> {
