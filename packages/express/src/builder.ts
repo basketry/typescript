@@ -20,15 +20,22 @@ export class Builder {
     private readonly options: NamespacedExpressOptions,
   ) {}
 
-  buildAccessor(p: Parameter | Property, mode: 'input' | 'output'): string {
+  buildAccessor(
+    p: Parameter | Property,
+    mode: 'input' | 'output',
+    paren: 'brackets' | 'parens' = 'brackets',
+  ): string {
     const typescriptIdiomatic =
       p.kind === 'Parameter' ? buildParameterName(p) : buildPropertyName(p);
 
     const accessor = mode === 'input' ? p.name.value : typescriptIdiomatic;
 
+    const open = paren === 'parens' ? '(' : '[';
+    const close = paren === 'parens' ? ')' : ']';
+
     return accessor === typescriptIdiomatic
       ? `.${accessor}`
-      : `['${accessor}']`;
+      : `${open}'${accessor}'${close}`;
   }
 
   buildPropertyValue(

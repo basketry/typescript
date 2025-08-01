@@ -247,26 +247,29 @@ export const handleExhaustiveParams =
           ?.split(',')
           .map(coerceToBoolean)
           .filter(definedBooleans),
-        headerString: req.header['header-string'],
-        headerEnum: req.header[
-          'header-enum'
-        ] as types.ExhaustiveParamsHeaderEnum,
-        headerNumber: coerceToNumber(req.header['header-number']),
-        headerInteger: coerceToNumber(req.header['header-integer']),
-        headerBoolean: coerceToBoolean(req.header['header-boolean']),
-        headerStringArray: req.header['header-string-array']?.split(','),
-        headerEnumArray: req.header['header-enum-array']?.split(
-          ',',
-        ) as types.ExhaustiveParamsHeaderEnumArray[],
-        headerNumberArray: req.header['header-number-array']
+        headerString: req.header('header-string'),
+        headerEnum: req.header(
+          'header-enum',
+        ) as types.ExhaustiveParamsHeaderEnum,
+        headerNumber: coerceToNumber(req.header('header-number')),
+        headerInteger: coerceToNumber(req.header('header-integer')),
+        headerBoolean: coerceToBoolean(req.header('header-boolean')),
+        headerStringArray: req.header('header-string-array')?.split(','),
+        headerEnumArray: req
+          .header('header-enum-array')
+          ?.split(',') as types.ExhaustiveParamsHeaderEnumArray[],
+        headerNumberArray: req
+          .header('header-number-array')
           ?.split('|')
           .map(coerceToNumber)
           .filter(definedNumbers),
-        headerIntegerArray: req.header['header-integer-array']
+        headerIntegerArray: req
+          .header('header-integer-array')
           ?.split(' ')
           .map(coerceToNumber)
           .filter(definedNumbers),
-        headerBooleanArray: req.header['header-boolean-array']
+        headerBooleanArray: req
+          .header('header-boolean-array')
           ?.split('\t')
           .map(coerceToBoolean)
           .filter(definedBooleans),
