@@ -5,8 +5,8 @@ import {
   Interface,
   isRequired,
   Method,
-  Scalar,
   Service,
+  StringLiteral,
   Type,
   Union,
 } from 'basketry';
@@ -17,7 +17,7 @@ import {
   buildInterfaceName,
   buildMethodName,
   buildMethodParamsTypeName,
-  buildMethodReturnType,
+  buildMethodReturnValue,
   buildParameterName,
   buildPropertyName,
   buildTypeName,
@@ -29,7 +29,7 @@ import { eslintDisable, format, from } from './utils';
 import { header as warning } from './warning';
 import { NamespacedTypescriptOptions } from './types';
 
-export const generateTypes: Generator = (
+export const generateTypes: Generator = async (
   service,
   options?: NamespacedTypescriptOptions,
 ) => {
@@ -74,7 +74,7 @@ export const generateTypes: Generator = (
   return [
     {
       path: buildFilePath(['types.ts'], service, options),
-      contents: format(contents, options),
+      contents: await format(contents, options),
     },
   ];
 };
@@ -91,7 +91,8 @@ function* buildUnions(service: Service): Iterable<string> {
 function* buildUnion(service: Service, union: Union): Iterable<string> {
   const name = buildUnionName(union);
 
-  if (union.discriminator) {
+  yield* buildDescription(union.description, union.deprecated?.value);
+  if (union.kind === 'DiscriminatedUnion') {
     yield `export type ${name} = ${union.members
       .map((customValue) => buildTypeName(customValue))
       .join(' | ')}`;
@@ -106,12 +107,11 @@ function* buildUnion(service: Service, union: Union): Iterable<string> {
         (prop) => camel(prop.name.value) === camel(union.discriminator.value),
       );
 
-      if (!property) continue;
-      if (!property.isPrimitive) continue;
+      if (property?.value.kind !== 'PrimitiveValue') continue;
 
       const propertyName = buildPropertyName(property);
 
-      const constant = property.constant?.value;
+      const constant = property.value.constant?.value;
       if (!constant) continue;
 
       yield '';
@@ -132,8 +132,13 @@ function* buildUnion(service: Service, union: Union): Iterable<string> {
 
 function* buildInterface(int: Interface): Iterable<string> {
   yield* buildDescription(
-    int.description,
-    `Interface for the ${title(int.name.value)} Service`,
+    int.description ?? [
+      {
+        kind: 'StringLiteral',
+        value: `Interface for the ${title(int.name.value)} Service`,
+      },
+    ],
+
     int.deprecated?.value,
   );
   yield `export interface ${buildInterfaceName(int)} {`;
@@ -147,18 +152,14 @@ function* buildInterface(int: Interface): Iterable<string> {
 }
 
 function* buildMethod(method: Method): Iterable<string> {
-  yield* buildDescription(
-    method.description,
-    undefined,
-    method.deprecated?.value,
-  );
-  yield `async ${buildMethodName(method)}(`;
+  yield* buildDescription(method.description, method.deprecated?.value);
+  yield `${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
-  yield `): ${buildMethodReturnType(method)};`;
+  yield `): ${buildMethodReturnValue(method)};`;
 }
 
 function* buildType(type: Type): Iterable<string> {
-  yield* buildDescription(type.description, undefined, type.deprecated?.value);
+  yield* buildDescription(type.description, type.deprecated?.value);
 
   yield `export type ${buildTypeName(type)} =`;
 
@@ -172,7 +173,7 @@ function* buildType(type: Type): Iterable<string> {
     type.mapProperties && type.mapProperties.requiredKeys.length > 0;
 
   const maxPropCount = type.rules.find(
-    (rule) => rule.id === 'object-max-properties',
+    (rule) => rule.id === 'ObjectMaxProperties',
   )?.max.value;
 
   let emittedProps = 0;
@@ -183,22 +184,18 @@ function* buildType(type: Type): Iterable<string> {
     if (hasProps || hasRequiredKeys) {
       yield `{`;
       for (const prop of type.properties) {
-        if (!isRequired(prop)) typeNames.add('undefined');
-        const typeName = buildTypeName(prop);
+        if (!isRequired(prop.value)) typeNames.add('undefined');
+        const typeName = buildTypeName(prop.value);
         typeNames.add(typeName);
-        yield* buildDescription(
-          prop.description,
-          undefined,
-          prop.deprecated?.value,
-        );
+        yield* buildDescription(prop.description, prop.deprecated?.value);
         yield `  ${buildPropertyName(prop)}${
-          isRequired(prop) ? '' : '?'
+          isRequired(prop.value) ? '' : '?'
         }: ${typeName};`;
         emittedProps++;
       }
 
       if (type.mapProperties && type.mapProperties.requiredKeys.length > 0) {
-        const valueTypeName = buildTypeName(type.mapProperties.value);
+        const valueTypeName = buildTypeName(type.mapProperties.value.value);
         for (const key of type.mapProperties.requiredKeys) {
           yield `  ${camel(key.value)}: ${valueTypeName};`;
           emittedProps++;
@@ -214,13 +211,13 @@ function* buildType(type: Type): Iterable<string> {
       }
 
       if (hasMapProps && mapValue) {
-        const mapValueType = buildTypeName(mapValue);
+        const mapValueType = buildTypeName(mapValue.value);
         typeNames.add(mapValueType);
 
         // TODO: prevent this from making each of the enum keys required
 
         const keyTypeName = type.mapProperties
-          ? buildTypeName(type.mapProperties.key)
+          ? buildTypeName(type.mapProperties.key.value)
           : 'string';
 
         yield `Record<${keyTypeName}, ${Array.from(typeNames)
@@ -232,9 +229,9 @@ function* buildType(type: Type): Iterable<string> {
 }
 
 function* buildEnum(e: Enum): Iterable<string> {
-  yield* buildDescription(e.description, undefined, e.deprecated?.value);
-  if (e.values.length) {
-    yield `export type ${buildEnumName(e)} = ${e.values
+  yield* buildDescription(e.description, e.deprecated?.value);
+  if (e.members.length) {
+    yield `export type ${buildEnumName(e)} = ${e.members
       .map((v) => `'${v.content.value}'`)
       .join(' | ')}`;
   } else {
@@ -243,29 +240,32 @@ function* buildEnum(e: Enum): Iterable<string> {
 }
 
 export function* buildDescription(
-  description: string | Scalar<string> | Scalar<string>[] | undefined,
-  defaultValue: string | undefined,
+  description: StringLiteral[] | undefined,
   isDeprecated: boolean | undefined,
 ): Iterable<string> {
-  const desc = description || defaultValue;
-  if (desc || isDeprecated) {
+  const paragraphs: StringLiteral[] = description ?? [];
+  if (isDeprecated) {
+    paragraphs.push({ kind: 'StringLiteral', value: '@deprecated' });
+  }
+
+  if (paragraphs.length === 1 && paragraphs[0].value.length < 100) {
+    yield ``;
+    yield `/** ${paragraphs[0].value} */`;
+  } else if (paragraphs.length > 0) {
     yield ``;
     yield `/**`;
+    for (let i = 0; i < paragraphs.length; i++) {
+      if (i > 0) yield ` *`;
+      const paragraph = paragraphs[i].value;
 
-    if (Array.isArray(desc)) {
-      for (const line of desc) {
-        yield ` * ${line.value}`;
+      for (const line of paragraph.split('\n')) {
+        const sublines = splitString(line, 80);
+
+        for (const subline of sublines) {
+          yield ` * ${subline}`;
+        }
       }
-    } else if (typeof desc === 'string') {
-      yield ` * ${desc}`;
-    } else if (desc) {
-      yield ` * ${desc.value}`;
     }
-
-    if (isDeprecated) {
-      yield ` * @deprecated`;
-    }
-
     yield ` */`;
   }
 }
@@ -285,7 +285,7 @@ export function* buildMethodParams(
   if (!method.parameters.length) return;
 
   const paramName = 'params';
-  const hasRequiredParams = method.parameters.some((p) => isRequired(p));
+  const hasRequiredParams = method.parameters.some((p) => isRequired(p.value));
 
   if (hasRequiredParams) {
     yield `${paramName}:`;
@@ -300,24 +300,20 @@ function* internalBuildParamsType(
   method: Method,
   typeModule?: string,
 ): Iterable<string> {
-  const requiredParams = method.parameters.filter((p) => isRequired(p));
-  const optionalParams = method.parameters.filter((p) => !isRequired(p));
+  const requiredParams = method.parameters.filter((p) => isRequired(p.value));
+  const optionalParams = method.parameters.filter((p) => !isRequired(p.value));
   const sortedParams = [...requiredParams, ...optionalParams];
 
   yield '{';
 
   for (const param of sortedParams) {
     if (param.description) {
-      yield* buildDescription(
-        param.description,
-        undefined,
-        param.deprecated?.value,
-      );
+      yield* buildDescription(param.description, param.deprecated?.value);
     }
 
     yield `    ${buildParameterName(param)}${
-      isRequired(param) ? '' : '?'
-    }: ${buildTypeName(param, typeModule)},`;
+      isRequired(param.value) ? '' : '?'
+    }: ${buildTypeName(param.value, typeModule)},`;
   }
 
   yield '}';
@@ -328,4 +324,25 @@ export function* buildParamsType(
   typeModule?: string,
 ): Iterable<string> {
   yield buildMethodParamsTypeName(method, typeModule);
+}
+
+function splitString(input: string, maxLength: number = 80): string[] {
+  const words = input.split(' ');
+  const chunks: string[] = [];
+  let currentChunk = '';
+
+  for (const word of words) {
+    if ((currentChunk + word).length <= maxLength) {
+      currentChunk += (currentChunk ? ' ' : '') + word;
+    } else {
+      chunks.push(currentChunk);
+      currentChunk = word;
+    }
+  }
+
+  if (currentChunk) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
 }

@@ -7,7 +7,7 @@ const withVersion = `${pkg.name}@${pkg.version}`;
 const withoutVersion = `${pkg.name}@{{version}}`;
 
 export async function* generateFiles(): AsyncIterable<File> {
-  const service = require('basketry/lib/example-ir.json');
+  const service = require('@basketry/ir/lib/example.json');
 
   const options: NamespacedTypescriptOptions = {};
 
@@ -20,10 +20,10 @@ export async function* generateFiles(): AsyncIterable<File> {
   });
 
   for (const engine of engines) {
-    engine.runParser();
-    engine.runGenerators();
+    await engine.runParser();
+    await engine.runGenerators();
 
-    for (const file of engine.output.files) {
+    for (const file of engine.files) {
       if (file.path[0] !== '.gitattributes') {
         yield {
           path: [process.cwd(), 'src', 'snapshot', ...file.path],
