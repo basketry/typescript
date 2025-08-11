@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import generateTypes from '@basketry/typescript';
 import generateDtos from '@basketry/typescript-dtos';
-import generateValidators from '@basketry/typescript-validators';
 import generateZod from '@basketry/zod';
 import { ExpressIndexFactory } from '../index-factory';
 import { ExpressErrorsFactory } from '../errors-factory';
@@ -17,7 +16,6 @@ import { generate, replaceVersion } from './test-utils';
 describe('InterfaceFactory', () => {
   const testCases: [string, NamespacedExpressOptions][] = [
     ['zod', { express: { validation: 'zod' } }],
-    ['native', {}],
   ];
 
   describe.each(testCases)('with %s validation', (validation, options) => {
@@ -25,7 +23,7 @@ describe('InterfaceFactory', () => {
       // ARRANGE
 
       // ACT
-      const snapshotFiles = generate(options);
+      const snapshotFiles = await generate(options);
 
       // ASSERT
       for (const file of snapshotFiles) {

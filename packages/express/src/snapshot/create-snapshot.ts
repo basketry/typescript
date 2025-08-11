@@ -20,6 +20,6 @@ const writeFiles = async (snapshotFiles: File[], snapshot: string) => {
 
 (async () => {
   for (const [snapshot, options] of Object.entries(snapshots)) {
-    await writeFiles(generate(options), snapshot);
+    await writeFiles(await generate(options), snapshot);
   }
 })();

@@ -34,7 +34,7 @@ export class ExpressTypesFactory extends BaseFactory {
     super(service, options);
   }
 
-  build(): File[] {
+  async build(): Promise<File[]> {
     const files: File[] = [];
 
     const types = Array.from(this.buildTypes()).join('\n');
@@ -42,7 +42,7 @@ export class ExpressTypesFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['express', 'types.ts'], this.service, this.options),
-      contents: format([preamble, types].join('\n\n'), this.options),
+      contents: await format([preamble, types].join('\n\n'), this.options),
     });
 
     return files;
@@ -121,7 +121,7 @@ export class ExpressTypesFactory extends BaseFactory {
     const types: MethodTypes[] = [];
 
     for (const int of this.service.interfaces) {
-      for (const path of int.protocols.http) {
+      for (const path of int.protocols?.http ?? []) {
         for (const httpMethod of path.methods) {
           const method = int.methods.find(
             (m) => m.name.value === httpMethod.name.value,
@@ -129,7 +129,7 @@ export class ExpressTypesFactory extends BaseFactory {
           if (!method) continue;
 
           types.push(
-            this.buildMethodTypes(int, method, path.path.value, httpMethod),
+            this.buildMethodTypes(int, method, path.pattern.value, httpMethod),
           );
         }
       }
@@ -172,8 +172,8 @@ export class ExpressTypesFactory extends BaseFactory {
   }
 
   private *buildResponseBody(method: Method): Iterable<string> {
-    if (method.returnType) {
-      yield this.buildDtoName(method.returnType.typeName.value);
+    if (method.returns?.value.typeName.value) {
+      yield this.buildDtoName(method.returns?.value.typeName.value);
     } else {
       yield 'void';
     }
@@ -182,7 +182,7 @@ export class ExpressTypesFactory extends BaseFactory {
   private *buildRouteParams(httpMethod: HttpMethod): Iterable<string> {
     yield '{';
     for (const param of httpMethod.parameters) {
-      if (param.in.value === 'path') {
+      if (param.location.value === 'path') {
         // TODO: coerce non-string values to correct type
         yield `'${param.name.value}': string;`;
       }
@@ -196,7 +196,7 @@ export class ExpressTypesFactory extends BaseFactory {
   ): Iterable<string> {
     yield '{';
     for (const param of httpMethod.parameters) {
-      if (param.in.value === 'query') {
+      if (param.location.value === 'query') {
         const optional = httpIsRequired(param, method) ? '' : '?';
         // TODO: coerce non-string values to correct type
         yield `'${param.name.value}'${optional}: string;`;
@@ -210,7 +210,7 @@ export class ExpressTypesFactory extends BaseFactory {
     httpMethod: HttpMethod,
   ): Iterable<string> {
     const httpBodyParam = httpMethod.parameters.find(
-      (p) => p.in.value === 'body',
+      (p) => p.location.value === 'body',
     );
 
     if (httpBodyParam) {
@@ -220,7 +220,7 @@ export class ExpressTypesFactory extends BaseFactory {
 
       if (methodParam) {
         // TODO: consider direct enum response types
-        yield this.buildDtoName(methodParam.typeName.value);
+        yield this.buildDtoName(methodParam.value.typeName.value);
       } else {
         yield 'never';
       }
@@ -236,5 +236,5 @@ function httpIsRequired(param: HttpParameter, method: Method): boolean {
   );
 
   if (!methodParam) return false;
-  return isRequired(methodParam);
+  return isRequired(methodParam.value);
 }
