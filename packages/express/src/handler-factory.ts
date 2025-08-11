@@ -250,7 +250,11 @@ export class ExpressHandlerFactory extends BaseFactory {
       );
       if (!httpParam) continue;
 
-      const accessor = this.builder.buildAccessor(param, 'input');
+      const accessor = this.builder.buildAccessor(
+        param,
+        'input',
+        httpParam.in.value === 'header' ? 'parens' : 'brackets',
+      );
       let valueClause: string = 'undefined';
       switch (httpParam.location.value) {
         case 'path':
