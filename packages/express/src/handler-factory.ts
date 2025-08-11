@@ -253,7 +253,7 @@ export class ExpressHandlerFactory extends BaseFactory {
       const accessor = this.builder.buildAccessor(
         param,
         'input',
-        httpParam.in.value === 'header' ? 'parens' : 'brackets',
+        httpParam.location.value === 'header' ? 'parens' : 'brackets',
       );
       let valueClause: string = 'undefined';
       switch (httpParam.location.value) {
