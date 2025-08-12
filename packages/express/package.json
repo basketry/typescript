@@ -54,7 +54,7 @@
     "zod": "^3.24.1"
   },
   "dependencies": {
-    "@basketry/typescript": "^0.2.0",
+    "@basketry/typescript": "^0.2.1",
     "@basketry/typescript-dtos": "^0.2.0",
     "basketry": "^0.2.0",
     "case": "^1.6.3",
