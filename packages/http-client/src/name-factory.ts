@@ -1,6 +1,7 @@
 import { Interface } from 'basketry';
 import { buildInterfaceName } from '@basketry/typescript';
 import { pascal } from 'case';
+import { NamespacedTypescriptHttpClientOptions } from './types';
 
 function prefix(clientModule: string | undefined, name: string) {
   return clientModule ? `${clientModule}.${name}` : name;
@@ -9,6 +10,10 @@ function prefix(clientModule: string | undefined, name: string) {
 export function buildHttpClientName(
   int: Interface,
   clientModule?: string,
+  options?: NamespacedTypescriptHttpClientOptions,
 ): string {
-  return prefix(clientModule, pascal(`http_${buildInterfaceName(int)}`));
+  return prefix(
+    clientModule,
+    pascal(`http_${buildInterfaceName(int, undefined, options)}`),
+  );
 }
