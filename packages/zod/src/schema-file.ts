@@ -294,16 +294,8 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           schema.push(`${z()}.literal(null)`);
           break;
         case 'string': {
-          // const enumRule = value.rules.find((r) => r.id === 'string-enum');
-
           if (value.constant) {
             schema.push(`${z()}.literal('${value.constant.value}')`);
-            // } else if (enumRule) {
-            //   schema.push(
-            //     `${z()}.enum(${enumRule.values
-            //       .map((v) => `'${v.value}'`)
-            //       .join(', ')})`,
-            //   );
           } else {
             schema.push(`${z()}.string()`);
 
