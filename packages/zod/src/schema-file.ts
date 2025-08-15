@@ -442,6 +442,10 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
       if (maxRule) schema.push(`max(${maxRule.max.value})`);
     }
 
+    if (value.isNullable) {
+      schema.push(`nullable()`);
+    }
+
     if (
       !isRequired(value) &&
       (!hasKind(member) ||
