@@ -299,6 +299,43 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           } else {
             schema.push(`${z()}.string()`);
 
+            const formatRule = value.rules.find((r) => r.id === 'StringFormat');
+            switch (formatRule?.format.value.toLocaleLowerCase()) {
+              case 'email':
+                schema.push(`email()`);
+                break;
+              case 'url':
+                schema.push(`url()`);
+                break;
+              case 'emoji':
+                schema.push(`emoji()`);
+                break;
+              case 'uuid':
+                schema.push(`uuid()`);
+                break;
+              case 'nanoid':
+                schema.push(`nanoid()`);
+                break;
+              case 'cuid':
+                schema.push(`cuid()`);
+                break;
+              case 'cuid2':
+                schema.push(`cuid2()`);
+                break;
+              case 'ulid':
+                schema.push(`ulid()`);
+                break;
+              case 'ip':
+                schema.push(`ip()`);
+                break;
+              case 'cidr':
+                schema.push(`cidr()`);
+                break;
+              case 'base64':
+                schema.push(`base64()`);
+                break;
+            }
+
             const minLengthRule = value.rules.find(
               (r) => r.id === 'StringMinLength',
             );
