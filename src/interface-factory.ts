@@ -196,7 +196,7 @@ function* buildType(type: Type): Iterable<string> {
         yield* buildDescription(prop.description, prop.deprecated?.value);
         yield `  ${buildPropertyName(prop)}${
           isRequired(prop.value) ? '' : '?'
-        }: ${typeName};`;
+        }: ${typeName}${prop.value.isNullable ? ` | null` : ''};`;
         emittedProps++;
       }
 
@@ -319,7 +319,7 @@ function* internalBuildParamsType(
 
     yield `    ${buildParameterName(param)}${
       isRequired(param.value) ? '' : '?'
-    }: ${buildTypeName(param.value, typeModule)},`;
+    }: ${buildTypeName(param.value, typeModule)}${param.value.isNullable ? ` | null` : ''},`;
   }
 
   yield '}';
