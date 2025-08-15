@@ -88,7 +88,7 @@ export class ExpressDtoFactory extends BaseFactory {
           typeNames.add(typeName);
           yield `  '${prop.name.value}'${
             isRequired(prop.value) ? '' : '?'
-          }: ${typeName};`;
+          }: ${typeName}${prop.value.isNullable ? ` | null` : ''};`;
           emittedProps++;
         }
 
