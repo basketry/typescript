@@ -107,6 +107,14 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           }
           yield `})`;
 
+          const strictRule = element.rules.find(
+            (r) => r.id === 'ObjectAdditionalProperties',
+          );
+
+          if (strictRule) {
+            yield `.strict()`;
+          }
+
           if (
             element.mapProperties &&
             (typeof maxPropCount === 'undefined' ||
