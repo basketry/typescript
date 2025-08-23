@@ -1,5 +1,5 @@
 import { generateSchemas } from '../schema-generator';
-import { Engine, File } from 'basketry';
+import { File, NodeEngine } from 'basketry';
 import { NamespacedZodOptions } from '../types';
 
 const pkg = require('../../package.json');
@@ -11,7 +11,7 @@ export async function* generateFiles(): AsyncIterable<File> {
 
   const options: NamespacedZodOptions = {};
 
-  const { engines } = await Engine.load({
+  const { engines } = await NodeEngine.load({
     sourcePath: 'source/path.ext',
     sourceContent: JSON.stringify(service),
     parser: (x) => ({ service: JSON.parse(x), violations: [] }),
