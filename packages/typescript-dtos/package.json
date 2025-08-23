@@ -3,6 +3,9 @@
   "version": "0.2.1",
   "description": "Basketry generator for generating Express JS routers",
   "main": "./lib/index.js",
+  "bin": {
+    "basketry-typescript-dtos": "./lib/rpc.js"
+  },
   "scripts": {
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
     "clean": "run-s -s clean:*",
@@ -13,6 +16,7 @@
     "start": "node ./lib/index.js",
     "prebuild": "run-s -s clean lint",
     "build": "tsc",
+    "postbuild": "chmod +x ./lib/rpc.js",
     "lint:eslint": "eslint src/**/*.*",
     "fix:eslint": "eslint --fix src/**/*.*",
     "lint:prettier": "prettier -c .",
