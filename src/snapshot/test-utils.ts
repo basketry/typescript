@@ -1,5 +1,5 @@
 import { generateTypes } from '../interface-factory';
-import { Engine, File } from 'basketry';
+import { NodeEngine, File } from 'basketry';
 import { NamespacedTypescriptOptions } from '../types';
 
 const pkg = require('../../package.json');
@@ -11,7 +11,7 @@ export async function* generateFiles(): AsyncIterable<File> {
 
   const options: NamespacedTypescriptOptions = {};
 
-  const { engines } = await Engine.load({
+  const { engines } = await NodeEngine.load({
     sourcePath: 'source/path.ext',
     sourceContent: JSON.stringify(service),
     parser: (x) => ({ service: JSON.parse(x), violations: [] }),
