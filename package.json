@@ -3,9 +3,13 @@
   "version": "0.2.2",
   "description": "Basketry generator for generating Typescript interfaces",
   "main": "./lib/index.js",
+  "bin": {
+    "basketry-typescript": "./lib/rpc.js"
+  },
   "scripts": {
     "prebuild": "run-s -s clean lint",
     "build": "tsc",
+    "postbuild": "chmod +x ./lib/rpc.js",
     "clean": "run-s -s clean:*",
     "clean:coverage": "rimraf coverage",
     "clean:output": "rimraf lib",
