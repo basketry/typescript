@@ -20,10 +20,7 @@ export class ExpressReadmeFactory extends BaseFactory {
 
     files.push({
       path: buildFilePath(['dtos', 'README.md'], this.service, this.options),
-      contents: formatMarkdown(
-        [contents].join('\n\n'),
-        this.options,
-      ) as any as string, // Prettier 3 hack until basketry types support promises
+      contents: await formatMarkdown([contents].join('\n\n'), this.options),
     });
 
     return files;
