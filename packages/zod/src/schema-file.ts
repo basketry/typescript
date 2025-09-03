@@ -195,34 +195,27 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
         break;
       case 'SimpleUnion':
       case 'DiscriminatedUnion':
-        const complexMembers = element.members.filter((m) => !isPrimitive(m));
-
-        if (complexMembers.length === 1) {
-          // If there is only one member, just export the schema for that member
-          yield `export const ${pascal(name)}Schema = ${pascal(
-            complexMembers[0].typeName.value,
-          )}Schema;`;
-        } else {
-          if (element.kind === 'DiscriminatedUnion') {
-            yield `export const ${pascal(
-              name,
-            )}Schema = ${z()}.discriminatedUnion('${camel(
-              element.discriminator.value,
-            )}', [`;
+        const buildMember = (member: MemberValue): string => {
+          if (member.kind === 'PrimitiveValue') {
+            return `${this.buildMemberSchema(member, schema, {
+              preventOptional: true,
+            })},`;
           } else {
-            yield `export const ${pascal(name)}Schema = ${z()}.union([`;
+            return `${pascal(member.typeName.value)}Schema,`;
           }
+        };
 
-          for (const member of element.members) {
-            if (member.kind === 'PrimitiveValue') {
-              yield `${this.buildMemberSchema(member, schema, {
-                preventOptional: true,
-              })},`;
-            } else {
-              yield `${pascal(member.typeName.value)}Schema,`;
-            }
-          }
+        if (element.members.length === 1) {
+          // If there is only one member, just export the schema for that member
+          yield buildMember(element.members[0]);
+        } else {
+          const zodMethod =
+            element.kind === 'DiscriminatedUnion'
+              ? 'discriminatedUnion'
+              : 'union';
 
+          yield `export const ${pascal(name)}Schema = ${z()}.${zodMethod}([`;
+          for (const member of element.members) yield buildMember(member);
           yield `]);`;
         }
 
