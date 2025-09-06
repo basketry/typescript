@@ -28,36 +28,52 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
         shell: bash
       - name: Bump version
+        id: version
+        shell: bash
         run: |
-          npm version --workspace ${{ github.event.inputs.workspace }} ${{ github.event.inputs.newversion }} --preid ${{ github.event.inputs.preid }} --git-tag-version false
-          if [[ -z $(git ls-remote origin $(jq -r .version < package.json)) ]]; then echo "Created new version $(jq -r .version < package.json)"; else echo "Tag $(jq -r .version < package.json) already exists!" && exit 1 ; fi
-          git checkout -b bump-version-$(jq -r .version < package.json)
+          printf 'prev_version=%s\n' "$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+
+          npm version ${{ github.event.inputs.newversion }} \
+            --workspace ${{ github.event.inputs.workspace }} \
+            --preid ${{ github.event.inputs.preid }} \
+            --git-tag-version false
+
+          printf 'next_version=%s\n' "$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+
+        # if [[ -z $(git ls-remote origin $(jq -r .version < package.json)) ]]; then echo "Created new version $(jq -r .version < package.json)"; else echo "Tag $(jq -r .version < package.json) already exists!" && exit 1 ; fi
+        # git checkout -b bump-version-$(jq -r .version < package.json)
+
+      - name: print versions
         shell: bash
-      - name: Commit
-        run: "git commit -am \"$(jq -r .version < package.json)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\""
-        shell: bash
-      - name: Push
-        run: git push origin $(git branch --show-current)
-        shell: bash
-      - name: Pull request
         run: |
-          gh pr create --base ${{ github.ref_name }} --title "Bump version to $(jq -r .version < package.json)" --body "### If you merge this PR
+          echo "Previous version: ${{ steps.version.outputs.prev_version }}"
+          echo "Next version: ${{ steps.version.outputs.next_version }}"
 
-          - The package version will be updated to \`$(jq -r .version < package.json)\` on branch \`${GITHUB_REF##*/}\`.
-          - The git tag \`v$(jq -r .version < package.json)\` will be created in this repository.
-          - \`$(jq -r .name < package.json)@$(jq -r .version < package.json)\` will be published to NPM.
-          $(if [[ $(jq .version < package.json) =~ [0-9]+\.[0-9]+\.[0-9]+\-([^\.]+) ]]; then echo "  - dist-tag \`${BASH_REMATCH[1]}\` will point to version \`$(jq -r .version < package.json)\`
-            - dist-tag \`latest\` will remain unchanged
-            - [Learn more about NPM dist-tags](https://docs.npmjs.com/cli/commands/npm-dist-tag)"; fi)
+      # - name: Commit
+      #   run: "git commit -am \"$(jq -r .version < package.json)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\""
+      #   shell: bash
+      # - name: Push
+      #   run: git push origin $(git branch --show-current)
+      #   shell: bash
+      # - name: Pull request
+      #   run: |
+      #     gh pr create --base ${{ github.ref_name }} --title "Bump version to $(jq -r .version < package.json)" --body "### If you merge this PR
 
-          #### ⚠️ NOTICE ⚠️
+      #     - The package version will be updated to \`$(jq -r .version < package.json)\` on branch \`${GITHUB_REF##*/}\`.
+      #     - The git tag \`v$(jq -r .version < package.json)\` will be created in this repository.
+      #     - \`$(jq -r .name < package.json)@$(jq -r .version < package.json)\` will be published to NPM.
+      #     $(if [[ $(jq .version < package.json) =~ [0-9]+\.[0-9]+\.[0-9]+\-([^\.]+) ]]; then echo "  - dist-tag \`${BASH_REMATCH[1]}\` will point to version \`$(jq -r .version < package.json)\`
+      #       - dist-tag \`latest\` will remain unchanged
+      #       - [Learn more about NPM dist-tags](https://docs.npmjs.com/cli/commands/npm-dist-tag)"; fi)
 
-          The published package will contain all changes on branch \`${GITHUB_REF##*/}\` at the time this PR is merged _even if they were merged after this PR was created_.
+      #     #### ⚠️ NOTICE ⚠️
 
-          ### If you close this PR
+      #     The published package will contain all changes on branch \`${GITHUB_REF##*/}\` at the time this PR is merged _even if they were merged after this PR was created_.
 
-          - The version will not change and nothing will be published.
-          - Future attempts to create the same version will fail until this branch is deleted." --assignee "${GITHUB_ACTOR}"
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
+      #     ### If you close this PR
+
+      #     - The version will not change and nothing will be published.
+      #     - Future attempts to create the same version will fail until this branch is deleted." --assignee "${GITHUB_ACTOR}"
+      #   shell: bash
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
