@@ -40,17 +40,19 @@ jobs:
             --git-tag-version false
 
           printf 'next=%s\n' "$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
-          printf 'tag=%s\n' "${{ github.event.inputs.workspace }}/$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
-
-        # if [[ -z $(git ls-remote origin ${{ steps.version.outputs.next }}) ]]; then echo "Created new version $(jq -r .version < package.json)"; else echo "Tag $(jq -r .version < package.json) already exists!" && exit 1 ; fi
-        # git checkout -b bump-version-$(jq -r .version < package.json)
+          printf 'tag=%s\n' "${{ github.event.inputs.workspace }}/v$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+          printf 'branch=%s\n' "bump-version-${{ github.event.inputs.workspace }}-$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
 
       - name: print versions
         shell: bash
         run: |
-          echo "Previous version: ${{ steps.version.outputs.prev }}"
-          echo "Next version: ${{ steps.version.outputs.next }}"
-          echo "Tag: ${{ steps.version.outputs.tag }}"
+          if [[ -z $(git ls-remote origin ${{ steps.version.outputs.tag }}) ]]; then
+            echo "Created new version ${{ steps.version.outputs.tag }}";
+          else
+            echo "Tag ${{ steps.version.outputs.tag }} already exists!" && exit 1;
+          fi
+
+          git checkout -b ${{ steps.version.outputs.branch }}
 
       # - name: Commit
       #   run: "git commit -am \"$(jq -r .version < package.json)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\""
