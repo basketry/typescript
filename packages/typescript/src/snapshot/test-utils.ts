@@ -26,7 +26,14 @@ export async function* generateFiles(): AsyncIterable<File> {
     for (const file of engine.files) {
       if (file.path[0] !== '.gitattributes') {
         yield {
-          path: [process.cwd(), 'src', 'snapshot', ...file.path],
+          path: [
+            process.cwd(),
+            'packages',
+            'typescript',
+            'src',
+            'snapshot',
+            ...file.path,
+          ],
           contents: file.contents.replace(withVersion, withoutVersion),
         };
       }

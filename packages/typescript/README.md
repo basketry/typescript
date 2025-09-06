@@ -1,9 +1,9 @@
 [![main](https://github.com/basketry/typescript/workflows/build/badge.svg?branch=main&event=push)](https://github.com/basketry/typescript/actions?query=workflow%3Abuild+branch%3Amain+event%3Apush)
-[![master](https://img.shields.io/npm/v/@basketry/typescript)](https://www.npmjs.com/package/@basketry/typescript)
+[![main](https://img.shields.io/npm/v/@basketry/typescript)](https://www.npmjs.com/package/@basketry/typescript)
 
 # Typescript
 
-[Basketry generator](https://github.com/basketry/basketry) for generating Typescript interfaces. This parser can be coupled with any Basketry parser.
+[Basketry](https://basketry.io) generator for generating Typescript interfaces. This parser can be coupled with any Basketry parser.
 
 ## Quick Start
 
