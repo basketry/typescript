@@ -1,0 +1,36 @@
+{
+  "name": "@basketry/typescript",
+  "version": "0.2.3",
+  "description": "Basketry generator for generating Typescript interfaces",
+  "main": "./lib/index.js",
+  "bin": {
+    "basketry-typescript": "./lib/rpc.js"
+  },
+  "scripts": {
+    "prebuild": "run-s -s clean",
+    "build": "tsc",
+    "postbuild": "chmod +x ./lib/rpc.js",
+    "clean": "run-s -s clean:*",
+    "clean:coverage": "rimraf coverage",
+    "clean:output": "rimraf lib",
+    "create-snapshot": "ts-node ./src/snapshot/create-snapshot.ts",
+    "prepack": "run-s -s build"
+  },
+  "keywords": [],
+  "author": "Steve Konves",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basketry/typescript.git",
+    "directory": "packages/typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/basketry/typescript/issues"
+  },
+  "homepage": "https://basketry.io/docs/components/@basketry/typescript",
+  "funding": "https://github.com/sponsors/basketry",
+  "dependencies": {
+    "basketry": "^0.2.1",
+    "case": "^1.6.3"
+  }
+}

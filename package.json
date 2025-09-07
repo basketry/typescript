@@ -1,31 +1,20 @@
 {
-  "name": "@basketry/typescript",
-  "version": "0.2.3",
-  "description": "Basketry generator for generating Typescript interfaces",
-  "main": "./lib/index.js",
-  "bin": {
-    "basketry-typescript": "./lib/rpc.js"
-  },
+  "name": "@basketry/typescript-monorepo",
+  "version": "0.0.0",
+  "description": "Monorepo for all Basketry Typescript packages",
+  "private": true,
   "scripts": {
-    "prebuild": "run-s -s clean lint",
-    "build": "tsc",
-    "postbuild": "chmod +x ./lib/rpc.js",
-    "clean": "run-s -s clean:*",
-    "clean:coverage": "rimraf coverage",
-    "clean:output": "rimraf lib",
-    "create-snapshot": "ts-node ./src/snapshot/create-snapshot.ts",
+    "prebuild": "npm run clean --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
     "fix": "run-s -s fix:*",
     "fix:eslint": "eslint --fix",
     "fix:prettier": "prettier -w . --ignore-path .gitignore",
     "lint": "run-s -s lint:*",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier -c . --ignore-path .gitignore",
-    "prepack": "run-s -s build",
-    "start": "node ./lib/index.js",
-    "pretest": "run-s -s clean",
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest"
   },
-  "keywords": [],
   "author": "Steve Konves",
   "license": "MIT",
   "repository": {
@@ -53,8 +42,7 @@
     "ts-node": "^10.4.0",
     "typescript": "^5.8.3"
   },
-  "dependencies": {
-    "basketry": "^0.2.1",
-    "case": "^1.6.3"
-  }
+  "workspaces": [
+    "packages/*"
+  ]
 }
