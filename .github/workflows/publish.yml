@@ -33,6 +33,7 @@ jobs:
         run: |
           prev_map=$(npm query .workspace | jq -c 'map({key:.name, value:.version}) | from_entries')
           printf 'map=%s\n' "$prev_map" >> "$GITHUB_OUTPUT"
+          echo "Debug - map: $prev_map"
 
       # Checkout HEAD (the PR’s proposed state)
       - name: Checkout HEAD
@@ -48,6 +49,7 @@ jobs:
         run: |
           curr_map=$(npm query .workspace | jq -c 'map({key:.name, value:.version}) | from_entries')
           printf 'map=%s\n' "$curr_map" >> "$GITHUB_OUTPUT"
+          echo "Debug - map: $curr_map"
 
       # Diff maps -> list of changed packages; expose as job outputs
       - name: Diff versions and expose outputs
