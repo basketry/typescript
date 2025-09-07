@@ -64,7 +64,7 @@ jobs:
 
       - name: Pull request
         run: |
-          gh pr create --base ${{ github.ref_name }} --title "Bump ${{ github.event.inputs.workspace }} version to ${{ steps.version.outputs.next }}" --body "### If you merge this PR
+          gh pr create --base ${{ github.ref_name }} --title "Release ${{ steps.version.outputs.tag }}" --body "### If you merge this PR
 
           - The package version of \`${{ github.event.inputs.workspace }}\` will be updated to \`${{ steps.version.outputs.next }}\` on branch \`${GITHUB_REF##*/}\`.
           - The git tag \`${{ steps.version.outputs.tag }}\` will be created in this repository.
