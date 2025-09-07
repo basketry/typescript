@@ -14,6 +14,11 @@ jobs:
       matrix: ${{ steps.diff.outputs.matrix }} # JSON object: {"include":[{workspace, version}]}
 
     steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
       # Checkout BASE (what's currently on the target branch)
       - name: Checkout base
         uses: actions/checkout@v4
