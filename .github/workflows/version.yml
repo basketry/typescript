@@ -1,8 +1,16 @@
+# local workflow
+
 name: version
 
 on:
   workflow_dispatch:
     inputs:
+      workspace:
+        description: 'The workspace to version'
+        type: choice
+        options:
+          - '@basketry/typescript'
+        required: true
       newversion:
         description: 'npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]'
         required: true
@@ -12,5 +20,67 @@ on:
 
 jobs:
   version:
-    uses: basketry/workflows/.github/workflows/version.yml@main
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prepare git
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        shell: bash
+      - name: Bump version
+        id: version
+        shell: bash
+        run: |
+          printf 'prev=%s\n' "$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+
+          npm version ${{ github.event.inputs.newversion }} \
+            --workspace ${{ github.event.inputs.workspace }} \
+            --preid ${{ github.event.inputs.preid }} \
+            --git-tag-version false
+
+          printf 'next=%s\n' "$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\n' "${{ github.event.inputs.workspace }}@$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+          printf 'branch=%s\n' "publish-${{ github.event.inputs.workspace }}@$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+
+      - name: New branch
+        shell: bash
+        run: |
+          if [[ -z $(git ls-remote origin ${{ steps.version.outputs.tag }}) ]]; then
+            echo "Created new version ${{ steps.version.outputs.tag }}";
+          else
+            echo "Tag ${{ steps.version.outputs.tag }} already exists!" && exit 1;
+          fi
+
+          git checkout -b ${{ steps.version.outputs.branch }}
+
+      - name: Commit
+        run: "git commit -am \"chore(publish): ${{ steps.version.outputs.tag }}\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\""
+        shell: bash
+
+      - name: Push
+        run: git push origin $(git branch --show-current)
+        shell: bash
+
+      - name: Pull request
+        run: |
+          gh pr create --base ${{ github.ref_name }} --title "Publish ${{ steps.version.outputs.tag }}" --body "### If you merge this PR
+
+          - The package version of \`${{ github.event.inputs.workspace }}\` will be updated to \`${{ steps.version.outputs.next }}\` on branch \`${GITHUB_REF##*/}\`.
+          - The git tag \`${{ steps.version.outputs.tag }}\` will be created in this repository.
+          - \`${{ steps.version.outputs.tag }}\` will be published to NPM.
+          $(if [[ ${{ steps.version.outputs.next }} =~ [0-9]+\.[0-9]+\.[0-9]+\-([^\.]+) ]]; then echo "  - dist-tag \`${BASH_REMATCH[1]}\` will point to version \`${{ steps.version.outputs.next }}\`
+            - dist-tag \`latest\` will remain unchanged
+            - [Learn more about NPM dist-tags](https://docs.npmjs.com/cli/commands/npm-dist-tag)"; fi)
+
+          #### ⚠️ NOTICE ⚠️
+
+          The published package will contain all changes on branch \`${GITHUB_REF##*/}\` at the time this PR is merged _even if they were merged after this PR was created_.
+
+          ### If you close this PR
+
+          - The version will not change and nothing will be published.
+          - Future attempts to create the same version will fail until this branch is deleted." --assignee "${GITHUB_ACTOR}"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}

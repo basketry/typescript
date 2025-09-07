@@ -6,6 +6,186 @@ on:
       - closed
 
 jobs:
-  merge:
-    uses: basketry/workflows/.github/workflows/publish.yml@main
-    secrets: inherit
+  discover-to-publish:
+    name: Discover workspaces with version changes
+    runs-on: ubuntu-latest
+
+    outputs:
+      matrix: ${{ steps.diff.outputs.matrix }} # JSON object: {"include":[{workspace, version}]}
+
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      # Checkout BASE (what's currently on the target branch)
+      - name: Checkout base
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+
+      - name: Install base packages
+        run: npm ci
+
+      # Enumerate workspaces & map name -> version at BASE
+      - name: Workspaces at base
+        id: base
+        shell: bash
+        run: |
+          prev_map=$(npm query .workspace | jq -c 'map({key:.name, value:.version}) | from_entries')
+          printf 'map=%s\n' "$prev_map" >> "$GITHUB_OUTPUT"
+          echo "Debug - map: $prev_map"
+
+      # Checkout HEAD (the PR’s proposed state)
+      - name: Checkout HEAD
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Install HEAD packages
+        run: npm ci
+
+      # Enumerate workspaces & map name -> version at HEAD
+      - name: Workspaces at HEAD
+        id: head
+        shell: bash
+        run: |
+          curr_map=$(npm query .workspace | jq -c 'map({key:.name, value:.version}) | from_entries')
+          printf 'map=%s\n' "$curr_map" >> "$GITHUB_OUTPUT"
+          echo "Debug - map: $curr_map"
+
+      # Diff maps -> list of changed packages; expose as job outputs
+      - name: Diff versions and expose outputs
+        id: diff
+        shell: bash
+        env:
+          PREV: ${{ steps.base.outputs.map }}
+          CURR: ${{ steps.head.outputs.map }}
+        run: |
+          # Debug output for version maps
+          echo "PREV (base versions): $PREV"
+          echo "CURR (head versions): $CURR"
+
+          # Array of changed packages with their new versions
+          changed=$(jq -nc --argjson prev "$PREV" --argjson curr "$CURR" '
+            [ ($curr // {}) as $c
+            | ($prev // {}) as $p
+            | $c
+            | to_entries[]
+            | select(.value != ($p[.key] // null))
+            | {name: .key, version: .value}
+            ]'
+          )
+
+          todo='[]'
+
+          # Iterate changed [{name,version}] and probe npm
+          while IFS=$'\t' read -r name version; do
+            if npm view "${name}@${version}" version >/dev/null 2>&1; then
+              echo "skip: ${name}@${version} (already published)"
+            else
+              # Accumulate into todo
+              todo=$(jq -c --arg name "$name" --arg version "$version" \
+                '. + [{name:$name, version:$version}]' <<<"$todo")
+              echo "will publish: ${name}@${version}"
+            fi
+          done < <(jq -r '.[] | [.name, .version] | @tsv' <<<"$changed")
+
+          matrix=$(jq -nc --argjson list "$todo" '
+            { include: [ $list[] | { workspace: .name, version: .version } ] }
+          ')
+
+          printf 'matrix=%s\n' "$matrix" >> "$GITHUB_OUTPUT"
+
+          echo "Debug - Matrix for publish jobs: $matrix"
+
+  publish:
+    name: Publish to npm (per workspace)
+    needs: discover-to-publish
+    if: ${{ needs.discover-to-publish.outputs.matrix != '{"include":[]}' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      discussions: write
+      id-token: write
+      pull-requests: write
+    strategy:
+      fail-fast: false # Allow other matrixed jobs to continue if one fails
+      # needs.discover-to-publish.outputs.matrix should be: {"include":[{workspace,version}, ...]}
+      matrix: ${{ fromJSON(needs.discover-to-publish.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install deps
+        run: npm ci
+
+      # Double-check guard to keep idempotent (skip if already published)
+      - name: Ensure not already published
+        id: guard
+        shell: bash
+        env:
+          PKG: ${{ matrix.workspace }}
+          VER: ${{ matrix.version }}
+        run: |
+          if npm view "${PKG}@${VER}" version >/dev/null 2>&1; then
+            echo "Already published: ${PKG}@${VER}. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Tag
+        if: steps.guard.outputs.skip == 'false'
+        shell: bash
+        env:
+          PKG: ${{ matrix.workspace }}
+          VER: ${{ matrix.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${PKG}@${VER}"
+          git tag "$TAG"
+          git push origin "$TAG"
+          # Comment only if this workflow runs on a PR event
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gh pr comment ${{ github.event.number }} --body "Created tag [\`$TAG\`](https://github.com/${{ github.repository }}/releases/tag/$TAG)."
+          fi
+
+      - name: Publish to NPM
+        if: steps.guard.outputs.skip == 'false'
+        shell: bash
+        env:
+          PKG: ${{ matrix.workspace }}
+          VER: ${{ matrix.version }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Determine dist-tag from semver (e.g., 1.2.3-beta.0 -> 'beta'; else 'latest')
+          VERSION_TAG="latest"
+          if [[ "$VER" =~ ^[0-9]+\.[0-9]+\.[0-9]+-([^.]+) ]]; then
+            VERSION_TAG="${BASH_REMATCH[1]}"
+          fi
+
+          # Publish just this workspace with provenance
+          npm publish --provenance --workspace "$PKG" --tag "$VERSION_TAG" --access public
+
+          # Success comment (PR events only)
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "🎉 Successfully published ${PKG}@${VER} with dist-tag '${VERSION_TAG}'"
+            gh pr comment ${{ github.event.number }} --body "🎉 Successfully published [\`${PKG}@${VER}\`](https://www.npmjs.com/package/${PKG}/v/${VER}) to NPM.
+
+            Install this release:
+            \`npm i ${PKG}@${VERSION_TAG}\`"
+          fi

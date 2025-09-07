@@ -6,8 +6,12 @@ import importPlugin from 'eslint-plugin-import';
 export default [
   prettierConfig,
   {
-    files: ['**/*.ts', '**/*.js', '**/*.json'],
-    ignores: ['lib', 'coverage', 'node_modules', 'src/snapshot/service.json'],
+    files: ['packages/**/*.{ts,js,json}'],
+    ignores: [
+      'packages/**/{lib,coverage}/**/**.*',
+      'node_modules',
+      'packages/**/snapshot/service.json',
+    ],
     languageOptions: {
       parser,
     },
