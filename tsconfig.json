@@ -3,12 +3,12 @@
     "lib": ["es6"],
     "module": "commonjs",
     "noImplicitReturns": true,
-    "outDir": "lib",
     "sourceMap": true,
     "target": "es6",
     "declaration": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "downlevelIteration": true
   },
-  "include": ["src"],
+  "include": ["packages/**/src"],
   "exclude": ["**/*.test?.*"]
 }
