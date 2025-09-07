@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "prebuild": "npm run clean --workspaces --if-present",
-    "build": "npm run build --workspaces --if-present",
+    "build": "run-s build:*",
+    "build:typescript": "npm run build --workspace @basketry/typescript",
+    "build:express": "npm run build --workspace @basketry/express",
     "clean": "npm run clean --workspaces --if-present",
     "fix": "run-s -s fix:*",
     "fix:eslint": "eslint --fix",
@@ -13,7 +15,7 @@
     "lint": "run-s -s lint:*",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier -c . --ignore-path .gitignore",
-    "test": "node --experimental-vm-modules ./node_modules/.bin/jest"
+    "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules ./node_modules/.bin/jest"
   },
   "author": "Steve Konves",
   "license": "MIT",

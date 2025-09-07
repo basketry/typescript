@@ -9,6 +9,7 @@ on:
         description: 'The workspace to version'
         type: choice
         options:
+          - '@basketry/express'
           - '@basketry/typescript'
         required: true
       newversion:
