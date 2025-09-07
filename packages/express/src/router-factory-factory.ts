@@ -161,7 +161,7 @@ function getHandlers<TRequestHandler extends RequestHandler>(
         verbs.add(verb);
         yield `  .${verb}(`;
 
-        const override = `handlerOverrides?.${camel(method.name.value)}`;
+        // const override = `handlerOverrides?.${camel(method.name.value)}`;
 
         const handler = `${this.handlersModule}.${camel(
           `handle_${snake(method.name.value)}`,

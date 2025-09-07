@@ -7,7 +7,7 @@ import {
   isRequired,
 } from 'basketry';
 import { NamespacedExpressOptions } from './types';
-import { camel, pascal } from 'case';
+import { pascal } from 'case';
 import { buildParameterName, buildPropertyName } from '@basketry/typescript';
 
 const openAPIVariableRegex = /\{(\w+)\}/g;

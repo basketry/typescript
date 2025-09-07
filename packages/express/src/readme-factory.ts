@@ -1,4 +1,4 @@
-import { File, Interface, Method, Service, warning } from 'basketry';
+import { File, Interface, Service, warning } from 'basketry';
 import { NamespacedExpressOptions } from './types';
 import { buildFilePath, buildInterfaceName } from '@basketry/typescript';
 import { format, Options } from 'prettier';
@@ -38,13 +38,13 @@ export class ExpressReadmeFactory extends BaseFactory {
     yield '-->';
     yield '';
 
-    const typesImportPath = this.options.express?.typesImportPath ?? '../types';
-    const businessObjectTypes = `[**Business Object Types**](${typesImportPath}.ts)`;
-    const dtoImportPath = './dtos';
-    const dataTransferObjects = `[**DTO (Data Transfer Object) Types**](${dtoImportPath}.ts)`;
-    const dtoTypes = `[**DTO Types**](${dtoImportPath}.ts)`;
-    const mappersImportPath = './mappers';
-    const handlersImportPath = './handlers';
+    // const typesImportPath = this.options.express?.typesImportPath ?? '../types';
+    // const businessObjectTypes = `[**Business Object Types**](${typesImportPath}.ts)`;
+    // const dtoImportPath = './dtos';
+    // const dataTransferObjects = `[**DTO (Data Transfer Object) Types**](${dtoImportPath}.ts)`;
+    // const dtoTypes = `[**DTO Types**](${dtoImportPath}.ts)`;
+    // const mappersImportPath = './mappers';
+    // const handlersImportPath = './handlers';
     const errorsImportPath = [
       '.',
       ...buildFilePath(['express', 'errors'], this.service, this.options),
@@ -291,7 +291,7 @@ export async function formatMarkdown(
     }
 
     return format(source, prettierOptions);
-  } catch (err) {
+  } catch {
     return source;
   }
 }

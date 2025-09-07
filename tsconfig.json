@@ -9,6 +9,5 @@
     "strictNullChecks": true,
     "downlevelIteration": true
   },
-  "include": ["packages/**/src"],
   "exclude": ["**/*.test?.*"]
 }
