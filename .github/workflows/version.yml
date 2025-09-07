@@ -40,10 +40,10 @@ jobs:
             --git-tag-version false
 
           printf 'next=%s\n' "$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
-          printf 'tag=%s\n' "${{ github.event.inputs.workspace }}/v$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\n' "${{ github.event.inputs.workspace }}@$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
           printf 'branch=%s\n' "bump-version-${{ github.event.inputs.workspace }}-$(npm pkg get version -w ${{ github.event.inputs.workspace }} | jq -r 'to_entries[0].value')" >> "$GITHUB_OUTPUT"
 
-      - name: print versions
+      - name: New branch
         shell: bash
         run: |
           if [[ -z $(git ls-remote origin ${{ steps.version.outputs.tag }}) ]]; then
@@ -54,9 +54,10 @@ jobs:
 
           git checkout -b ${{ steps.version.outputs.branch }}
 
-      # - name: Commit
-      #   run: "git commit -am \"$(jq -r .version < package.json)\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\""
-      #   shell: bash
+      - name: Commit
+        run: "git commit -am \"chore(release): ${{ steps.version.outputs.tag }}\n\nCo-authored-by: github-actions[bot] <github-actions[bot]@users.noreply.github.com>\""
+        shell: bash
+
       # - name: Push
       #   run: git push origin $(git branch --show-current)
       #   shell: bash
