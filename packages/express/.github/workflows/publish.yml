@@ -1,0 +1,11 @@
+name: publish
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  merge:
+    uses: basketry/workflows/.github/workflows/publish.yml@main
+    secrets: inherit

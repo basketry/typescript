@@ -1,0 +1,6 @@
+coverage
+node_modules
+src/snapshot/native-ir.json
+src/snapshot/zod-ir.json
+
+lib
