@@ -1,7 +1,7 @@
 {
   "name": "@basketry/express",
   "version": "0.4.4-alpha.1",
-  "description": "Basketry generator for generating Express JS routers",
+  "description": "Basketry generator for ExpressJS routers and handlers",
   "main": "./lib/index.js",
   "bin": {
     "basketry-express": "./lib/rpc.js"
@@ -21,11 +21,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/basketry/express.git",
+    "url": "git+https://github.com/basketry/typescript.git",
     "directory": "packages/express"
   },
   "bugs": {
-    "url": "https://github.com/basketry/express/issues"
+    "url": "https://github.com/basketry/typescript/issues"
   },
   "homepage": "https://basketry.io/docs/components/@basketry/express",
   "funding": "https://github.com/sponsors/basketry",
