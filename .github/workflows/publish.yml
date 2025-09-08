@@ -25,6 +25,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 0
+          fetch-tags: false
 
       - name: Install base packages
         run: npm ci
@@ -44,6 +45,7 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          fetch-tags: false
 
       - name: Install HEAD packages
         run: npm ci
@@ -103,7 +105,7 @@ jobs:
           echo "Debug - Matrix for publish jobs: $matrix"
 
   publish:
-    name: Publish to npm (per workspace)
+    name: Publish to NPM
     needs: discover-to-publish
     if: ${{ needs.discover-to-publish.outputs.matrix != '{"include":[]}' }}
     runs-on: ubuntu-latest
@@ -122,6 +124,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: false
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -146,6 +149,9 @@ jobs:
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Build
+        run: npm run build
 
       - name: Tag
         if: steps.guard.outputs.skip == 'false'

@@ -1,5 +1,3 @@
-# local workflow
-
 name: version
 
 on:
