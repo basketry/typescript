@@ -1,0 +1,7 @@
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "collectCoverage": true,
+  "passWithNoTests": true,
+  "testMatch": ["**/__tests__/**/*.ts?(x)", "**/?(*.)+(spec|test|tests).ts?(x)"]
+}

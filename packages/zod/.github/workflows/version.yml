@@ -1,0 +1,16 @@
+name: version
+
+on:
+  workflow_dispatch:
+    inputs:
+      newversion:
+        description: 'npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]'
+        required: true
+      preid:
+        description: 'The "prerelease identifier" to use as a prefix for the "prerelease" part of a semver.'
+        required: false
+
+jobs:
+  version:
+    uses: basketry/workflows/.github/workflows/version.yml@main
+    secrets: inherit
