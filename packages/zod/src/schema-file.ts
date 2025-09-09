@@ -22,8 +22,6 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
   protected readonly importBuilders = [this.zod];
 
   *body(): Iterable<string> {
-    const z = () => this.zod.fn('z');
-
     const schemas: Schema[] = [];
 
     for (const type of this.service.types) {

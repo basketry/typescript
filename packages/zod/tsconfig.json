@@ -1,14 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "lib": ["es6"],
-    "module": "commonjs",
-    "noImplicitReturns": true,
-    "outDir": "lib",
-    "sourceMap": true,
-    "target": "es6",
-    "declaration": true,
-    "strictNullChecks": true
+    "outDir": "lib"
   },
-  "include": ["src"],
-  "exclude": ["**/*.test?.*"]
+  "include": ["src"]
 }
