@@ -14,6 +14,15 @@
 
 import { z } from 'zod';
 
+const booleanFromString = z.preprocess((val) => {
+  if (typeof val === 'string') {
+    const lowered = val.toLowerCase();
+    if (['true', '1'].includes(lowered)) return true;
+    if (['false', '0'].includes(lowered)) return false;
+  }
+  return val;
+}, z.boolean());
+
 const __ComplexKeyMapAKeySchema = z.string().min(12).max(30);
 export const ComplexKeyMapASchema = z
   .record(z.string())
@@ -144,32 +153,32 @@ export const ExhaustiveParamsParamsSchema = z.object({
   queryEnum: ExhaustiveParamsQueryEnumSchema.optional(),
   queryNumber: z.coerce.number().optional(),
   queryInteger: z.coerce.number().int().optional(),
-  queryBoolean: z.coerce.boolean().optional(),
+  queryBoolean: booleanFromString.optional(),
   queryStringArray: z.string().array().optional(),
   queryEnumArray: ExhaustiveParamsQueryEnumArraySchema.array().optional(),
   queryNumberArray: z.coerce.number().array().optional(),
   queryIntegerArray: z.coerce.number().int().array().optional(),
-  queryBooleanArray: z.coerce.boolean().array().optional(),
+  queryBooleanArray: booleanFromString.array().optional(),
   pathString: z.string(),
   pathEnum: ExhaustiveParamsPathEnumSchema,
   pathNumber: z.coerce.number(),
   pathInteger: z.coerce.number().int(),
-  pathBoolean: z.coerce.boolean(),
+  pathBoolean: booleanFromString,
   pathStringArray: z.string().array(),
   pathEnumArray: ExhaustiveParamsPathEnumArraySchema.array(),
   pathNumberArray: z.coerce.number().array(),
   pathIntegerArray: z.coerce.number().int().array(),
-  pathBooleanArray: z.coerce.boolean().array(),
+  pathBooleanArray: booleanFromString.array(),
   headerString: z.string().optional(),
   headerEnum: ExhaustiveParamsHeaderEnumSchema.optional(),
   headerNumber: z.coerce.number().optional(),
   headerInteger: z.coerce.number().int().optional(),
-  headerBoolean: z.coerce.boolean().optional(),
+  headerBoolean: booleanFromString.optional(),
   headerStringArray: z.string().array().optional(),
   headerEnumArray: ExhaustiveParamsHeaderEnumArraySchema.array().optional(),
   headerNumberArray: z.coerce.number().array().optional(),
   headerIntegerArray: z.coerce.number().int().array().optional(),
-  headerBooleanArray: z.coerce.boolean().array().optional(),
+  headerBooleanArray: booleanFromString.array().optional(),
   body: ExhaustiveParamsBodySchema.optional(),
 });
 

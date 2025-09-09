@@ -42,8 +42,13 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
       schemas.push({ name: buildTypeName(e), element: e });
     }
 
-    const { sorted, circular } = sort(schemas);
+    const lines = Array.from(this.buildContent(schemas));
+    yield* this.buildStringToBooleanSchema();
+    yield* lines;
+  }
 
+  *buildContent(schemas: Schema[]): Iterable<string> {
+    const { sorted, circular } = sort(schemas);
     for (const schema of sorted) {
       yield* this.buildSchema(schema, []);
       yield ``;
@@ -51,8 +56,25 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
 
     for (const schema of circular) {
       yield* this.buildSchema(schema, circular);
-      yield ``;
     }
+  }
+
+  private _needsStringToBoolean = false;
+  private touchStringToBoolean() {
+    this._needsStringToBoolean = true;
+  }
+  *buildStringToBooleanSchema(): Iterable<string> {
+    if (!this._needsStringToBoolean) return;
+    yield `
+      const booleanFromString = z.preprocess((val) => {
+        if (typeof val === "string") {
+          const lowered = val.toLowerCase();
+          if (["true", "1"].includes(lowered)) return true;
+          if (["false", "0"].includes(lowered)) return false;
+        }
+        return val;
+      }, z.boolean());
+    `;
   }
 
   *buildSchema(schema: Schema, circular: Schema[]): Iterable<string> {
@@ -425,13 +447,15 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           break;
         }
         case 'boolean': {
-          const coerce = shouldCoerce() ? `.coerce` : '';
+          // const coerce = shouldCoerce() ? `.coerce` : '';
+          if (shouldCoerce()) this.touchStringToBoolean();
 
           if (value.constant) {
             // TODO: support literal coercion
             schema.push(`${z()}.literal(${value.constant.value})`);
           } else {
-            schema.push(`${z()}${coerce}.boolean()`);
+            // schema.push(`${z()}${coerce}.boolean()`);
+            schema.push(`booleanFromString`);
           }
 
           if (value.default) {
