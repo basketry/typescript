@@ -9,6 +9,7 @@ on:
         options:
           - '@basketry/express'
           - '@basketry/typescript'
+          - '@basketry/zod'
         required: true
       newversion:
         description: 'npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]'
