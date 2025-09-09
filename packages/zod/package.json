@@ -1,0 +1,39 @@
+{
+  "name": "@basketry/zod",
+  "version": "0.2.4",
+  "description": "Basketry generator for generating zod schemas",
+  "main": "./lib/index.js",
+  "bin": {
+    "basketry-zod": "./lib/rpc.js"
+  },
+  "scripts": {
+    "prebuild": "run-s -s clean",
+    "build": "tsc",
+    "postbuild": "chmod +x ./lib/rpc.js",
+    "clean": "run-s -s clean:*",
+    "clean:output": "rimraf lib",
+    "clean:coverage": "rimraf coverage",
+    "create-snapshot": "ts-node ./src/snapshot/create-snapshot.ts",
+    "prepack": "run-s -s build"
+  },
+  "keywords": [],
+  "author": "Steve Konves",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basketry/typescript.git",
+    "directory": "packages/zod"
+  },
+  "bugs": {
+    "url": "https://github.com/basketry/typescript/issues"
+  },
+  "homepage": "https://basketry.io/docs/components/@basketry/zod",
+  "funding": "https://github.com/sponsors/basketry",
+  "dependencies": {
+    "@basketry/typescript": "^0.2.3",
+    "basketry": "^0.2.1",
+    "case": "^1.6.3",
+    "pluralize": "^8.0.0",
+    "prettier": "^3.6.2"
+  }
+}
