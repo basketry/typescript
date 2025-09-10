@@ -447,15 +447,16 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
           break;
         }
         case 'boolean': {
-          // const coerce = shouldCoerce() ? `.coerce` : '';
-          if (shouldCoerce()) this.touchStringToBoolean();
-
           if (value.constant) {
             // TODO: support literal coercion
             schema.push(`${z()}.literal(${value.constant.value})`);
           } else {
-            // schema.push(`${z()}${coerce}.boolean()`);
-            schema.push(`booleanFromString`);
+            if (shouldCoerce()) {
+              this.touchStringToBoolean();
+              schema.push(`booleanFromString`);
+            } else {
+              schema.push(`${z()}.boolean()`);
+            }
           }
 
           if (value.default) {
