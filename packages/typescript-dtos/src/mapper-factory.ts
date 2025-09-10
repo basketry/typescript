@@ -2,7 +2,6 @@ import {
   File,
   MapProperties,
   MemberValue,
-  Parameter,
   Property,
   Service,
   Type,
