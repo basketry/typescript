@@ -9,6 +9,7 @@ on:
         options:
           - '@basketry/express'
           - '@basketry/typescript'
+          - '@basketry/typescript-dtos'
           - '@basketry/zod'
         required: true
       newversion:

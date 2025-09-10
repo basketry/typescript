@@ -4,11 +4,12 @@ This repository is the monorepo for Basketry components implemented in TypeScrip
 
 ## Packages
 
-| Package                                       | Version                                                                                                          | Description                                                                                                                         |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| [`@basketry/express`](packages/express)       | [![main](https://img.shields.io/npm/v/@basketry/express)](https://www.npmjs.com/package/@basketry/express)       | [Basketry](https://basketry.io) generator for [ExpressJS](https://expressjs.com//) routers and handlers.                            |
-| [`@basketry/typescript`](packages/typescript) | [![main](https://img.shields.io/npm/v/@basketry/typescript)](https://www.npmjs.com/package/@basketry/typescript) | [Basketry](https://basketry.io) generator for [TypeScript](https://www.typescriptlang.org/) interfaces, types, and enums, and more. |
-| [`@basketry/zod`](packages/zod)               | [![main](https://img.shields.io/npm/v/@basketry/zod)](https://www.npmjs.com/package/@basketry/zod)               | [Basketry](https://basketry.io) generator for [Zod](https://zod.dev/) validation schemas.                                           |
+| Package                                                 | Version                                                                                                                    | Description                                                                                                                         |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| [`@basketry/express`](packages/express)                 | [![main](https://img.shields.io/npm/v/@basketry/express)](https://www.npmjs.com/package/@basketry/express)                 | [Basketry](https://basketry.io) generator for [ExpressJS](https://expressjs.com//) routers and handlers.                            |
+| [`@basketry/typescript`](packages/typescript)           | [![main](https://img.shields.io/npm/v/@basketry/typescript)](https://www.npmjs.com/package/@basketry/typescript)           | [Basketry](https://basketry.io) generator for [TypeScript](https://www.typescriptlang.org/) interfaces, types, and enums, and more. |
+| [`@basketry/typescript-dtos`](packages/typescript-dtos) | [![main](https://img.shields.io/npm/v/@basketry/typescript-dtos)](https://www.npmjs.com/package/@basketry/typescript-dtos) | [Basketry](https://basketry.io) generator for Data Transfer Objects (DTOs) and associated mapper functions.                         |
+| [`@basketry/zod`](packages/zod)                         | [![main](https://img.shields.io/npm/v/@basketry/zod)](https://www.npmjs.com/package/@basketry/zod)                         | [Basketry](https://basketry.io) generator for [Zod](https://zod.dev/) validation schemas.                                           |
 
 ## Versioning & publishing
 
