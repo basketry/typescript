@@ -7,7 +7,7 @@ import {
   isRequired,
 } from 'basketry';
 import { NamespacedTypescriptDTOOptions } from './types';
-import { camel, pascal } from 'case';
+import { pascal } from 'case';
 import { buildParameterName, buildPropertyName } from '@basketry/typescript';
 
 type Mode =
