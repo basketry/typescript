@@ -234,7 +234,13 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
               ? 'discriminatedUnion'
               : 'union';
 
-          yield `export const ${pascal(name)}Schema = ${z()}.${zodMethod}([`;
+          yield `export const ${pascal(name)}Schema = ${z()}.${zodMethod}(`;
+
+          if (element.kind === 'DiscriminatedUnion') {
+            yield `'${camel(element.discriminator.value)}', `;
+          }
+
+          yield `[`;
           for (const member of element.members) yield buildMember(member);
           yield `]);`;
         }
