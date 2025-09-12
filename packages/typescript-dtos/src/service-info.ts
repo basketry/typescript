@@ -89,12 +89,14 @@ export class ServiceInfo {
     for (const int of this.service.interfaces) {
       for (const method of int.methods) {
         for (const param of method.parameters) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const t of this.traverse(param.value.typeName.value, 'input')) {
             // noop
           }
         }
 
         if (method.returns && method.returns.value.kind === 'ComplexValue') {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           for (const t of this.traverse(
             method.returns.value.typeName.value,
             'output',

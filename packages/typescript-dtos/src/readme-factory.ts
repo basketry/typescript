@@ -124,7 +124,7 @@ export async function formatMarkdown(
     }
 
     return format(source, prettierOptions);
-  } catch (err) {
+  } catch {
     return source;
   }
 }

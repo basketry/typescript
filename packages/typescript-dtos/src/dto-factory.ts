@@ -13,13 +13,13 @@ import {
   isRequired,
 } from 'basketry';
 import { NamespacedTypescriptDTOOptions } from './types';
-import { format, from } from '@basketry/typescript/lib/utils';
+import { format } from '@basketry/typescript/lib/utils';
 import {
   buildEnumName,
   buildFilePath,
   buildTypeName,
 } from '@basketry/typescript';
-import { camel, pascal } from 'case';
+import { pascal } from 'case';
 import { BaseFactory } from './base-factory';
 
 export class ExpressDtoFactory extends BaseFactory {
