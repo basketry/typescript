@@ -1,7 +1,9 @@
 import {
+  ComplexValue,
   File,
   MapProperties,
   MemberValue,
+  Primitive,
   Property,
   Service,
   Type,
@@ -15,6 +17,18 @@ import { buildFilePath, buildPropertyName } from '@basketry/typescript';
 import { format } from '@basketry/typescript/lib/utils';
 import { BaseFactory } from './base-factory';
 import { camel, pascal } from 'case';
+import {
+  and,
+  AndClause,
+  Condition,
+  ConditionalBlock,
+  expr,
+  Expression,
+  Heuristic,
+  or,
+  render,
+  UnionUtils,
+} from './union-utils';
 
 type Mode =
   | 'server-inbound'
@@ -402,54 +416,228 @@ export class ExpressMapperFactory extends BaseFactory {
 
       yield `}`;
     } else {
-      if (union.members.every((m) => m.kind === 'PrimitiveValue')) {
-        const hasDate = union.members.some((m) => m.typeName.value === 'date');
-        const hasDateTime = union.members.some(
-          (m) => m.typeName.value === 'date-time',
+      const blocks: ConditionalBlock[] = [];
+
+      const hasDate = union.members.some(
+        (m) => m.kind === 'PrimitiveValue' && m.typeName.value === 'date',
+      );
+      const hasDateTime = union.members.some(
+        (m) => m.kind === 'PrimitiveValue' && m.typeName.value === 'date-time',
+      );
+
+      const nonDatePrimitives = union.members.filter(
+        (m) =>
+          m.kind === 'PrimitiveValue' &&
+          m.typeName.value !== 'date' &&
+          m.typeName.value !== 'date-time',
+      );
+
+      const complexMembers = union.members.filter(
+        (m) => m.kind === 'ComplexValue',
+      );
+
+      /** Checks if the non-date primitive list includes any of the provided types */
+      function check(...p: Primitive[]): boolean {
+        return nonDatePrimitives.some(
+          (m) => m.kind === 'PrimitiveValue' && p.includes(m.typeName.value),
         );
+      }
 
-        if (hasDate || hasDateTime) {
-          if (mode === 'server-inbound' || mode === 'client-outbound') {
-            yield `if (typeof ${paramName} === 'string') {`;
-            yield `return new Date(${paramName});`;
-          } else {
-            yield `if (${paramName} instanceof Date) {`;
-            if (hasDateTime) {
-              yield `return ${paramName}.toISOString();`;
-            } else {
-              yield `return ${paramName}.toISOString().split('T')[0];`;
-            }
+      // Handle date and date-time
+      if (hasDate || hasDateTime) {
+        if (mode === 'server-inbound' || mode === 'client-outbound') {
+          const condition: AndClause = and(
+            expr(`typeof ${paramName} === 'string'`),
+          );
+
+          if (check('string')) {
+            condition.clauses.push(expr(`!isNaN(Date.parse(${paramName}))`)); // TODO: enforce ISO 8601 format
           }
-          yield `} else {`;
-          yield `return ${paramName};`;
-          yield `}`;
+          blocks.push({
+            condition,
+            statements: [`return new Date(${paramName});`],
+          });
         } else {
-          yield `return ${paramName};`;
-        }
-      } else {
-        // TODO: attempt to discriminate based on the presence of required properties
-        yield `const union = ${paramName} as any;`;
-        this.touchCompact();
-        yield `return compact({`;
+          const condition: Condition = expr(`${paramName} instanceof Date`);
 
-        const properties = new Map<string, Property>();
-
-        for (const prop of this.traverseProperties(union)) {
-          properties.set(prop.name.value, prop);
+          if (hasDateTime) {
+            blocks.push({
+              condition,
+              statements: [`return ${paramName}.toISOString();`],
+            });
+          } else {
+            blocks.push({
+              condition,
+              statements: [`return ${paramName}.toISOString().split('T')[0];`],
+            });
+          }
         }
-        for (const prop of properties.values()) {
-          // In this context, only one of the union members will be present;
-          // therefore, let's assume that any property could be optional.
-          const notRequired: Property = {
-            ...prop,
-            value: {
-              ...prop.value,
-              isOptional: { kind: 'TrueLiteral', value: true },
+      }
+
+      // Handle non-date primitives
+      if (nonDatePrimitives.length) {
+        // Find primitives
+        const primitiveCases: string[] = [];
+        if (check('boolean')) {
+          primitiveCases.push(`typeof ${paramName} === 'boolean'`);
+        }
+        if (check('string')) {
+          primitiveCases.push(`typeof ${paramName} === 'string'`);
+        }
+        if (check('number', 'integer', 'float', 'double', 'long')) {
+          primitiveCases.push(`typeof ${paramName} === 'number'`);
+        }
+        if (check('null')) {
+          primitiveCases.push(`${paramName} === null`);
+        }
+
+        if (primitiveCases.length) {
+          blocks.push({
+            condition: or(...primitiveCases.map(expr)),
+            statements: [`return ${paramName};`],
+          });
+        }
+      }
+
+      // Handle complex types
+      if (complexMembers.length === 1) {
+        blocks.push({
+          condition: expr(
+            `typeof ${paramName} === 'object' && ${paramName} !== null`,
+          ),
+          statements: [
+            `return ${this.builder.buildMapperName(complexMembers[0].typeName.value, mode)}(${paramName});`,
+          ],
+        });
+      } else if (complexMembers.length > 1) {
+        // Handle multiple complex members
+
+        const heuristicsByMember: Map<ComplexValue, Heuristic[]> = new Map();
+        const unionUtils = new UnionUtils(this.service);
+        for (const member of complexMembers) {
+          const otherMembers = complexMembers.filter((m) => m !== member);
+          heuristicsByMember.set(
+            member,
+            unionUtils.getHeuristics(member, otherMembers),
+          );
+        }
+
+        const noHeuristics: ComplexValue[] = [];
+
+        for (const [member, heuristics] of heuristicsByMember) {
+          if (!heuristics.length) {
+            noHeuristics.push(member);
+            continue;
+          }
+
+          blocks.push({
+            condition: {
+              kind: 'AndClause',
+              clauses: heuristics
+                .map((h) => {
+                  switch (h.kind) {
+                    case 'ConstantValue': {
+                      const condition: Condition = and(
+                        expr(`"${h.property}" in ${paramName}`),
+                        expr(
+                          `${paramName}${accessor(h.property)} === ${typeof h.value === 'string' ? `'${h.value}'` : h.value}`,
+                        ),
+                      );
+
+                      return condition;
+                    }
+                    case 'RequiredProperty': {
+                      const condition: Condition = expr(
+                        `"${h.property}" in ${paramName}`,
+                      );
+
+                      return condition;
+                    }
+                    case 'RequiredProperties': {
+                      if (!h.properties.length) return undefined;
+                      const condition: Condition = and(
+                        ...h.properties.map((p) =>
+                          expr(`"${p}" in ${paramName}`),
+                        ),
+                      );
+                      return condition;
+                    }
+                    default:
+                      return undefined;
+                  }
+                })
+                .filter((c): c is Expression | AndClause => !!c)
+                .slice(0, 1), // Use only the first heuristic to avoid overly complex conditions,
             },
-          };
-          yield* this.buildPropertyAssignment(notRequired, 'union', mode);
+            statements: [
+              `return ${this.builder.buildMapperName(member.typeName.value, mode)}(${paramName});`,
+            ],
+          });
         }
-        yield '}) as any;';
+
+        if (noHeuristics.length === 1) {
+          blocks.push({
+            condition: and(
+              expr(`typeof ${paramName} === 'object'`),
+              expr(`${paramName} !== null`),
+            ),
+            statements: [
+              `return ${this.builder.buildMapperName(noHeuristics[0].typeName.value, mode)}(${paramName});`,
+            ],
+          });
+        } else if (noHeuristics.length > 1) {
+          const statements: string[] = [];
+
+          // TODO: attempt to discriminate based on the presence of required properties
+          statements.push(`const union = ${paramName} as any;`);
+          this.touchCompact();
+          statements.push(`return compact({`);
+          const properties = new Map<string, Property>();
+          for (const prop of this.traverseProperties(union)) {
+            properties.set(prop.name.value, prop);
+          }
+          for (const prop of properties.values()) {
+            // In this context, only one of the union members will be present;
+            // therefore, let's assume that any property could be optional.
+            const notRequired: Property = {
+              ...prop,
+              value: {
+                ...prop.value,
+                isOptional: { kind: 'TrueLiteral', value: true },
+              },
+            };
+            statements.push(
+              ...this.buildPropertyAssignment(notRequired, 'union', mode),
+            );
+          }
+          statements.push('}) as any;');
+
+          blocks.push({
+            condition: and(
+              expr(`typeof ${paramName} === 'object'`),
+              expr(`${paramName} !== null`),
+            ),
+            statements,
+          });
+        }
+      }
+
+      // Render blocks
+      if (blocks.length === 1) {
+        yield* blocks[0].statements;
+      } else {
+        for (let i = 0; i < blocks.length; i++) {
+          const block = blocks[i];
+
+          if (i === blocks.length - 1) {
+            yield `else {`;
+          } else {
+            const prefix = i === 0 ? 'if' : 'else if';
+            yield `${prefix} (${render(block.condition)}) {`;
+          }
+          yield* block.statements;
+          yield `}`;
+        }
       }
     }
     yield '}';
@@ -540,6 +728,12 @@ export class ExpressMapperFactory extends BaseFactory {
       }`;
     }
   }
+}
+
+function accessor(string: string): string {
+  return /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(string)
+    ? `.${string}`
+    : `['${string}']`;
 }
 
 function makeItRequired(memberValue: MemberValue): MemberValue {
