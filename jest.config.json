@@ -3,5 +3,13 @@
   "testEnvironment": "node",
   "collectCoverage": true,
   "passWithNoTests": true,
-  "testMatch": ["**/__tests__/**/*.ts?(x)", "**/?(*.)+(spec|test|tests).ts?(x)"]
+  "transformIgnorePatterns": ["/node_modules/(?!@basketry/jest-utils)"],
+  "setupFilesAfterEnv": ["@basketry/jest-utils/lib/setup"],
+  "testMatch": [
+    "**/__tests__/**/*.ts?(x)",
+    "**/?(*.)+(spec|test|tests).ts?(x)"
+  ],
+  "moduleNameMapper": {
+    "^@basketry/jest-utils$": "<rootDir>/utils/jest-utils/src"
+  }
 }
