@@ -227,7 +227,9 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
 
         if (element.members.length === 1) {
           // If there is only one member, just export the schema for that member
-          yield buildMember(element.members[0]);
+          yield `export const ${pascal(name)}Schema = ${buildMember(
+            element.members[0],
+          ).replace(/,$/, ';')};`;
         } else {
           const zodMethod =
             element.kind === 'DiscriminatedUnion'
