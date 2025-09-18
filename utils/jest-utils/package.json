@@ -1,0 +1,25 @@
+{
+  "name": "@basketry/jest-utils",
+  "version": "0.0.0",
+  "description": "Utilities for writing AST-based tests with Jest",
+  "main": "src/index.js",
+  "scripts": {
+    "prebuild": "run-s -s clean",
+    "build": "tsc",
+    "clean": "run-s -s clean:*",
+    "clean:coverage": "rimraf coverage",
+    "clean:output": "rimraf lib",
+    "prepack": "run-s -s build"
+  },
+  "keywords": [],
+  "author": "Steve Konves",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basketry/typescript.git",
+    "directory": "packages/typescript"
+  },
+  "bugs": {
+    "url": "https://github.com/basketry/typescript/issues"
+  }
+}

@@ -4,7 +4,6 @@
   "description": "Monorepo for all Basketry Typescript packages",
   "private": true,
   "scripts": {
-    "prebuild": "npm run clean --workspaces --if-present",
     "build": "run-s build:*",
     "build:typescript": "npm run build --workspace @basketry/typescript",
     "build:typescript-dtos": "npm run build --workspace @basketry/typescript-dtos",
@@ -17,6 +16,7 @@
     "lint": "run-s -s lint:*",
     "lint:eslint": "eslint .",
     "lint:prettier": "prettier -c . --ignore-path .gitignore",
+    "postinstall": "npm run build --workspace @basketry/jest-utils",
     "test": "NODE_NO_WARNINGS=1 node --experimental-vm-modules ./node_modules/.bin/jest"
   },
   "author": "Steve Konves",
@@ -31,6 +31,7 @@
   "homepage": "https://basketry.io/docs/components/@basketry/typescript",
   "funding": "https://github.com/sponsors/basketry",
   "devDependencies": {
+    "@prettier/sync": "^0.6.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.21",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
@@ -47,6 +48,7 @@
     "typescript": "^5.8.3"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "utils/*"
   ]
 }

@@ -8,7 +8,8 @@
     "declaration": true,
     "strictNullChecks": true,
     "downlevelIteration": true,
-    "types": ["@basketry/jest-utils/src/global.d.ts", "jest"]
+    "outDir": "lib"
   },
+  "include": ["src"],
   "exclude": ["**/*.test?.*"]
 }
