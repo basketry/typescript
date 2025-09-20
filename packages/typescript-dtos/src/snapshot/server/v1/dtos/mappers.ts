@@ -65,8 +65,7 @@ export function mapToWidgetDto(obj: types.Widget): dtos.WidgetDto {
     fiz: obj.fiz,
     buzz: obj.buzz,
     fizbuzz: obj.fizbuzz,
-    foo:
-      typeof obj.foo === 'undefined' ? undefined : mapToWidgetFooDto(obj.foo),
+    foo: typeof obj.foo === 'undefined' ? obj.foo : mapToWidgetFooDto(obj.foo),
     size: obj.size,
   });
 }

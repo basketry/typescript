@@ -49,7 +49,7 @@ export function mapFromWidgetDto(dto: dtos.WidgetDto): types.Widget {
     buzz: dto.buzz,
     fizbuzz: dto.fizbuzz,
     foo:
-      typeof dto.foo === 'undefined' ? undefined : mapFromWidgetFooDto(dto.foo),
+      typeof dto.foo === 'undefined' ? dto.foo : mapFromWidgetFooDto(dto.foo),
     size: dto.size,
   });
 }

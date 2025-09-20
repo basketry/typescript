@@ -9,6 +9,7 @@ import {
 import { NamespacedTypescriptDTOOptions } from './types';
 import { pascal } from 'case';
 import { buildParameterName, buildPropertyName } from '@basketry/typescript';
+import { expr, type Expression } from './union-utils';
 
 type Mode =
   | 'server-inbound'
@@ -48,52 +49,74 @@ export class Builder {
   }
 
   buildValue(
-    typedValue: MemberValue,
+    memberValue: MemberValue,
     mode: Mode,
     value: string,
     asType?: string,
   ): string {
-    const mapperFn = `${this.buildMapperName(typedValue.typeName.value, mode)}`;
-    if (typedValue.kind === 'PrimitiveValue') {
+    function buildTernary(whenFalse: string): string {
+      const clauses: Expression[] = [];
+
+      if (memberValue.isOptional) {
+        clauses.push(expr(`typeof ${value} === 'undefined'`));
+      }
+
+      if (memberValue.isNullable) {
+        clauses.push(expr(`${value} === null`));
+      }
+
+      if (clauses.length === 0) return whenFalse;
+
+      return `${clauses
+        .map((c) => c.value)
+        .join(' || ')} ? ${value} : ${whenFalse}`;
+    }
+    if (memberValue.kind === 'PrimitiveValue') {
       if (
-        typedValue.typeName.value === 'date' ||
-        typedValue.typeName.value === 'date-time'
+        memberValue.typeName.value === 'date' ||
+        memberValue.typeName.value === 'date-time'
       ) {
         switch (mode) {
           case 'server-inbound':
           case 'client-outbound':
-            if (isRequired(typedValue)) {
-              return `new Date(${value})`;
+            if (memberValue.isArray) {
+              return buildTernary(`${value}.map(v => new Date(v))`);
             } else {
-              return `typeof ${value} === 'undefined' ? undefined : new Date(${value})`;
+              return buildTernary(`new Date(${value})`);
             }
+
           case 'server-outbound':
           case 'client-inbound':
-            if (isRequired(typedValue)) {
-              return `${value}.toISOString()${typedValue.typeName.value === 'date' ? '.split("T")[0]' : ''}`;
+            if (memberValue.isArray) {
+              return buildTernary(
+                `${value}.map(v => v.toISOString()${memberValue.typeName.value === 'date' ? '.split("T")[0]' : ''})`,
+              );
             } else {
-              return `typeof ${value} === 'undefined' ? undefined : ${value}.toISOString()${typedValue.typeName.value === 'date' ? '.split("T")[0]' : ''}`;
+              return buildTernary(
+                `${value}.toISOString()${memberValue.typeName.value === 'date' ? '.split("T")[0]' : ''}`,
+              );
             }
         }
       } else {
         return `${value}`;
       }
     } else {
-      const e = getEnumByName(this.service, typedValue.typeName.value);
+      const e = getEnumByName(this.service, memberValue.typeName.value);
       if (e) {
         return `${value}`;
       } else {
-        if (isRequired(typedValue)) {
-          if (typedValue.isArray) {
+        const mapperFn = `${this.buildMapperName(memberValue.typeName.value, mode)}`;
+        if (isRequired(memberValue)) {
+          if (memberValue.isArray) {
             return `${value}?.map(${mapperFn})`;
           } else {
             return `${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
           }
         } else {
-          if (typedValue.isArray) {
+          if (memberValue.isArray) {
             return `${value}?.map(${mapperFn})`;
           } else {
-            return `typeof ${value} === 'undefined' ? undefined : ${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
+            return `typeof ${value} === 'undefined' ? ${value} : ${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
           }
         }
       }
