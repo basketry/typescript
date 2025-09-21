@@ -19,7 +19,7 @@ function f(s: string): string {
       parser: 'typescript',
       singleQuote: true,
       trailingComma: 'all',
-      printWidth: 1,
+      printWidth: 80,
     },
   );
 }
