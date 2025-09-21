@@ -4,7 +4,6 @@ import {
   Service,
   MemberValue,
   getEnumByName,
-  isRequired,
 } from 'basketry';
 import { NamespacedTypescriptDTOOptions } from './types';
 import { pascal } from 'case';
@@ -54,10 +53,13 @@ export class Builder {
     value: string,
     asType?: string,
   ): string {
-    function buildTernary(whenFalse: string): string {
+    function buildTernary(
+      whenFalse: string,
+      options?: { ignoreUndefined?: boolean },
+    ): string {
       const clauses: Expression[] = [];
 
-      if (memberValue.isOptional) {
+      if (memberValue.isOptional && !options?.ignoreUndefined) {
         clauses.push(expr(`typeof ${value} === 'undefined'`));
       }
 
@@ -106,18 +108,14 @@ export class Builder {
         return `${value}`;
       } else {
         const mapperFn = `${this.buildMapperName(memberValue.typeName.value, mode)}`;
-        if (isRequired(memberValue)) {
-          if (memberValue.isArray) {
-            return `${value}?.map(${mapperFn})`;
-          } else {
-            return `${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
-          }
+        if (memberValue.isArray) {
+          return buildTernary(`${value}?.map(${mapperFn})`, {
+            ignoreUndefined: true,
+          });
         } else {
-          if (memberValue.isArray) {
-            return `${value}?.map(${mapperFn})`;
-          } else {
-            return `typeof ${value} === 'undefined' ? ${value} : ${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`;
-          }
+          return buildTernary(
+            `${mapperFn}(${value}${asType ? ` as ${asType}` : ''})`,
+          );
         }
       }
     }
