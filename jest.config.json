@@ -2,6 +2,7 @@
   "preset": "ts-jest",
   "testEnvironment": "node",
   "collectCoverage": true,
+  "coveragePathIgnorePatterns": ["/node_modules/", "/lib/", "/dist/"],
   "passWithNoTests": true,
   "transformIgnorePatterns": ["/node_modules/(?!@basketry/jest-utils)"],
   "setupFilesAfterEnv": ["@basketry/jest-utils/lib/setup"],
