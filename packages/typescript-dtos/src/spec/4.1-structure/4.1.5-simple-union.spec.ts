@@ -745,6 +745,190 @@ describe('4.1.5 Simple Union', () => {
           });
         });
       });
+
+      describe('when the union mixes object and array members', () => {
+        // ARRANGE
+        const typeA = factory.type({
+          name: factory.stringLiteral('TypeA'),
+          properties: [
+            factory.property({
+              name: factory.stringLiteral('propA'),
+              value: factory.primitiveValue({
+                typeName: factory.primitiveLiteral('string'),
+              }),
+            }),
+          ],
+        });
+
+        const typeB = factory.type({
+          name: factory.stringLiteral('TypeB'),
+          properties: [
+            factory.property({
+              name: factory.stringLiteral('propB'),
+              value: factory.primitiveValue({
+                typeName: factory.primitiveLiteral('string'),
+              }),
+            }),
+          ],
+        });
+
+        const typeC = factory.type({
+          name: factory.stringLiteral('TypeC'),
+          properties: [
+            factory.property({
+              name: factory.stringLiteral('propC'),
+              value: factory.primitiveValue({
+                typeName: factory.primitiveLiteral('string'),
+              }),
+            }),
+          ],
+        });
+
+        const union = factory.simpleUnion({
+          name: factory.stringLiteral('MyUnion'),
+          members: [
+            factory.complexValue({
+              typeName: typeA.name,
+            }),
+            factory.complexValue({
+              typeName: typeB.name,
+              isArray: factory.trueLiteral(),
+            }),
+            factory.complexValue({
+              typeName: typeC.name,
+              isArray: factory.trueLiteral(),
+            }),
+          ],
+        });
+
+        describe('Role: client', () => {
+          const options: NamespacedTypescriptDTOOptions = {
+            dtos: { role: 'client' },
+          };
+
+          it('creates a mapper for a DTO passed as a parameter', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withParamType(factory, 'MyUnion')],
+              unions: [union],
+              types: [typeA, typeB, typeC],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(`
+              export function mapToMyUnionDto(obj: types.MyUnion): dtos.MyUnionDto {
+                if (Array.isArray(obj)) {
+                  if (obj.length === 0) {
+                    return [];
+                  } else if ('propB' in obj[0]) {
+                    return obj.map(mapToTypeBDto);
+                  } else {
+                    return obj.map(mapToTypeCDto);
+                  }
+                } else {
+                  return mapToTypeADto(obj);
+                }
+              }
+            `);
+          });
+
+          it('creates a mapper for a returned DTO', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withReturnType(factory, 'MyUnion')],
+              unions: [union],
+              types: [typeA, typeB, typeC],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(`
+              export function mapFromMyUnionDto(dto: dtos.MyUnionDto): types.MyUnion {
+                if (Array.isArray(dto)) {
+                  if (dto.length === 0) {
+                    return [];
+                  } else if ('propB' in dto[0]) {
+                    return dto.map(mapFromTypeBDto);
+                  } else {
+                    return dto.map(mapFromTypeCDto);
+                  }
+                } else {
+                  return mapFromTypeADto(dto);
+                }
+              }
+            `);
+          });
+        });
+
+        describe('Role: server', () => {
+          const options: NamespacedTypescriptDTOOptions = {
+            dtos: { role: 'server' },
+          };
+
+          it('creates a mapper for a DTO passed as a parameter', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withParamType(factory, 'MyUnion')],
+              unions: [union],
+              types: [typeA, typeB, typeC],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(`
+              export function mapFromMyUnionDto(dto: dtos.MyUnionDto): types.MyUnion {
+                if (Array.isArray(dto)) {
+                  if (dto.length === 0) {
+                    return [];
+                  } else if ('propB' in dto[0]) {
+                    return dto.map(mapFromTypeBDto);
+                  } else {
+                    return dto.map(mapFromTypeCDto);
+                  }
+                } else {
+                  return mapFromTypeADto(dto);
+                }
+              }
+            `);
+          });
+
+          it('creates a mapper for a returned DTO', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withReturnType(factory, 'MyUnion')],
+              unions: [union],
+              types: [typeA, typeB, typeC],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(`
+              export function mapToMyUnionDto(obj: types.MyUnion): dtos.MyUnionDto {
+                if (Array.isArray(obj)) {
+                  if (obj.length === 0) {
+                    return [];
+                  } else if ('propB' in obj[0]) {
+                    return obj.map(mapToTypeBDto);
+                  } else {
+                    return obj.map(mapToTypeCDto);
+                  }
+                } else {
+                  return mapToTypeADto(obj);
+                }
+              }
+            `);
+          });
+        });
+      });
     });
   });
 });

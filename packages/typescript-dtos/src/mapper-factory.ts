@@ -6,6 +6,7 @@ import {
   Primitive,
   Property,
   Service,
+  SimpleUnion,
   Type,
   Union,
   getTypeByName,
@@ -416,183 +417,287 @@ export class ExpressMapperFactory extends BaseFactory {
 
       yield `}`;
     } else {
-      const blocks: ConditionalBlock[] = [];
+      yield* this.buildSimpleUnionMapper(union, mode);
+    }
+    yield '}';
+    yield '';
+  }
 
-      const hasDate = union.members.some(
-        (m) => m.kind === 'PrimitiveValue' && m.typeName.value === 'date',
-      );
-      const hasDateTime = union.members.some(
-        (m) => m.kind === 'PrimitiveValue' && m.typeName.value === 'date-time',
+  private *buildSimpleUnionMapper(
+    union: SimpleUnion,
+    mode: Mode,
+  ): Iterable<string> {
+    const paramName =
+      mode === 'server-inbound' || mode === 'client-outbound' ? 'dto' : 'obj';
+
+    const topBlocks: ConditionalBlock[] = [];
+
+    const arrayMembers = union.members.filter((m) => m.isArray);
+
+    if (arrayMembers.length) {
+      const arrayBlocks = this.buildConditionalBlocks(
+        arrayMembers,
+        union,
+        mode,
       );
 
-      const nonDatePrimitives = union.members.filter(
-        (m) =>
-          m.kind === 'PrimitiveValue' &&
-          m.typeName.value !== 'date' &&
-          m.typeName.value !== 'date-time',
+      topBlocks.push({
+        condition: expr(`Array.isArray(${paramName})`),
+        statements: this.renderBlocks(arrayBlocks),
+      });
+    }
+
+    const nonArrayMembers = union.members.filter((m) => !m.isArray);
+
+    if (nonArrayMembers.length) {
+      const nonArrayBlocks = this.buildConditionalBlocks(
+        nonArrayMembers,
+        union,
+        mode,
       );
 
-      const complexMembers = union.members.filter(
-        (m) => m.kind === 'ComplexValue',
-      );
+      topBlocks.push({
+        condition: expr(`!Array.isArray(${paramName})`),
+        statements: this.renderBlocks(nonArrayBlocks),
+      });
+    }
 
-      /** Checks if the non-date primitive list includes any of the provided types */
-      function check(...p: Primitive[]): boolean {
-        return nonDatePrimitives.some(
-          (m) => m.kind === 'PrimitiveValue' && p.includes(m.typeName.value),
+    // Render blocks
+    yield* this.renderBlocks(topBlocks);
+  }
+
+  private buildConditionalBlocks(
+    members: MemberValue[],
+    union: SimpleUnion,
+    mode: Mode,
+  ): ConditionalBlock[] {
+    const paramName =
+      mode === 'server-inbound' || mode === 'client-outbound' ? 'dto' : 'obj';
+
+    const isArray = members.some((m) => m.isArray);
+
+    const blocks: ConditionalBlock[] = [];
+
+    if (isArray && members.length > 1) {
+      blocks.push({
+        condition: expr(`${paramName}.length === 0`),
+        statements: [`return [];`],
+      });
+    }
+
+    const hasDate = members.some(
+      (m) => m.kind === 'PrimitiveValue' && m.typeName.value === 'date',
+    );
+    const hasDateTime = members.some(
+      (m) => m.kind === 'PrimitiveValue' && m.typeName.value === 'date-time',
+    );
+
+    const nonDatePrimitives = members.filter(
+      (m) =>
+        m.kind === 'PrimitiveValue' &&
+        m.typeName.value !== 'date' &&
+        m.typeName.value !== 'date-time',
+    );
+
+    const complexMembers = members.filter((m) => m.kind === 'ComplexValue');
+
+    /** Checks if the non-date primitive list includes any of the provided types */
+    function check(...p: Primitive[]): boolean {
+      return nonDatePrimitives.some(
+        (m) => m.kind === 'PrimitiveValue' && p.includes(m.typeName.value),
+      );
+    }
+
+    // Handle date and date-time
+    if (hasDate || hasDateTime) {
+      if (mode === 'server-inbound' || mode === 'client-outbound') {
+        const condition: AndClause = and(
+          expr(`typeof ${paramName}${isArray ? '[0]' : ''} === 'string'`),
+        );
+
+        if (check('string')) {
+          condition.clauses.push(
+            expr(`!isNaN(Date.parse(${paramName}${isArray ? '[0]' : ''}))`),
+          ); // TODO: enforce ISO 8601 format
+        }
+        blocks.push({
+          condition,
+          statements: isArray
+            ? [`return ${paramName}.map((item) => new Date(item));`]
+            : [`return new Date(${paramName});`],
+        });
+      } else {
+        const condition: Condition = expr(
+          `${paramName}${isArray ? '[0]' : ''} instanceof Date`,
+        );
+
+        if (hasDateTime) {
+          blocks.push({
+            condition,
+            statements: isArray
+              ? [`return ${paramName}.map((item) => item.toISOString());`]
+              : [`return ${paramName}.toISOString();`],
+          });
+        } else {
+          blocks.push({
+            condition,
+            statements: isArray
+              ? [
+                  `return ${paramName}.map((item) => item.toISOString().split('T')[0]);`,
+                ]
+              : [`return ${paramName}.toISOString().split('T')[0];`],
+          });
+        }
+      }
+    }
+
+    // Handle non-date primitives
+    if (nonDatePrimitives.length) {
+      // Find primitives
+      const primitiveCases: string[] = [];
+      if (check('boolean')) {
+        primitiveCases.push(
+          `typeof ${paramName}${isArray ? '[0]' : ''} === 'boolean'`,
+        );
+      }
+      if (check('string')) {
+        primitiveCases.push(
+          `typeof ${paramName}${isArray ? '[0]' : ''} === 'string'`,
+        );
+      }
+      if (check('number', 'integer', 'float', 'double', 'long')) {
+        primitiveCases.push(
+          `typeof ${paramName}${isArray ? '[0]' : ''} === 'number'`,
+        );
+      }
+      if (check('null')) {
+        primitiveCases.push(`${paramName}${isArray ? '[0]' : ''} === null`);
+      }
+
+      if (primitiveCases.length) {
+        blocks.push({
+          condition: or(...primitiveCases.map(expr)),
+          statements: [`return ${paramName};`],
+        });
+      }
+    }
+
+    // Handle complex types
+    if (complexMembers.length === 1) {
+      const mapperName = this.builder.buildMapperName(
+        complexMembers[0].typeName.value,
+        mode,
+      );
+      blocks.push({
+        condition: expr(
+          `typeof ${paramName}${isArray ? '[0]' : ''} === 'object' && ${paramName}${isArray ? '[0]' : ''} !== null`,
+        ),
+        statements: isArray
+          ? [`return ${paramName}.map(${mapperName});`]
+          : [`return ${mapperName}(${paramName});`],
+      });
+    } else if (complexMembers.length > 1) {
+      // Handle multiple complex members
+
+      const heuristicsByMember: Map<ComplexValue, Heuristic[]> = new Map();
+      const unionUtils = new UnionUtils(this.service);
+      for (const member of complexMembers) {
+        const otherMembers = complexMembers.filter((m) => m !== member);
+        heuristicsByMember.set(
+          member,
+          unionUtils.getHeuristics(member, otherMembers),
         );
       }
 
-      // Handle date and date-time
-      if (hasDate || hasDateTime) {
-        if (mode === 'server-inbound' || mode === 'client-outbound') {
-          const condition: AndClause = and(
-            expr(`typeof ${paramName} === 'string'`),
-          );
+      const noHeuristics: ComplexValue[] = [];
 
-          if (check('string')) {
-            condition.clauses.push(expr(`!isNaN(Date.parse(${paramName}))`)); // TODO: enforce ISO 8601 format
-          }
-          blocks.push({
-            condition,
-            statements: [`return new Date(${paramName});`],
-          });
-        } else {
-          const condition: Condition = expr(`${paramName} instanceof Date`);
-
-          if (hasDateTime) {
-            blocks.push({
-              condition,
-              statements: [`return ${paramName}.toISOString();`],
-            });
-          } else {
-            blocks.push({
-              condition,
-              statements: [`return ${paramName}.toISOString().split('T')[0];`],
-            });
-          }
+      for (const [member, heuristics] of heuristicsByMember) {
+        if (!heuristics.length) {
+          noHeuristics.push(member);
+          continue;
         }
-      }
-
-      // Handle non-date primitives
-      if (nonDatePrimitives.length) {
-        // Find primitives
-        const primitiveCases: string[] = [];
-        if (check('boolean')) {
-          primitiveCases.push(`typeof ${paramName} === 'boolean'`);
-        }
-        if (check('string')) {
-          primitiveCases.push(`typeof ${paramName} === 'string'`);
-        }
-        if (check('number', 'integer', 'float', 'double', 'long')) {
-          primitiveCases.push(`typeof ${paramName} === 'number'`);
-        }
-        if (check('null')) {
-          primitiveCases.push(`${paramName} === null`);
-        }
-
-        if (primitiveCases.length) {
-          blocks.push({
-            condition: or(...primitiveCases.map(expr)),
-            statements: [`return ${paramName};`],
-          });
-        }
-      }
-
-      // Handle complex types
-      if (complexMembers.length === 1) {
+        const mapperName = this.builder.buildMapperName(
+          member.typeName.value,
+          mode,
+        );
         blocks.push({
-          condition: expr(
-            `typeof ${paramName} === 'object' && ${paramName} !== null`,
-          ),
-          statements: [
-            `return ${this.builder.buildMapperName(complexMembers[0].typeName.value, mode)}(${paramName});`,
-          ],
-        });
-      } else if (complexMembers.length > 1) {
-        // Handle multiple complex members
+          condition: {
+            kind: 'AndClause',
+            clauses: heuristics
+              .map((h) => {
+                switch (h.kind) {
+                  case 'ConstantValue': {
+                    const condition: Condition = and(
+                      expr(
+                        `"${h.property}" in ${paramName}${isArray ? '[0]' : ''}`,
+                      ),
+                      expr(
+                        `${paramName}${accessor(h.property)} === ${typeof h.value === 'string' ? `'${h.value}'` : h.value}`,
+                      ),
+                    );
 
-        const heuristicsByMember: Map<ComplexValue, Heuristic[]> = new Map();
-        const unionUtils = new UnionUtils(this.service);
-        for (const member of complexMembers) {
-          const otherMembers = complexMembers.filter((m) => m !== member);
-          heuristicsByMember.set(
-            member,
-            unionUtils.getHeuristics(member, otherMembers),
-          );
-        }
-
-        const noHeuristics: ComplexValue[] = [];
-
-        for (const [member, heuristics] of heuristicsByMember) {
-          if (!heuristics.length) {
-            noHeuristics.push(member);
-            continue;
-          }
-
-          blocks.push({
-            condition: {
-              kind: 'AndClause',
-              clauses: heuristics
-                .map((h) => {
-                  switch (h.kind) {
-                    case 'ConstantValue': {
-                      const condition: Condition = and(
-                        expr(`"${h.property}" in ${paramName}`),
-                        expr(
-                          `${paramName}${accessor(h.property)} === ${typeof h.value === 'string' ? `'${h.value}'` : h.value}`,
-                        ),
-                      );
-
-                      return condition;
-                    }
-                    case 'RequiredProperty': {
-                      const condition: Condition = expr(
-                        `"${h.property}" in ${paramName}`,
-                      );
-
-                      return condition;
-                    }
-                    case 'RequiredProperties': {
-                      if (!h.properties.length) return undefined;
-                      const condition: Condition = and(
-                        ...h.properties.map((p) =>
-                          expr(`"${p}" in ${paramName}`),
-                        ),
-                      );
-                      return condition;
-                    }
-                    default:
-                      return undefined;
+                    return condition;
                   }
-                })
-                .filter((c): c is Expression | AndClause => !!c)
-                .slice(0, 1), // Use only the first heuristic to avoid overly complex conditions,
-            },
-            statements: [
-              `return ${this.builder.buildMapperName(member.typeName.value, mode)}(${paramName});`,
-            ],
-          });
-        }
+                  case 'RequiredProperty': {
+                    const condition: Condition = expr(
+                      `"${h.property}" in ${paramName}${isArray ? '[0]' : ''}`,
+                    );
 
-        if (noHeuristics.length === 1) {
-          blocks.push({
-            condition: and(
-              expr(`typeof ${paramName} === 'object'`),
-              expr(`${paramName} !== null`),
-            ),
-            statements: [
-              `return ${this.builder.buildMapperName(noHeuristics[0].typeName.value, mode)}(${paramName});`,
-            ],
-          });
-        } else if (noHeuristics.length > 1) {
-          const statements: string[] = [];
+                    return condition;
+                  }
+                  case 'RequiredProperties': {
+                    if (!h.properties.length) return undefined;
+                    const condition: Condition = and(
+                      ...h.properties.map((p) =>
+                        expr(`"${p}" in ${paramName}${isArray ? '[0]' : ''}`),
+                      ),
+                    );
+                    return condition;
+                  }
+                  default:
+                    return undefined;
+                }
+              })
+              .filter((c): c is Expression | AndClause => !!c)
+              .slice(0, 1), // Use only the first heuristic to avoid overly complex conditions,
+          },
+          statements: isArray
+            ? [`return ${paramName}.map(${mapperName});`]
+            : [`return ${mapperName}(${paramName});`],
+        });
+      }
 
-          // TODO: attempt to discriminate based on the presence of required properties
+      if (noHeuristics.length === 1) {
+        const mapperName = this.builder.buildMapperName(
+          noHeuristics[0].typeName.value,
+          mode,
+        );
+        blocks.push({
+          condition: and(
+            expr(`typeof ${paramName} === 'object'`),
+            expr(`${paramName} !== null`),
+          ),
+          statements: isArray
+            ? [`return ${paramName}.map(${mapperName});`]
+            : [`return ${mapperName}(${paramName});`],
+        });
+      } else if (noHeuristics.length > 1) {
+        const statements: string[] = [];
+
+        const hasMapProperties = noHeuristics.some((type) => {
+          const t = getTypeByName(this.service, type.typeName.value);
+          return !!t?.mapProperties;
+        });
+
+        if (hasMapProperties) {
+          statements.push(`return ${paramName} as any;`);
+        } else {
           statements.push(`const union = ${paramName} as any;`);
           this.touchCompact();
           statements.push(`return compact({`);
           const properties = new Map<string, Property>();
+
+          // TODO: make this work for map properties too
           for (const prop of this.traverseProperties(union)) {
             properties.set(prop.name.value, prop);
           }
@@ -611,37 +716,19 @@ export class ExpressMapperFactory extends BaseFactory {
             );
           }
           statements.push('}) as any;');
-
-          blocks.push({
-            condition: and(
-              expr(`typeof ${paramName} === 'object'`),
-              expr(`${paramName} !== null`),
-            ),
-            statements,
-          });
         }
-      }
 
-      // Render blocks
-      if (blocks.length === 1) {
-        yield* blocks[0].statements;
-      } else {
-        for (let i = 0; i < blocks.length; i++) {
-          const block = blocks[i];
-
-          if (i === blocks.length - 1) {
-            yield `else {`;
-          } else {
-            const prefix = i === 0 ? 'if' : 'else if';
-            yield `${prefix} (${render(block.condition)}) {`;
-          }
-          yield* block.statements;
-          yield `}`;
-        }
+        blocks.push({
+          condition: and(
+            expr(`typeof ${paramName} === 'object'`),
+            expr(`${paramName} !== null`),
+          ),
+          statements,
+        });
       }
     }
-    yield '}';
-    yield '';
+
+    return blocks;
   }
 
   private *traverseProperties(union: Union): Iterable<Property> {
@@ -667,6 +754,25 @@ export class ExpressMapperFactory extends BaseFactory {
             unions.push(uu);
           }
         }
+      }
+    }
+  }
+
+  private *renderBlocks(blocks: ConditionalBlock[]): Iterable<string> {
+    if (blocks.length === 1) {
+      yield* blocks[0].statements;
+    } else {
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+
+        if (i === blocks.length - 1) {
+          yield `else {`;
+        } else {
+          const prefix = i === 0 ? 'if' : 'else if';
+          yield `${prefix} (${render(block.condition)}) {`;
+        }
+        yield* block.statements;
+        yield `}`;
       }
     }
   }
