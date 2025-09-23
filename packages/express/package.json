@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@basketry/typescript": "^0.2.3",
-    "@basketry/typescript-dtos": "^0.2.2",
+    "@basketry/typescript-dtos": "^0.2.4",
     "basketry": "^0.2.1",
     "case": "^1.6.3",
     "prettier": "^3.3.3"
