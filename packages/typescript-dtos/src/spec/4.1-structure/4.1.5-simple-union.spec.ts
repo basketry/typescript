@@ -168,9 +168,12 @@ describe('4.1.5 Simple Union', () => {
             const result = await sut(service, options);
 
             // ASSERT
+            expect(result).toContainAst(
+              `const isoDateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;`,
+            );
             expect(result).toContainAst(`
               export function mapFromMyUnionDto(dto: dtos.MyUnionDto): types.MyUnion {
-                if (typeof dto === 'string' && !isNaN(Date.parse(dto))) {
+                if (typeof dto === 'string' && isIsoDate(dto)) {
                   return new Date(dto);
                 } else {
                   return dto;
@@ -196,9 +199,12 @@ describe('4.1.5 Simple Union', () => {
             const result = await sut(service, options);
 
             // ASSERT
+            expect(result).toContainAst(
+              `const isoDateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;`,
+            );
             expect(result).toContainAst(`
               export function mapFromMyUnionDto(dto: dtos.MyUnionDto): types.MyUnion {
-                if (typeof dto === 'string' && !isNaN(Date.parse(dto))) {
+                if (typeof dto === 'string' && isIsoDate(dto)) {
                   return new Date(dto);
                 } else {
                   return dto;
@@ -222,6 +228,130 @@ describe('4.1.5 Simple Union', () => {
               export function mapToMyUnionDto(obj: types.MyUnion): dtos.MyUnionDto {
                 if (obj instanceof Date) {
                   return obj.toISOString().split('T')[0];
+                } else {
+                  return obj;
+                }
+              }
+            `);
+          });
+        });
+      });
+
+      describe('when the union mixes string, date, and date-time members', () => {
+        // ARRANGE
+        const union = factory.simpleUnion({
+          name: factory.stringLiteral('MyUnion'),
+          members: [
+            factory.primitiveValue({
+              typeName: factory.primitiveLiteral('string'),
+            }),
+            factory.primitiveValue({
+              typeName: factory.primitiveLiteral('date'),
+            }),
+            factory.primitiveValue({
+              typeName: factory.primitiveLiteral('date-time'),
+            }),
+          ],
+        });
+
+        describe('Role: client', () => {
+          const options: NamespacedTypescriptDTOOptions = {
+            dtos: { role: 'client' },
+          };
+
+          it('creates a mapper for a DTO passed as a parameter', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withParamType(factory, 'MyUnion')],
+              unions: [union],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(`
+              export function mapToMyUnionDto(obj: types.MyUnion): dtos.MyUnionDto {
+                if (obj instanceof Date) {
+                  return obj.toISOString();
+                } else {
+                  return obj;
+                }
+              }
+            `);
+          });
+
+          it('creates a mapper for a returned DTO', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withReturnType(factory, 'MyUnion')],
+              unions: [union],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(
+              `const isoDateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;`,
+            );
+            expect(result).toContainAst(`
+              export function mapFromMyUnionDto(dto: dtos.MyUnionDto): types.MyUnion {
+                if (typeof dto === 'string' && (isIsoDate(dto) || isIsoDateTime(dto))) {
+                  return new Date(dto);
+                } else {
+                  return dto;
+                }
+              }
+            `);
+          });
+        });
+
+        describe('Role: server', () => {
+          const options: NamespacedTypescriptDTOOptions = {
+            dtos: { role: 'server' },
+          };
+
+          it('creates a mapper for a DTO passed as a parameter', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withParamType(factory, 'MyUnion')],
+              unions: [union],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(
+              `const isoDateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;`,
+            );
+            expect(result).toContainAst(`
+              export function mapFromMyUnionDto(dto: dtos.MyUnionDto): types.MyUnion {
+                if (typeof dto === 'string' && (isIsoDate(dto) || isIsoDateTime(dto))) {
+                  return new Date(dto);
+                } else {
+                  return dto;
+                }
+              }
+            `);
+          });
+
+          it('creates a mapper for a returned DTO', async () => {
+            // ARRANGE
+            const service = factory.service({
+              interfaces: [withReturnType(factory, 'MyUnion')],
+              unions: [union],
+            });
+
+            // ACT
+            const result = await sut(service, options);
+
+            // ASSERT
+            expect(result).toContainAst(`
+              export function mapToMyUnionDto(obj: types.MyUnion): dtos.MyUnionDto {
+                if (obj instanceof Date) {
+                  return obj.toISOString();
                 } else {
                   return obj;
                 }

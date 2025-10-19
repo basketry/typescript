@@ -27,6 +27,7 @@ import {
   Expression,
   Heuristic,
   or,
+  OrClause,
   render,
   UnionUtils,
 } from './union-utils';
@@ -49,10 +50,16 @@ export class ExpressMapperFactory extends BaseFactory {
     const compact = Array.from(this.buildCompact()).join('\n');
     const preamble = Array.from(this.buildPreamble()).join('\n');
 
+    // Must be after all mappers are built
+    const isoDateHelper = Array.from(this.buildIsIsoDate()).join('\n');
+    const isoDateTimeHelper = Array.from(this.buildIsIsoDateTime()).join('\n');
+
     files.push({
       path: buildFilePath(['dtos', 'mappers.ts'], this.service, this.options),
       contents: await format(
-        [preamble, compact, mappers].join('\n\n'),
+        [preamble, isoDateHelper, isoDateTimeHelper, compact, mappers].join(
+          '\n\n',
+        ),
         this.options,
       ),
     });
@@ -466,6 +473,37 @@ export class ExpressMapperFactory extends BaseFactory {
     yield* this.renderBlocks(topBlocks);
   }
 
+  private _needsIsIsoDate = false;
+  private isIsoDate(): string {
+    this._needsIsIsoDate = true;
+    return 'isIsoDate';
+  }
+  private *buildIsIsoDate(): Iterable<string> {
+    if (this._needsIsIsoDate) {
+      yield 'const isoDateRegex = /^\\d{4}-\\d{2}-\\d{2}$/;';
+      yield 'function isIsoDate(s: string): boolean {';
+      yield '  if (!isoDateRegex.test(s)) return false;';
+      yield '  const d = new Date(s + "T00:00:00Z"); // interpret as UTC midnight';
+      yield '  return !Number.isNaN(d.valueOf()) && d.toISOString().slice(0, 10) === s;';
+      yield '}';
+    }
+  }
+
+  private _needsIsIsoDateTime = false;
+  private isIsoDateTime(): string {
+    this._needsIsIsoDateTime = true;
+    return 'isIsoDateTime';
+  }
+  private *buildIsIsoDateTime(): Iterable<string> {
+    if (this._needsIsIsoDateTime) {
+      yield 'const isoDateTimeRegex = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$/;';
+      yield 'function isIsoDateTime(s: string): boolean {';
+      yield '  if (!isoDateTimeRegex.test(s)) return false;';
+      yield '  return !Number.isNaN(new Date(s).valueOf()); // relies on strict precheck above';
+      yield '}';
+    }
+  }
+
   private buildConditionalBlocks(
     members: MemberValue[],
     union: SimpleUnion,
@@ -516,9 +554,23 @@ export class ExpressMapperFactory extends BaseFactory {
         );
 
         if (check('string')) {
-          condition.clauses.push(
-            expr(`!isNaN(Date.parse(${paramName}${isArray ? '[0]' : ''}))`),
-          ); // TODO: enforce ISO 8601 format
+          const dateOrClause: OrClause = or();
+
+          if (hasDate) {
+            dateOrClause.clauses.push(
+              expr(`${this.isIsoDate()}(${paramName}${isArray ? '[0]' : ''})`),
+            );
+          }
+
+          if (hasDateTime) {
+            dateOrClause.clauses.push(
+              expr(
+                `${this.isIsoDateTime()}(${paramName}${isArray ? '[0]' : ''})`,
+              ),
+            );
+          }
+
+          condition.clauses.push(dateOrClause);
         }
         blocks.push({
           condition,
