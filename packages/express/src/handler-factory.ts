@@ -40,7 +40,11 @@ export class ExpressHandlerFactory extends BaseFactory {
     const files: File[] = [];
 
     const handlers = Array.from(this.buildHanders()).join('\n');
-    const runtime = Array.from([...this.buildGetHttpStatus()]).join('\n');
+    const runtime = Array.from([
+      ...this.buildIsError(),
+      '\n',
+      ...this.buildGetHttpStatus(),
+    ]).join('\n');
     const preamble = Array.from(this.buildPreamble()).join('\n');
 
     files.push({
@@ -157,7 +161,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     }
     yield '';
     if (isEnvelope) {
-      yield `if (result.errors.length) {`;
+      yield `if (${this.isError()}(result)) {`;
       yield `  next(${this.errorsModule}.handledException(status, result.errors));`;
       yield '} else {';
     }
@@ -352,6 +356,22 @@ export class ExpressHandlerFactory extends BaseFactory {
     }
   }
 
+  private _needsIsError = false;
+  private isError(): string {
+    this._needsIsError = true;
+    return 'isError';
+  }
+  private *buildIsError(): Iterable<string> {
+    if (this._needsIsError) {
+      yield `function isError(result: { errors: { status?: number | string }[]; data?: any; }): boolean {`;
+      yield `  return !!result.errors.length &&`;
+      yield `  (Array.isArray(result.data)`;
+      yield `    ? result.data.length === 0`;
+      yield `    : result.data === undefined);`;
+      yield `}`;
+    }
+  }
+
   private _needsGetHttpStatus = false;
   private touchGetHttpStatus(): void {
     this._needsGetHttpStatus = true;
@@ -360,9 +380,9 @@ export class ExpressHandlerFactory extends BaseFactory {
     if (this._needsGetHttpStatus) {
       yield `function getHttpStatus(
   success: number,
-  result: { errors: { status?: number | string }[] },
+  result: { errors: { status?: number | string }[], data?: unknown },
 ): number {
-  if (result.errors.length) {
+  if (!${this.isError()}(result)) {
     return result.errors.reduce((max, item) => {
       if (typeof item.status === 'undefined') return success;
       const value =
