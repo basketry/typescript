@@ -86,7 +86,7 @@ export function mapFromMixedMapADto(dto: dtos.MixedMapADto): types.MixedMapA {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof dto[key] === 'undefined'
-        ? undefined
+        ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as types.MixedMapA);
@@ -111,7 +111,7 @@ export function mapFromMixedMapBDto(dto: dtos.MixedMapBDto): types.MixedMapB {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof dto[key] === 'undefined'
-        ? undefined
+        ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as types.MixedMapB);
@@ -136,7 +136,7 @@ export function mapFromMixedMapCDto(dto: dtos.MixedMapCDto): types.MixedMapC {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof dto[key] === 'undefined'
-        ? undefined
+        ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as types.MixedMapC);
@@ -162,7 +162,7 @@ export function mapFromPureMapADto(dto: dtos.PureMapADto): types.PureMapA {
   return Object.keys(dto).reduce((acc, key) => {
     const value =
       typeof dto[key] === 'undefined'
-        ? undefined
+        ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, {} as types.PureMapA);
@@ -179,7 +179,7 @@ export function mapFromPureMapBDto(dto: dtos.PureMapBDto): types.PureMapB {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof dto[key] === 'undefined'
-        ? undefined
+        ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as types.PureMapB);
@@ -196,7 +196,7 @@ export function mapFromPureMapCDto(dto: dtos.PureMapCDto): types.PureMapC {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof dto[key] === 'undefined'
-        ? undefined
+        ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as types.PureMapC);
@@ -256,7 +256,7 @@ export function mapToGizmoDto(obj: types.Gizmo): dtos.GizmoDto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToGizmoMapValueDto(obj[key] as types.GizmoMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.GizmoDto);
@@ -290,7 +290,7 @@ export function mapToMixedMapADto(obj: types.MixedMapA): dtos.MixedMapADto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.MixedMapADto);
@@ -309,7 +309,7 @@ export function mapToMixedMapBDto(obj: types.MixedMapB): dtos.MixedMapBDto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.MixedMapBDto);
@@ -328,7 +328,7 @@ export function mapToMixedMapCDto(obj: types.MixedMapC): dtos.MixedMapCDto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.MixedMapCDto);
@@ -349,7 +349,7 @@ export function mapToPureMapADto(obj: types.PureMapA): dtos.PureMapADto {
   return Object.keys(obj).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, {} as dtos.PureMapADto);
@@ -366,7 +366,7 @@ export function mapToPureMapBDto(obj: types.PureMapB): dtos.PureMapBDto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.PureMapBDto);
@@ -383,7 +383,7 @@ export function mapToPureMapCDto(obj: types.PureMapC): dtos.PureMapCDto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.PureMapCDto);
@@ -405,8 +405,7 @@ export function mapToWidgetDto(obj: types.Widget): dtos.WidgetDto {
     fiz: obj.fiz,
     buzz: obj.buzz,
     fizbuzz: obj.fizbuzz,
-    foo:
-      typeof obj.foo === 'undefined' ? undefined : mapToWidgetFooDto(obj.foo),
+    foo: typeof obj.foo === 'undefined' ? obj.foo : mapToWidgetFooDto(obj.foo),
     size: obj.size,
     data: mapToWidgetDataDto(obj.data),
   });
@@ -423,7 +422,7 @@ export function mapToWidgetDataDto(obj: types.WidgetData): dtos.WidgetDataDto {
   return Object.keys(__rest__).reduce((acc, key) => {
     const value =
       typeof obj[key] === 'undefined'
-        ? undefined
+        ? obj[key]
         : mapToGizmoMapValueDto(obj[key] as types.GizmoMapValue);
     return value === undefined ? acc : { ...acc, [key]: value };
   }, __defined__ as dtos.WidgetDataDto);
