@@ -382,7 +382,7 @@ export class ExpressHandlerFactory extends BaseFactory {
   success: number,
   result: { errors: { status?: number | string }[], data?: unknown },
 ): number {
-  if (!${this.isError()}(result)) {
+  if (${this.isError()}(result)) {
     return result.errors.reduce((max, item) => {
       if (typeof item.status === 'undefined') return success;
       const value =
