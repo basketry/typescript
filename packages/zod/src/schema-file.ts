@@ -216,13 +216,9 @@ export class SchemaFile extends ModuleBuilder<NamespacedZodOptions> {
       case 'SimpleUnion':
       case 'DiscriminatedUnion':
         const buildMember = (member: MemberValue): string => {
-          if (member.kind === 'PrimitiveValue') {
-            return `${this.buildMemberSchema(member, schema, {
-              preventOptional: true,
-            })},`;
-          } else {
-            return `${pascal(member.typeName.value)}Schema,`;
-          }
+          return `${this.buildMemberSchema(member, schema, {
+            preventOptional: true,
+          })},`;
         };
 
         if (element.members.length === 1) {
