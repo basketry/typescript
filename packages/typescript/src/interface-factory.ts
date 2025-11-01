@@ -2,6 +2,7 @@ import {
   Enum,
   Generator,
   getTypeByName,
+  HttpMethod,
   Interface,
   isRequired,
   Method,
@@ -163,17 +164,23 @@ function* buildInterface(
   for (const method of int.methods.sort((a, b) =>
     a.name.value.localeCompare(b.name.value),
   )) {
-    yield* buildMethod(method);
+    const httpMethod = int.protocols?.http
+      ?.flatMap((route) => route.methods)
+      .find((m) => m.name.value === method.name.value);
+    yield* buildMethod(method, httpMethod);
     yield '';
   }
   yield `}`;
 }
 
-function* buildMethod(method: Method): Iterable<string> {
+function* buildMethod(
+  method: Method,
+  httpMethod: HttpMethod | undefined,
+): Iterable<string> {
   yield* buildDescription(method.description, method.deprecated?.value);
   yield `${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
-  yield `): ${buildMethodReturnValue(method)};`;
+  yield `): ${buildMethodReturnValue(method, httpMethod)};`;
 }
 
 function* buildType(type: Type): Iterable<string> {
