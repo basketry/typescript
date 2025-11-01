@@ -1,5 +1,4 @@
 import * as ts from 'typescript';
-import type { Options } from 'prettier';
 import { format } from '@prettier/sync';
 
 export { Factory } from './factory';
@@ -148,6 +147,43 @@ function parse(code: string, fileName = 'virtual.ts'): ts.SourceFile {
 }
 
 function printNode(sf: ts.SourceFile, node: ts.Node): string {
+  // Drop existing leading comments then re-attach the nearest JSDoc (if any)
+  ts.setEmitFlags(node, ts.EmitFlags.NoLeadingComments);
+
+  const jsdocs = ts.getJSDocCommentsAndTags(node);
+  if (jsdocs && jsdocs.length) {
+    const last = jsdocs[jsdocs.length - 1];
+    // Grab the raw JSDoc text from the source file
+    const raw = sf.text.slice(last.getFullStart(), last.end);
+
+    // Strip the /** ... */ delimiters and any leading '*' on lines
+    const inner = raw
+      .replace(/^\/\*\*\s?/, '')
+      .replace(/\*\/\s*$/, '')
+      .split(/\r?\n/)
+      .map((ln) => ln.replace(/^\s*\*? ?/, ''))
+      .join('\n')
+      .trim();
+
+    if (inner) {
+      // Build a JSDoc-style multi-line comment body. Passing a leading '*' makes
+      // addSyntheticLeadingComment emit a /** ... */ comment.
+      const commentBody = inner
+        ? `*\n${inner
+            .split(/\r?\n/)
+            .map((l) => ` * ${l}`)
+            .join('\n')}\n `
+        : '*';
+
+      ts.addSyntheticLeadingComment(
+        node,
+        ts.SyntaxKind.MultiLineCommentTrivia,
+        commentBody,
+        /* hasTrailingNewLine */ true,
+      );
+    }
+  }
+
   return f(printer.printNode(ts.EmitHint.Unspecified, node, sf).trim());
 }
 
