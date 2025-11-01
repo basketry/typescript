@@ -61,9 +61,21 @@ export const generateTypes: Generator = async (
 
   const ignore = from(eslintDisable(options));
 
+  // Prevents the first declaration from using the header as a JSDoc comment
+  // if it doesn't already have one.
+  const interstitial = (
+    (interfaces || params || enums || types || unions) ??
+    ''
+  )
+    .trim()
+    .startsWith('/')
+    ? ''
+    : '/** */';
+
   const contents = [
     header,
     ignore,
+    interstitial,
     interfaces,
     params,
     enums,
