@@ -2,6 +2,7 @@ import {
   Enum,
   Generator,
   getTypeByName,
+  HttpMethod,
   Interface,
   isRequired,
   Method,
@@ -61,9 +62,21 @@ export const generateTypes: Generator = async (
 
   const ignore = from(eslintDisable(options));
 
+  // Prevents the first declaration from using the header as a JSDoc comment
+  // if it doesn't already have one.
+  const interstitial = (
+    (interfaces || params || enums || types || unions) ??
+    ''
+  )
+    .trim()
+    .startsWith('/')
+    ? ''
+    : '/** */';
+
   const contents = [
     header,
     ignore,
+    interstitial,
     interfaces,
     params,
     enums,
@@ -151,17 +164,23 @@ function* buildInterface(
   for (const method of int.methods.sort((a, b) =>
     a.name.value.localeCompare(b.name.value),
   )) {
-    yield* buildMethod(method);
+    const httpMethod = int.protocols?.http
+      ?.flatMap((route) => route.methods)
+      .find((m) => m.name.value === method.name.value);
+    yield* buildMethod(method, httpMethod);
     yield '';
   }
   yield `}`;
 }
 
-function* buildMethod(method: Method): Iterable<string> {
+function* buildMethod(
+  method: Method,
+  httpMethod: HttpMethod | undefined,
+): Iterable<string> {
   yield* buildDescription(method.description, method.deprecated?.value);
   yield `${buildMethodName(method)}(`;
   yield* buildMethodParams(method);
-  yield `): ${buildMethodReturnValue(method)};`;
+  yield `): ${buildMethodReturnValue(method, httpMethod)};`;
 }
 
 function* buildType(type: Type): Iterable<string> {

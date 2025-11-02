@@ -2,6 +2,7 @@ import { pascal, camel } from 'case';
 
 import {
   Enum,
+  HttpMethod,
   HttpParameter,
   Interface,
   MemberValue,
@@ -186,11 +187,13 @@ export function buildRootTypeName(
 
 export function buildMethodReturnValue(
   method: Method,
+  httpMethod: HttpMethod | undefined,
   typeModule?: string,
 ): string {
-  return `Promise<${
-    method.returns ? buildTypeName(method.returns.value, typeModule) : 'void'
-  }>`;
+  const wrapperType = isStreamingMethod(httpMethod)
+    ? 'AsyncIterable'
+    : 'Promise';
+  return `${wrapperType}<${method.returns ? buildTypeName(method.returns.value, typeModule) : 'void'}>`;
 }
 
 function isUnion(type: Type | MemberValue | Enum | Union): type is Union {
@@ -211,4 +214,12 @@ export function buildEnumName(e: Enum): string {
 
 export function buildUnionName(union: Union): string {
   return pascal(union.name.value);
+}
+
+export function isStreamingMethod(httpMethod: HttpMethod | undefined): boolean {
+  if (!httpMethod) return false;
+
+  return httpMethod.responseMediaTypes.some(
+    (mt) => mt.value === 'text/event-stream',
+  );
 }

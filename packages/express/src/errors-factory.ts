@@ -25,7 +25,7 @@ export class ExpressErrorsFactory extends BaseFactory {
 
   private *buildErrors(): Iterable<string> {
     const ErrorType = () => {
-      switch (this.options.express?.validation) {
+      switch (this.options?.express?.validation) {
         case 'zod':
           this.touchZodIssueImport();
           return 'ZodIssue';
