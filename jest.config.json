@@ -11,6 +11,10 @@
     "**/?(*.)+(spec|test|tests).ts?(x)"
   ],
   "moduleNameMapper": {
-    "^@basketry/jest-utils$": "<rootDir>/utils/jest-utils/src"
+    "^@basketry/jest-utils$": "<rootDir>/utils/jest-utils/src",
+    "^@basketry/typescript/lib/(.*)$": "<rootDir>/packages/typescript/src/$1",
+    "^@basketry/typescript$": "<rootDir>/packages/typescript/src/index",
+    "^@basketry/typescript-dtos/lib/(.*)$": "<rootDir>/packages/typescript-dtos/src/$1",
+    "^@basketry/typescript-dtos$": "<rootDir>/packages/typescript-dtos/src/index"
   }
 }

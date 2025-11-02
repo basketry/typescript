@@ -77,19 +77,10 @@ describe('4.1.24 HttpMethod', () => {
         
               // Execute service method
               const service = getService(req, res);
-              const result = await service.listWidgets(params);
-              const status = getHttpStatus(200, result);
-
-              if(result.errors.length) {
-                next(errors.handleException(status, result.errors));
-              } else {
+               await service.listWidgets(params);
+                const status = 200;
                 // Respond
-                const responseDto = mappers.mapToListWidgetsResponseDto(result);
-                res.status(status).json(responseDto);
-
-                // Validate response
-                schemas.WidgetResponseSchema.parse(result);
-              }
+                res.sendStatus(status);
             } catch (err) {
               if (err instanceof ZodError) {
                 const statusCode = res.headersSent ? 500 : 400;

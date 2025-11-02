@@ -8,7 +8,14 @@
     "declaration": true,
     "strictNullChecks": true,
     "downlevelIteration": true,
-    "types": ["@basketry/jest-utils/src/global.d.ts", "jest"]
+    "types": ["@basketry/jest-utils/src/global.d.ts", "jest"],
+    "baseUrl": ".",
+    "paths": {
+      "@basketry/typescript/lib/*": ["./packages/typescript/src/*"],
+      "@basketry/typescript": ["./packages/typescript/src/index"],
+      "@basketry/typescript-dtos/lib/*": ["./packages/typescript-dtos/src/*"],
+      "@basketry/typescript-dtos": ["./packages/typescript-dtos/src/index"]
+    }
   },
   "exclude": ["**/*.test?.*"]
 }

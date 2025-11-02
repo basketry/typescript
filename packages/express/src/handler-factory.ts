@@ -20,6 +20,7 @@ import {
   buildMethodParamsTypeName,
   buildParameterName,
   buildTypeName,
+  isStreamingMethod,
 } from '@basketry/typescript';
 import { buildRequestHandlerTypeName } from '@basketry/typescript-dtos/lib/dto-factory';
 import { BaseFactory } from './base-factory';
@@ -110,6 +111,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     const isEnvelope = returnType?.properties.find(
       (prop) => prop.name.value === 'errors',
     );
+    const isStreaming = isStreamingMethod(httpMethod);
     yield `/** ${upper(httpMethod.verb.value)} ${this.builder.buildExpressRoute(
       path,
     )} ${method.deprecated?.value ? '@deprecated ' : ''}*/`;
@@ -124,6 +126,20 @@ export class ExpressHandlerFactory extends BaseFactory {
     )}): ${this.expressTypesModule}.${buildRequestHandlerTypeName(
       method.name.value,
     )} => async (req, res, next) => {`;
+    if (isStreaming) {
+      yield '  // Set response headers for streaming';
+      yield "  res.setHeader('Content-Type', 'text/event-stream');";
+      yield "  res.setHeader('Cache-Control', 'no-cache');";
+      yield "  res.setHeader('Connection', 'keep-alive');";
+      yield '';
+      yield '  const closeHandler = () => {';
+      yield '    res.end();';
+      yield '  };';
+      yield '';
+      yield "  req.on('close', closeHandler);";
+      yield "  req.on('finish', closeHandler);";
+      yield '';
+    }
     yield '  try {';
     if (hasParams) {
       switch (this.options?.express?.validation) {
@@ -144,7 +160,16 @@ export class ExpressHandlerFactory extends BaseFactory {
     }
     yield '    // Execute service method';
     yield `    const service = getService(req, res);`;
-    if (returnType) {
+    
+    if (isStreaming && method.returns) {
+      yield `    const stream = await service.${buildMethodName(method)}(${
+        hasParams ? 'params' : ''
+      });`;
+      yield '    for await (const event of stream) {';
+      yield '      res.write(`data: ${JSON.stringify(event)}\\n\\n`);';
+      yield '    }';
+      yield '    closeHandler();';
+    } else if (returnType) {
       yield `    const result = await service.${buildMethodName(method)}(${
         hasParams ? 'params' : ''
       });`;
@@ -153,47 +178,54 @@ export class ExpressHandlerFactory extends BaseFactory {
         hasParams ? 'params' : ''
       });`;
     }
-    if (isEnvelope) {
-      this.touchGetHttpStatus();
-      yield `    const status = getHttpStatus(${httpMethod.successCode.value}, result);`;
-    } else {
-      yield `    const status = ${httpMethod.successCode.value}`;
-    }
-    yield '';
-    if (isEnvelope) {
-      yield `if (${this.isError()}(result)) {`;
-      yield `  next(${this.errorsModule}.handledException(status, result.errors));`;
-      yield '} else {';
-    }
-    if (returnType) {
-      switch (this.options?.express?.responseValidation) {
-        case 'none': {
-          // Only build respond stanza
-          yield* this.buildRespondStanza(returnType);
-          break;
-        }
-        case 'strict': {
-          // Build response validation stanza first, then respond stanza
-          yield* this.buildResponseValidationStanza(returnType);
-          yield* this.buildRespondStanza(returnType);
-          break;
-        }
-        case 'warn':
-        default: {
-          // Build respond stanza first, then response validation stanza
-          yield* this.buildRespondStanza(returnType);
-          yield* this.buildResponseValidationStanza(returnType);
-          break;
-        }
+    
+    if (!isStreaming) {
+      if (isEnvelope) {
+        this.touchGetHttpStatus();
+        yield `    const status = getHttpStatus(${httpMethod.successCode.value}, result);`;
+      } else {
+        yield `    const status = ${httpMethod.successCode.value}`;
       }
-    } else {
-      yield '// Respond';
-      yield `    res.sendStatus(status);`;
+      yield '';
+      if (isEnvelope) {
+        yield `if (${this.isError()}(result)) {`;
+        yield `  next(${this.errorsModule}.handledException(status, result.errors));`;
+        yield '} else {';
+      }
+      if (returnType) {
+        switch (this.options?.express?.responseValidation) {
+          case 'none': {
+            // Only build respond stanza
+            yield* this.buildRespondStanza(returnType);
+            break;
+          }
+          case 'strict': {
+            // Build response validation stanza first, then respond stanza
+            yield* this.buildResponseValidationStanza(returnType);
+            yield* this.buildRespondStanza(returnType);
+            break;
+          }
+          case 'warn':
+          default: {
+            // Build respond stanza first, then response validation stanza
+            yield* this.buildRespondStanza(returnType);
+            yield* this.buildResponseValidationStanza(returnType);
+            break;
+          }
+        }
+      } else {
+        yield '// Respond';
+        yield `    res.sendStatus(status);`;
+      }
+      if (isEnvelope) {
+        yield '}';
+      }
     }
-    if (isEnvelope) {
-      yield '}';
-    }
+    
     yield '  } catch (err) {';
+    if (isStreaming) {
+      yield '    closeHandler();';
+    }
     switch (this.options?.express?.validation) {
       case 'zod':
       default: {
@@ -207,7 +239,15 @@ export class ExpressHandlerFactory extends BaseFactory {
         break;
       }
     }
-    yield '  }';
+    if (isStreaming) {
+      yield '  } finally {';
+      yield '    // Ensure handlers are removed';
+      yield "    req.off('close', closeHandler);";
+      yield "    req.off('finish', closeHandler);";
+      yield '  }';
+    } else {
+      yield '  }';
+    }
     yield '}';
   }
 
