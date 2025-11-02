@@ -126,7 +126,7 @@ export class ExpressHandlerFactory extends BaseFactory {
     )} => async (req, res, next) => {`;
     yield '  try {';
     if (hasParams) {
-      switch (this.options.express?.validation) {
+      switch (this.options?.express?.validation) {
         case 'zod':
         default: {
           const paramsRequired = method.parameters.some((p) =>
@@ -166,7 +166,7 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield '} else {';
     }
     if (returnType) {
-      switch (this.options.express?.responseValidation) {
+      switch (this.options?.express?.responseValidation) {
         case 'none': {
           // Only build respond stanza
           yield* this.buildRespondStanza(returnType);
@@ -194,7 +194,7 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield '}';
     }
     yield '  } catch (err) {';
-    switch (this.options.express?.validation) {
+    switch (this.options?.express?.validation) {
       case 'zod':
       default: {
         this.touchZodErrorImport();
@@ -224,7 +224,7 @@ export class ExpressHandlerFactory extends BaseFactory {
   }
 
   private *buildResponseValidationStanza(returnType: Type): Iterable<string> {
-    switch (this.options.express?.validation) {
+    switch (this.options?.express?.validation) {
       case 'zod':
       default: {
         yield `// Validate response`;
