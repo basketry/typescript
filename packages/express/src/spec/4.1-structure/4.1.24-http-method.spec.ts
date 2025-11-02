@@ -4,7 +4,7 @@ import generator from '../..';
 const factory = new Factory();
 
 describe('4.1.24 HttpMethod', () => {
-  describe('responseMediaTypes', () => {
+  describe('application/json response', () => {
     it('creates a method for a single response', async () => {
       // ARRANGE
       const service = factory.service({
@@ -23,8 +23,8 @@ describe('4.1.24 HttpMethod', () => {
                   }),
                 ],
                 returns: factory.returnValue({
-                  value: factory.primitiveValue({
-                    typeName: factory.primitiveLiteral('number'),
+                  value: factory.complexValue({
+                    typeName: factory.stringLiteral('Widget'),
                   }),
                 }),
               }),
@@ -53,6 +53,19 @@ describe('4.1.24 HttpMethod', () => {
             }),
           }),
         ],
+        types: [
+          factory.type({
+            name: factory.stringLiteral('Widget'),
+            properties: [
+              factory.property({
+                name: factory.stringLiteral('id'),
+                value: factory.primitiveValue({
+                  typeName: factory.primitiveLiteral('string'),
+                }),
+              }),
+            ],
+          }),
+        ],
       });
 
       // ACT
@@ -78,18 +91,14 @@ describe('4.1.24 HttpMethod', () => {
               // Execute service method
               const service = getService(req, res);
               const result = await service.listWidgets(params);
-              const status = getHttpStatus(200, result);
+              const status = 200;
 
-              if(result.errors.length) {
-                next(errors.handleException(status, result.errors));
-              } else {
-                // Respond
-                const responseDto = mappers.mapToListWidgetsResponseDto(result);
-                res.status(status).json(responseDto);
+              // Respond
+              const responseDto = mappers.mapToWidgetDto(result);
+              res.status(status).json(responseDto);
 
-                // Validate response
-                schemas.WidgetResponseSchema.parse(result);
-              }
+              // Validate response
+              schemas.WidgetSchema.parse(result);
             } catch (err) {
               if (err instanceof ZodError) {
                 const statusCode = res.headersSent ? 500 : 400;
@@ -101,9 +110,9 @@ describe('4.1.24 HttpMethod', () => {
           };
       `);
     });
-
-    it('creates a method for a streamed response', async () => {
-      // ARRANGE
+  });
+  describe('text/event-stream response', () => {
+    function createService() {
       const service = factory.service({
         interfaces: [
           factory.interface({
@@ -120,8 +129,8 @@ describe('4.1.24 HttpMethod', () => {
                   }),
                 ],
                 returns: factory.returnValue({
-                  value: factory.primitiveValue({
-                    typeName: factory.primitiveLiteral('number'),
+                  value: factory.complexValue({
+                    typeName: factory.stringLiteral('Widget'),
                   }),
                 }),
               }),
@@ -150,14 +159,35 @@ describe('4.1.24 HttpMethod', () => {
             }),
           }),
         ],
+        types: [
+          factory.type({
+            name: factory.stringLiteral('Widget'),
+            properties: [
+              factory.property({
+                name: factory.stringLiteral('id'),
+                value: factory.primitiveValue({
+                  typeName: factory.primitiveLiteral('string'),
+                }),
+              }),
+            ],
+          }),
+        ],
       });
+      return service;
+    };
+
+    it('creates a method for a streamed response with no validation', async () => {
+      // ARRANGE
+      const service = createService();
 
       // ACT
-      const result = await generator(service);
+      const result = await generator(service, {
+        express: {
+          responseValidation: 'none',
+        },
+      });
 
       const handlers = result.find((file) => file.path.includes('handlers.ts'));
-
-      console.log(handlers?.contents);
 
       // ASSERT
       expect(handlers?.contents).toContainAst(`
@@ -189,13 +219,13 @@ describe('4.1.24 HttpMethod', () => {
               // Execute service method
               const service = getService(req, res);
 
-              const stream = await service.streamWidgets(params);
+              const stream = service.streamWidgets(params);
               for await (const event of stream) {
-                res.write(\`data: \${JSON.stringify(event)}\\n\\n\`);
+                // Respond
+                const responseDto = mappers.mapToWidgetDto(event);
+                res.write(\`data: \${JSON.stringify(responseDto)}\\n\\n\`);
               }
-              closeHandler();
             } catch (err) {
-              closeHandler();
               if (err instanceof ZodError) {
                 const statusCode = res.headersSent ? 500 : 400;
                 return next(errors.validationErrors(statusCode, err.errors));
@@ -203,6 +233,142 @@ describe('4.1.24 HttpMethod', () => {
                 next(errors.unhandledException(err));
               }
             } finally {
+              closeHandler();
+              // Ensure handlers are removed
+              req.off('close', closeHandler);
+              req.off('finish', closeHandler);
+            }
+          };
+      `);
+    });
+
+    it('creates a method for a streamed response with validation warning', async () => {
+      // ARRANGE
+      const service = createService();
+
+      // ACT
+      const result = await generator(service, {
+        express: {
+          responseValidation: 'warn',
+        },
+      });
+
+      const handlers = result.find((file) => file.path.includes('handlers.ts'));
+
+      // ASSERT
+      expect(handlers?.contents).toContainAst(`
+        /** GET /widgets/stream */
+        export const handleStreamWidgets =
+          (
+            getService: (req: Request, res: Response) => types.WidgetsService,
+          ): expressTypes.StreamWidgetsRequestHandler =>
+          async (req, res, next) => {
+            // Set response headers for streaming
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+
+            const closeHandler = () => {
+              res.end();
+            };
+            
+            req.on('close', closeHandler);
+            req.on('finish', closeHandler);
+
+            try {
+              // Parse parameters from request
+              const params: types.StreamWidgetsParams =
+                schemas.StreamWidgetsParamsSchema.parse({
+                  a: req.query.a,
+                });
+        
+              // Execute service method
+              const service = getService(req, res);
+
+              const stream = service.streamWidgets(params);
+              for await (const event of stream) {
+                // Respond
+                const responseDto = mappers.mapToWidgetDto(event);
+                res.write(\`data: \${JSON.stringify(responseDto)}\\n\\n\`);
+              }
+            } catch (err) {
+              if (err instanceof ZodError) {
+                const statusCode = res.headersSent ? 500 : 400;
+                return next(errors.validationErrors(statusCode, err.errors));
+              } else {
+                next(errors.unhandledException(err));
+              }
+            } finally {
+              closeHandler();
+              // Ensure handlers are removed
+              req.off('close', closeHandler);
+              req.off('finish', closeHandler);
+            }
+          };
+      `);
+    });
+
+    it('creates a method for a streamed response with validation error', async () => {
+      // ARRANGE
+      const service = createService();
+
+      // ACT
+      const result = await generator(service, {
+        express: {
+          responseValidation: 'strict',
+        },
+      });
+
+      const handlers = result.find((file) => file.path.includes('handlers.ts'));
+
+      // ASSERT
+      expect(handlers?.contents).toContainAst(`
+        /** GET /widgets/stream */
+        export const handleStreamWidgets =
+          (
+            getService: (req: Request, res: Response) => types.WidgetsService,
+          ): expressTypes.StreamWidgetsRequestHandler =>
+          async (req, res, next) => {
+            // Set response headers for streaming
+            res.setHeader('Content-Type', 'text/event-stream');
+            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Connection', 'keep-alive');
+
+            const closeHandler = () => {
+              res.end();
+            };
+            
+            req.on('close', closeHandler);
+            req.on('finish', closeHandler);
+
+            try {
+              // Parse parameters from request
+              const params: types.StreamWidgetsParams =
+                schemas.StreamWidgetsParamsSchema.parse({
+                  a: req.query.a,
+                });
+        
+              // Execute service method
+              const service = getService(req, res);
+
+              const stream = service.streamWidgets(params);
+              for await (const event of stream) {
+                // Validate response
+                schemas.WidgetResponseSchema.parse(event);
+
+                // Respond
+                const responseDto = mappers.mapToWidgetDto(event);
+                res.write(\`data: \${JSON.stringify(responseDto)}\\n\\n\`);
+              }
+            } catch (err) {
+              if (err instanceof ZodError) {
+                const statusCode = res.headersSent ? 500 : 400;
+                return next(errors.validationErrors(statusCode, err.errors));
+              } else {
+                next(errors.unhandledException(err));
+              }
+            } finally {
+              closeHandler();
               // Ensure handlers are removed
               req.off('close', closeHandler);
               req.off('finish', closeHandler);
