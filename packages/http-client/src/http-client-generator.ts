@@ -228,7 +228,9 @@ function* buildClass(
 ): Iterable<string> {
   yield `export class ${buildHttpClientName(
     int,
-  )} implements ${buildInterfaceName(int, 'types')} {`;
+    undefined,
+    options,
+  )} implements ${buildInterfaceName(int, 'types', options)} {`;
   yield `constructor(`;
   yield `private readonly fetch: FetchLike,`;
   // yield* buildAuth(int, options);
