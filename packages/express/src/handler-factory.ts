@@ -20,7 +20,6 @@ import {
   buildMethodParamsTypeName,
   buildParameterName,
   buildTypeName,
-  isStreamingMethod,
 } from '@basketry/typescript';
 import { buildRequestHandlerTypeName } from '@basketry/typescript-dtos/lib/dto-factory';
 import { BaseFactory } from './base-factory';
@@ -31,6 +30,15 @@ type Handler = {
   name: string;
   expression: Iterable<string>;
 };
+
+// TODO: use the one from typescript name-factory once that'
+function isStreamingMethod(httpMethod: HttpMethod | undefined): boolean {
+  if (!httpMethod) return false;
+
+  return httpMethod.responseMediaTypes.some(
+    (mt) => mt.value === 'text/event-stream',
+  );
+}
 
 export class ExpressHandlerFactory extends BaseFactory {
   constructor(service: Service, options: NamespacedExpressOptions) {
