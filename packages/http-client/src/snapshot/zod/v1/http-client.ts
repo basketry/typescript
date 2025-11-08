@@ -187,9 +187,7 @@ export class HttpGizmoService implements types.GizmoService {
       const query: string[] = [];
       if (typeof sanitizedParams?.factors !== 'undefined') {
         query.push(
-          `factors=${sanitizedParams.factors
-            .map(encodeURIComponent)
-            .join(',')}`,
+          `factors=${sanitizedParams.factors.map(encodeURIComponent).join(',')}`,
         );
       }
 
@@ -500,30 +498,22 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       const query: string[] = [];
       if (typeof sanitizedParams?.stringNoFormat !== 'undefined') {
         query.push(
-          `string-no-format=${encodeURIComponent(
-            sanitizedParams.stringNoFormat,
-          )}`,
+          `string-no-format=${encodeURIComponent(sanitizedParams.stringNoFormat)}`,
         );
       }
       if (typeof sanitizedParams?.stringDate !== 'undefined') {
         query.push(
-          `string-date=${encodeURIComponent(
-            formatDate(sanitizedParams.stringDate),
-          )}`,
+          `string-date=${encodeURIComponent(formatDate(sanitizedParams.stringDate))}`,
         );
       }
       if (typeof sanitizedParams?.stringDateTime !== 'undefined') {
         query.push(
-          `string-date-time=${encodeURIComponent(
-            formatDateTime(sanitizedParams.stringDateTime),
-          )}`,
+          `string-date-time=${encodeURIComponent(formatDateTime(sanitizedParams.stringDateTime))}`,
         );
       }
       if (typeof sanitizedParams?.integerNoFormat !== 'undefined') {
         query.push(
-          `integer-no-format=${encodeURIComponent(
-            sanitizedParams.integerNoFormat,
-          )}`,
+          `integer-no-format=${encodeURIComponent(sanitizedParams.integerNoFormat)}`,
         );
       }
       if (typeof sanitizedParams?.integerInt32 !== 'undefined') {
@@ -538,9 +528,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       }
       if (typeof sanitizedParams?.numberNoFormat !== 'undefined') {
         query.push(
-          `number-no-format=${encodeURIComponent(
-            sanitizedParams.numberNoFormat,
-          )}`,
+          `number-no-format=${encodeURIComponent(sanitizedParams.numberNoFormat)}`,
         );
       }
       if (typeof sanitizedParams?.numberFloat !== 'undefined') {
@@ -661,37 +649,27 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       }
       if (typeof sanitizedParams.queryStringArray !== 'undefined') {
         query.push(
-          `query-string-array=${sanitizedParams.queryStringArray
-            .map(encodeURIComponent)
-            .join(',')}`,
+          `query-string-array=${sanitizedParams.queryStringArray.map(encodeURIComponent).join(',')}`,
         );
       }
       if (typeof sanitizedParams.queryEnumArray !== 'undefined') {
         query.push(
-          `query-enum-array=${sanitizedParams.queryEnumArray
-            .map(encodeURIComponent)
-            .join(',')}`,
+          `query-enum-array=${sanitizedParams.queryEnumArray.map(encodeURIComponent).join(',')}`,
         );
       }
       if (typeof sanitizedParams.queryNumberArray !== 'undefined') {
         query.push(
-          `query-number-array=${sanitizedParams.queryNumberArray
-            .map(encodeURIComponent)
-            .join(',')}`,
+          `query-number-array=${sanitizedParams.queryNumberArray.map(encodeURIComponent).join(',')}`,
         );
       }
       if (typeof sanitizedParams.queryIntegerArray !== 'undefined') {
         query.push(
-          `query-integer-array=${sanitizedParams.queryIntegerArray
-            .map(encodeURIComponent)
-            .join(',')}`,
+          `query-integer-array=${sanitizedParams.queryIntegerArray.map(encodeURIComponent).join(',')}`,
         );
       }
       if (typeof sanitizedParams.queryBooleanArray !== 'undefined') {
         query.push(
-          `query-boolean-array=${sanitizedParams.queryBooleanArray
-            .map(encodeURIComponent)
-            .join(',')}`,
+          `query-boolean-array=${sanitizedParams.queryBooleanArray.map(encodeURIComponent).join(',')}`,
         );
       }
 
@@ -707,25 +685,7 @@ export class HttpExhaustiveService implements types.ExhaustiveService {
       }
 
       const path = [
-        `${prefix}/exhaustive/${encodeURIComponent(
-          sanitizedParams.pathString,
-        )}/${encodeURIComponent(sanitizedParams.pathEnum)}/${encodeURIComponent(
-          sanitizedParams.pathNumber,
-        )}/${encodeURIComponent(
-          sanitizedParams.pathInteger,
-        )}/${encodeURIComponent(
-          sanitizedParams.pathBoolean,
-        )}/${sanitizedParams.pathStringArray
-          .map(encodeURIComponent)
-          .join(',')}/${sanitizedParams.pathEnumArray
-          .map(encodeURIComponent)
-          .join('|')}/${sanitizedParams.pathNumberArray
-          .map(encodeURIComponent)
-          .join(' ')}/${sanitizedParams.pathIntegerArray
-          .map(encodeURIComponent)
-          .join('\t')}/${sanitizedParams.pathBooleanArray
-          .map(encodeURIComponent)
-          .join(',')}`,
+        `${prefix}/exhaustive/${encodeURIComponent(sanitizedParams.pathString)}/${encodeURIComponent(sanitizedParams.pathEnum)}/${encodeURIComponent(sanitizedParams.pathNumber)}/${encodeURIComponent(sanitizedParams.pathInteger)}/${encodeURIComponent(sanitizedParams.pathBoolean)}/${sanitizedParams.pathStringArray.map(encodeURIComponent).join(',')}/${sanitizedParams.pathEnumArray.map(encodeURIComponent).join('|')}/${sanitizedParams.pathNumberArray.map(encodeURIComponent).join(' ')}/${sanitizedParams.pathIntegerArray.map(encodeURIComponent).join('\t')}/${sanitizedParams.pathBooleanArray.map(encodeURIComponent).join(',')}`,
         query.join('&'),
       ].join('?');
 

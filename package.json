@@ -8,6 +8,7 @@
     "build:typescript": "npm run build --workspace @basketry/typescript",
     "build:typescript-dtos": "npm run build --workspace @basketry/typescript-dtos",
     "build:zod": "npm run build --workspace @basketry/zod",
+    "build:http-client": "npm run build --workspace @basketry/typescript-http-client",
     "build:express": "npm run build --workspace @basketry/express",
     "clean": "npm run clean --workspaces --if-present",
     "fix": "run-s -s fix:*",

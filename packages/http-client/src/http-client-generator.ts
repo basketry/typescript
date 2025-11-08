@@ -7,13 +7,9 @@ import {
   HttpParameter,
   HttpRoute,
   Interface,
-  isApiKeyScheme,
-  isBasicScheme,
-  isOAuth2Scheme,
   isRequired,
   Method,
   Parameter,
-  SecurityScheme,
   Service,
 } from 'basketry';
 import { header as warning } from '@basketry/typescript/lib/warning';
@@ -350,7 +346,7 @@ class MethodFactory {
 
     const httpPath = (int.protocols?.http ?? [])
       .flatMap((p) => p.methods.map<[HttpRoute, HttpMethod]>((m) => [p, m]))
-      .find(([p, m]) => m.name.value === method.name.value)?.[0];
+      .find(([_, m]) => m.name.value === method.name.value)?.[0];
 
     if (httpMethod && httpPath) {
       yield* new MethodFactory(
@@ -410,7 +406,7 @@ class MethodFactory {
   }
 
   private *buildHeaders(
-    options: NamespacedTypescriptHttpClientOptions,
+    _options: NamespacedTypescriptHttpClientOptions,
   ): Iterable<string> {
     const headerParams = this.httpMethod.parameters.filter(
       (p) => p.location.value === 'header',
