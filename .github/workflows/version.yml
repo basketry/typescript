@@ -10,6 +10,7 @@ on:
           - '@basketry/express'
           - '@basketry/typescript'
           - '@basketry/typescript-dtos'
+          - '@basketry/typescript-http-client'
           - '@basketry/zod'
         required: true
       newversion:

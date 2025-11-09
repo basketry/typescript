@@ -1,0 +1,3464 @@
+{
+  "$schema": "../../node_modules/@basketry/ir/lib/schema.json",
+  "kind": "Service",
+  "basketry": "0.2",
+  "title": { "kind": "StringLiteral", "value": "BasketryExample" },
+  "majorVersion": { "kind": "IntegerLiteral", "value": 1 },
+  "sourcePaths": ["source/path.ext"],
+  "interfaces": [
+    {
+      "kind": "Interface",
+      "name": { "kind": "StringLiteral", "value": "gizmo" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Single paragraph description"
+        }
+      ],
+      "deprecated": { "kind": "TrueLiteral", "value": true },
+      "methods": [
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "getGizmos" },
+          "deprecated": { "kind": "TrueLiteral", "value": true },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "OAuth2Scheme",
+                  "type": { "value": "oauth2" },
+                  "name": { "kind": "StringLiteral", "value": "oauth2Auth" },
+                  "flows": [
+                    {
+                      "kind": "OAuth2ImplicitFlow",
+                      "type": {
+                        "value": "implicit"
+                      },
+                      "authorizationUrl": {
+                        "kind": "StringLiteral",
+                        "value": "https://example.com/auth"
+                      },
+                      "scopes": [
+                        {
+                          "kind": "OAuth2Scope",
+                          "name": {
+                            "kind": "StringLiteral",
+                            "value": "read:gizmos"
+                          },
+                          "description": [
+                            {
+                              "kind": "StringLiteral",
+                              "value": "Access gizmo data"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "search" },
+              "deprecated": { "kind": "TrueLiteral", "value": true },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isPrimitive": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            }
+          ],
+          "description": [
+            {
+              "kind": "StringLiteral",
+              "value": "Only has a summary"
+            }
+          ],
+          "returns": {
+            "kind": "ReturnValue",
+            "value": {
+              "kind": "ComplexValue",
+              "typeName": {
+                "kind": "StringLiteral",
+                "value": "gizmosResponse"
+              },
+              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "rules": []
+            }
+          }
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "createGizmo" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "OAuth2Scheme",
+                  "type": { "value": "oauth2" },
+                  "name": { "kind": "StringLiteral", "value": "oauth2Auth" },
+                  "flows": [
+                    {
+                      "kind": "OAuth2ImplicitFlow",
+                      "type": {
+                        "value": "implicit"
+                      },
+                      "authorizationUrl": {
+                        "kind": "StringLiteral",
+                        "value": "https://example.com/auth"
+                      },
+                      "scopes": [
+                        {
+                          "kind": "OAuth2Scope",
+                          "name": {
+                            "kind": "StringLiteral",
+                            "value": "write:gizmos"
+                          },
+                          "description": [
+                            {
+                              "kind": "StringLiteral",
+                              "value": "Write gizmo data"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "size" },
+              "description": [
+                {
+                  "kind": "StringLiteral",
+                  "value": "Anonymous enum"
+                }
+              ],
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "createGizmoSize"
+                },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            }
+          ],
+          "description": [
+            {
+              "kind": "StringLiteral",
+              "value": "Has a summary in addition to a description"
+            },
+            {
+              "kind": "StringLiteral",
+              "value": "Has a description in addition to a summary"
+            }
+          ],
+          "returns": {
+            "kind": "ReturnValue",
+            "value": {
+              "kind": "ComplexValue",
+              "typeName": { "kind": "StringLiteral", "value": "gizmo" },
+              "rules": []
+            }
+          }
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "updateGizmo" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "OAuth2Scheme",
+                  "type": { "value": "oauth2" },
+                  "name": { "kind": "StringLiteral", "value": "oauth2Auth" },
+                  "flows": [
+                    {
+                      "kind": "OAuth2ImplicitFlow",
+                      "type": {
+                        "value": "implicit"
+                      },
+                      "authorizationUrl": {
+                        "kind": "StringLiteral",
+                        "value": "https://example.com/auth"
+                      },
+                      "scopes": [
+                        {
+                          "kind": "OAuth2Scope",
+                          "name": {
+                            "kind": "StringLiteral",
+                            "value": "write:gizmos"
+                          },
+                          "description": [
+                            {
+                              "kind": "StringLiteral",
+                              "value": "Write gizmo data"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OAuth2Scope",
+                          "name": {
+                            "kind": "StringLiteral",
+                            "value": "admin:gizmos"
+                          },
+                          "description": [
+                            {
+                              "kind": "StringLiteral",
+                              "value": "Manage gizmos"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "factors" },
+              "description": [
+                {
+                  "kind": "StringLiteral",
+                  "value": "array of primitive"
+                }
+              ],
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": [
+                  {
+                    "kind": "ValidationRule",
+                    "id": "ArrayMaxItems",
+                    "max": { "kind": "NonNegativeIntegerLiteral", "value": 6 }
+                  },
+                  {
+                    "kind": "ValidationRule",
+                    "id": "ArrayMinItems",
+                    "min": { "kind": "NonNegativeIntegerLiteral", "value": 2 }
+                  },
+                  {
+                    "kind": "ValidationRule",
+                    "id": "StringPattern",
+                    "pattern": {
+                      "kind": "NonEmptyStringLiteral",
+                      "value": "[0-9a-fA-F]+"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "returns": {
+            "kind": "ReturnValue",
+            "value": {
+              "kind": "ComplexValue",
+              "typeName": { "kind": "StringLiteral", "value": "gizmo" },
+              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "rules": []
+            }
+          }
+        }
+      ],
+      "protocols": {
+        "kind": "InterfaceProtocols",
+        "http": [
+          {
+            "kind": "HttpRoute",
+            "pattern": { "kind": "StringLiteral", "value": "/gizmos" },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": { "kind": "StringLiteral", "value": "getGizmos" },
+                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "search" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": { "kind": "StringLiteral", "value": "createGizmo" },
+                "verb": { "kind": "HttpVerbLiteral", "value": "post" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "size" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 201 }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": { "kind": "StringLiteral", "value": "updateGizmo" },
+                "verb": { "kind": "HttpVerbLiteral", "value": "put" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "factors" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Interface",
+      "name": { "kind": "StringLiteral", "value": "widget" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "First paragraph of a multi-paragraph description"
+        },
+        {
+          "kind": "StringLiteral",
+          "value": "Second paragraph of a multi-paragraph description"
+        }
+      ],
+      "methods": [
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "getWidgets" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
+                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
+                  "in": { "value": "header" }
+                }
+              ]
+            }
+          ],
+          "parameters": [],
+          "returns": {
+            "kind": "ReturnValue",
+            "value": {
+              "kind": "ComplexValue",
+              "typeName": { "kind": "StringLiteral", "value": "widget" },
+              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "rules": []
+            }
+          }
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "createWidget" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
+                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
+                  "in": { "value": "header" }
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "body" },
+              "description": [
+                {
+                  "kind": "StringLiteral",
+                  "value": "The new widget"
+                }
+              ],
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "createWidgetBody"
+                },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "putWidget" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
+                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
+                  "in": { "value": "header" }
+                }
+              ]
+            }
+          ],
+          "parameters": []
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "getWidgetFoo" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
+                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
+                  "in": { "value": "header" }
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "id" },
+              "description": [
+                {
+                  "kind": "StringLiteral",
+                  "value": "The widget ID"
+                }
+              ],
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "rules": [
+                  {
+                    "kind": "ValidationRule",
+                    "id": "StringMaxLength",
+                    "length": {
+                      "kind": "NonNegativeIntegerLiteral",
+                      "value": 30
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "returns": {
+            "kind": "ReturnValue",
+            "value": {
+              "kind": "ComplexValue",
+              "typeName": { "kind": "StringLiteral", "value": "widget" },
+              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "rules": []
+            }
+          }
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "deleteWidgetFoo" },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
+                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
+                  "in": { "value": "header" }
+                }
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "id" },
+              "description": [
+                {
+                  "kind": "StringLiteral",
+                  "value": "The widget ID"
+                }
+              ],
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "rules": [
+                  {
+                    "kind": "ValidationRule",
+                    "id": "StringMaxLength",
+                    "length": {
+                      "kind": "NonNegativeIntegerLiteral",
+                      "value": 30
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "protocols": {
+        "kind": "InterfaceProtocols",
+        "http": [
+          {
+            "kind": "HttpRoute",
+            "pattern": { "kind": "StringLiteral", "value": "/widgets" },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": { "kind": "StringLiteral", "value": "getWidgets" },
+                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "parameters": [],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": { "kind": "StringLiteral", "value": "createWidget" },
+                "verb": { "kind": "HttpVerbLiteral", "value": "post" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "body" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "body"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 204 }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": { "kind": "StringLiteral", "value": "putWidget" },
+                "verb": { "kind": "HttpVerbLiteral", "value": "put" },
+                "parameters": [],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+              }
+            ]
+          },
+          {
+            "kind": "HttpRoute",
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/widgets/{id}/foo"
+            },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "getWidgetFoo"
+                },
+                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "id" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "deleteWidgetFoo"
+                },
+                "verb": { "kind": "HttpVerbLiteral", "value": "delete" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "id" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 204 }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Interface",
+      "name": { "kind": "StringLiteral", "value": "exhaustive" },
+      "methods": [
+        {
+          "kind": "Method",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "exhaustiveFormats"
+          },
+          "security": [],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "string-no-format"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "string-date" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "date" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": [
+                  {
+                    "kind": "ValidationRule",
+                    "id": "StringFormat",
+                    "format": {
+                      "kind": "NonEmptyStringLiteral",
+                      "value": "date"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "string-date-time"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "date-time"
+                },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": [
+                  {
+                    "kind": "ValidationRule",
+                    "id": "StringFormat",
+                    "format": {
+                      "kind": "NonEmptyStringLiteral",
+                      "value": "date-time"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "integer-no-format"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "integer-int32"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "integer-int64"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "number-no-format"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "number-float"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "number-double"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            }
+          ]
+        },
+        {
+          "kind": "Method",
+          "name": { "kind": "StringLiteral", "value": "exhaustiveParams" },
+          "security": [],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "query-string" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "query-enum" },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsQueryEnum"
+                },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "query-number" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-integer"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-boolean"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-string-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-enum-array"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsQueryEnumArray"
+                },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-number-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-integer-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-boolean-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "path-string" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "path-enum" },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsPathEnum"
+                },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "path-number" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "path-integer" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": { "kind": "StringLiteral", "value": "path-boolean" },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-string-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-enum-array"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsPathEnumArray"
+                },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-number-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-integer-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-boolean-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-string"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-enum"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsHeaderEnum"
+                },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-number"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-integer"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-boolean"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-string-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-enum-array"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsHeaderEnumArray"
+                },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-number-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-integer-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "header-boolean-array"
+              },
+              "value": {
+                "kind": "PrimitiveValue",
+                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "body"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParamsBody"
+                },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            }
+          ]
+        }
+      ],
+      "protocols": {
+        "kind": "InterfaceProtocols",
+        "http": [
+          {
+            "kind": "HttpRoute",
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/exhaustive"
+            },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveFormats"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "string-no-format"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "string-date"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "string-date-time"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "integer-no-format"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "integer-int32"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "integer-int64"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "number-no-format"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "number-float"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "number-double"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 204 }
+              }
+            ]
+          },
+          {
+            "kind": "HttpRoute",
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array}"
+            },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "exhaustiveParams"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-string"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-enum"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-number"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-integer"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-boolean"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-string-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-enum-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-number-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-integer-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "query-boolean-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-string"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-enum"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-number"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-integer"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-boolean"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-string-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-enum-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "pipes"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-number-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "ssv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-integer-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "tsv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "path-boolean-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "path"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-string"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-enum"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-number"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-integer"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-boolean"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-string-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-enum-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "csv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-number-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "pipes"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-integer-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "ssv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "header-boolean-array"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "header"
+                    },
+                    "arrayFormat": {
+                      "kind": "HttpArrayFormatLiteral",
+                      "value": "tsv"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": { "kind": "StringLiteral", "value": "body" },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "body"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 204
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Interface",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "authPermutation"
+      },
+      "methods": [
+        {
+          "kind": "Method",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "all-auth-schemes"
+          },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "BasicScheme",
+                  "type": { "value": "basic" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "basicAuth"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "BasicScheme",
+                  "type": { "value": "basic" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "alternate-basic-auth"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": { "value": "header" }
+                }
+              ]
+            },
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "OAuth2Scheme",
+                  "type": { "value": "oauth2" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "oauth2Auth"
+                  },
+                  "flows": [
+                    {
+                      "kind": "OAuth2ImplicitFlow",
+                      "type": {
+                        "value": "implicit"
+                      },
+                      "authorizationUrl": {
+                        "kind": "StringLiteral",
+                        "value": "https://example.com/auth"
+                      },
+                      "scopes": [
+                        {
+                          "kind": "OAuth2Scope",
+                          "name": {
+                            "kind": "StringLiteral",
+                            "value": "admin:gizmos"
+                          },
+                          "description": [
+                            {
+                              "kind": "StringLiteral",
+                              "value": "Manage gizmos"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "parameters": []
+        },
+        {
+          "kind": "Method",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "combo-auth-schemes"
+          },
+          "security": [
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "BasicScheme",
+                  "type": { "value": "basic" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "basicAuth"
+                  }
+                },
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": { "value": "header" }
+                }
+              ]
+            },
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "BasicScheme",
+                  "type": { "value": "basic" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "basicAuth"
+                  }
+                },
+                {
+                  "kind": "ApiKeyScheme",
+                  "type": { "value": "apiKey" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "alternateApiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "apikey"
+                  },
+                  "in": { "value": "query" }
+                }
+              ]
+            },
+            {
+              "kind": "SecurityOption",
+              "schemes": [
+                {
+                  "kind": "BasicScheme",
+                  "type": { "value": "basic" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "alternate-basic-auth"
+                  }
+                },
+                {
+                  "kind": "OAuth2Scheme",
+                  "type": { "value": "oauth2" },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "oauth2Auth"
+                  },
+                  "flows": [
+                    {
+                      "kind": "OAuth2ImplicitFlow",
+                      "type": {
+                        "value": "implicit"
+                      },
+                      "authorizationUrl": {
+                        "kind": "StringLiteral",
+                        "value": "https://example.com/auth"
+                      },
+                      "scopes": [
+                        {
+                          "kind": "OAuth2Scope",
+                          "name": {
+                            "kind": "StringLiteral",
+                            "value": "admin:gizmos"
+                          },
+                          "description": [
+                            {
+                              "kind": "StringLiteral",
+                              "value": "Manage gizmos"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "parameters": []
+        }
+      ],
+      "protocols": {
+        "kind": "InterfaceProtocols",
+        "http": [
+          {
+            "kind": "HttpRoute",
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/authPermutations"
+            },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "all-auth-schemes"
+                },
+                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "parameters": [],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "combo-auth-schemes"
+                },
+                "verb": { "kind": "HttpVerbLiteral", "value": "put" },
+                "parameters": [],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "Interface",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "mapDemo"
+      },
+      "methods": [
+        {
+          "kind": "Method",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "returnMaps"
+          },
+          "security": [],
+          "parameters": [],
+          "returns": {
+            "kind": "ReturnValue",
+            "value": {
+              "kind": "ComplexValue",
+              "typeName": { "kind": "StringLiteral", "value": "allMaps" },
+              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "rules": []
+            }
+          }
+        },
+        {
+          "kind": "Method",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "sendMaps"
+          },
+          "security": [],
+          "parameters": [
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "allMaps"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": { "kind": "StringLiteral", "value": "allMaps" },
+                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "rules": []
+              }
+            }
+          ]
+        }
+      ],
+      "protocols": {
+        "kind": "InterfaceProtocols",
+        "http": [
+          {
+            "kind": "HttpRoute",
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/mapDemo"
+            },
+            "methods": [
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "returnMaps"
+                },
+                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "parameters": [],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
+              },
+              {
+                "kind": "HttpMethod",
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "sendMaps"
+                },
+                "verb": { "kind": "HttpVerbLiteral", "value": "post" },
+                "parameters": [
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "allMaps"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "body"
+                    }
+                  }
+                ],
+                "requestMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "responseMediaTypes": [
+                  { "kind": "StringLiteral", "value": "application/json" }
+                ],
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "gizmo" },
+      "deprecated": { "kind": "TrueLiteral", "value": true },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "id" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "size" },
+          "deprecated": { "kind": "TrueLiteral", "value": true },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "productSize" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              },
+              {
+                "kind": "ValidationRule",
+                "id": "StringPattern",
+                "pattern": {
+                  "kind": "NonEmptyStringLiteral",
+                  "value": "[0-9a-fA-F]+"
+                }
+              }
+            ]
+          }
+        },
+        "requiredKeys": [],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "gizmoMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "gizmoMapValue" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "foo" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "bar" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              },
+              {
+                "kind": "ValidationRule",
+                "id": "StringPattern",
+                "pattern": {
+                  "kind": "NonEmptyStringLiteral",
+                  "value": "[0-9a-fA-F]+"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectAdditionalProperties",
+          "forbidden": { "kind": "TrueLiteral", "value": true }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "widget" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "id" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              },
+              {
+                "kind": "ValidationRule",
+                "id": "StringPattern",
+                "pattern": {
+                  "kind": "NonEmptyStringLiteral",
+                  "value": "[0-9a-fA-F]+"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "NumberMultipleOf",
+                "value": { "kind": "NonNegativeNumberLiteral", "value": 3 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "NumberMultipleOf",
+                "value": { "kind": "NonNegativeNumberLiteral", "value": 5 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "fizbuzz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "NumberMultipleOf",
+                "value": { "kind": "NonNegativeNumberLiteral", "value": 15 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "foo" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "widgetFoo" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "size" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "productSize" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "data" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "widgetData" },
+            "rules": []
+          }
+        }
+      ],
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectAdditionalProperties",
+          "forbidden": { "kind": "TrueLiteral", "value": true }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "widgetData" },
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              },
+              {
+                "kind": "ValidationRule",
+                "id": "StringPattern",
+                "pattern": {
+                  "kind": "NonEmptyStringLiteral",
+                  "value": "[0-9a-fA-F]+"
+                }
+              }
+            ]
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "fizz" },
+          { "kind": "StringLiteral", "value": "buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "gizmoMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "newWidget" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              },
+              {
+                "kind": "ValidationRule",
+                "id": "StringPattern",
+                "pattern": {
+                  "kind": "NonEmptyStringLiteral",
+                  "value": "[0-9a-fA-F]+"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "NumberMultipleOf",
+                "value": { "kind": "NonNegativeNumberLiteral", "value": 3 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "NumberMultipleOf",
+                "value": { "kind": "NonNegativeNumberLiteral", "value": 5 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "fizbuzz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "NumberMultipleOf",
+                "value": { "kind": "NonNegativeNumberLiteral", "value": 15 }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "foo" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "newWidgetFoo" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "size" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "productSize" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "mixedMapA" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has no required map keys"
+        }
+      ],
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "isPrimitive": true,
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "mixedMapB" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has required map keys"
+        }
+      ],
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "obj-fizz" },
+          { "kind": "StringLiteral", "value": "obj-buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "mixedMapC" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has required map keys and max properties GREATER THAN the number of required props and keys"
+        }
+      ],
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "obj-fizz" },
+          { "kind": "StringLiteral", "value": "obj-buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectMaxProperties",
+          "max": { "kind": "NonNegativeIntegerLiteral", "value": 5 }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "mixedMapD" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has required map keys and max properties EQUAL TO the number of required props and keys"
+        }
+      ],
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "obj-fizz" },
+          { "kind": "StringLiteral", "value": "obj-buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectMaxProperties",
+          "max": { "kind": "NonNegativeIntegerLiteral", "value": 4 }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "exampleMapValue" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "foo" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "bar" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "created-at" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "date-time" },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "pureMapA" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has no required map keys"
+        }
+      ],
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "isPrimitive": true,
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "pureMapB" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has required map keys"
+        }
+      ],
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "isPrimitive": true,
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "obj-fizz" },
+          { "kind": "StringLiteral", "value": "obj-buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "pureMapC" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has required map keys and max properties GREATER THAN the number of required keys"
+        }
+      ],
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "isPrimitive": true,
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "obj-fizz" },
+          { "kind": "StringLiteral", "value": "obj-buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectMaxProperties",
+          "max": { "kind": "NonNegativeIntegerLiteral", "value": 3 }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "pureMapD" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has required map keys and max properties EQUAL TO the number of required keys"
+        }
+      ],
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "isPrimitive": true,
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        "requiredKeys": [
+          { "kind": "StringLiteral", "value": "obj-fizz" },
+          { "kind": "StringLiteral", "value": "obj-buzz" }
+        ],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectMaxProperties",
+          "max": { "kind": "NonNegativeIntegerLiteral", "value": 2 }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "complexKeyMapA" },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Has validation rules on the map key"
+        }
+      ],
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": [
+              {
+                "kind": "ValidationRule",
+                "id": "StringMinLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 12 }
+              },
+              {
+                "kind": "ValidationRule",
+                "id": "StringMaxLength",
+                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+              }
+            ]
+          }
+        },
+        "requiredKeys": [],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "gizmosResponse" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "data" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "gizmo" },
+            "isArray": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "createWidgetBody" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "name" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "rules": []
+          }
+        }
+      ],
+      "rules": [
+        {
+          "kind": "ObjectValidationRule",
+          "id": "ObjectAdditionalProperties",
+          "forbidden": { "kind": "TrueLiteral", "value": true }
+        }
+      ]
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "exhaustiveParamsBody" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "foo" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "bar" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "widgetFoo" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "newWidgetFoo" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": { "kind": "StringLiteral", "value": "allMaps" },
+      "properties": [
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "complexKeyMapA" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "complexKeyMapA" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "pureMapA" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "pureMapA" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "pureMapB" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "pureMapB" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "pureMapC" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "pureMapC" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "pureMapD" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "pureMapD" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "mixedMapA" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "mixedMapA" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "mixedMapB" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "mixedMapB" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "mixedMapC" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "mixedMapC" },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": { "kind": "StringLiteral", "value": "mixedMapD" },
+          "value": {
+            "kind": "ComplexValue",
+            "typeName": { "kind": "StringLiteral", "value": "mixedMapD" },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    }
+  ],
+  "enums": [
+    {
+      "kind": "Enum",
+      "name": { "kind": "StringLiteral", "value": "createGizmoSize" },
+      "deprecated": { "kind": "TrueLiteral", "value": true },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "small" },
+          "deprecated": { "kind": "TrueLiteral", "value": true }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "medium" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "big" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "XL" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": { "kind": "StringLiteral", "value": "exhaustiveParamsQueryEnum" },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "one" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "two" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "three" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsQueryEnumArray"
+      },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "one" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "two" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "three" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": { "kind": "StringLiteral", "value": "exhaustiveParamsPathEnum" },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "one" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "two" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "three" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsPathEnumArray"
+      },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "one" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "two" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "three" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsHeaderEnum"
+      },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "one" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "two" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "three" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsHeaderEnumArray"
+      },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "one" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "two" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "three" }
+        }
+      ]
+    },
+    {
+      "kind": "Enum",
+      "name": { "kind": "StringLiteral", "value": "productSize" },
+      "members": [
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "small" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "medium" }
+        },
+        {
+          "kind": "EnumMember",
+          "content": { "kind": "StringLiteral", "value": "large" }
+        }
+      ]
+    }
+  ],
+  "unions": [
+    {
+      "kind": "SimpleUnion",
+      "name": { "kind": "StringLiteral", "value": "example-union" },
+      "members": [
+        {
+          "kind": "ComplexValue",
+          "typeName": { "kind": "StringLiteral", "value": "gizmo" },
+          "isOptional": { "kind": "TrueLiteral", "value": true },
+          "rules": []
+        },
+        {
+          "kind": "PrimitiveValue",
+          "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+          "isArray": { "kind": "TrueLiteral", "value": true },
+          "isOptional": { "kind": "TrueLiteral", "value": true },
+          "rules": []
+        }
+      ]
+    }
+  ]
+}

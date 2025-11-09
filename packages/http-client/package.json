@@ -1,0 +1,42 @@
+{
+  "name": "@basketry/typescript-http-client",
+  "version": "0.3.2",
+  "description": "Basketry generator for generating Express JS routers",
+  "main": "./lib/index.js",
+  "bin": {
+    "basketry-typescript-http-client": "./lib/rpc.js"
+  },
+  "scripts": {
+    "prebuild": "run-s -s clean",
+    "build": "tsc",
+    "postbuild": "chmod +x ./lib/rpc.js",
+    "clean": "run-s -s clean:*",
+    "clean:coverage": "rimraf coverage",
+    "clean:output": "rimraf lib",
+    "create-snapshot": "ts-node ./src/snapshot/create-snapshot.ts",
+    "prepack": "run-s -s build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basketry/typescript-http-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/basketry/typescript-http-client/issues"
+  },
+  "homepage": "https://basketry.io/docs/components/@basketry/typescript-http-client",
+  "funding": "https://github.com/sponsors/basketry",
+  "devDependencies": {
+    "@basketry/zod": "^0.2.0-alpha.1",
+    "zod": "^3.24.4"
+  },
+  "dependencies": {
+    "@basketry/typescript": "^0.2.3",
+    "@basketry/typescript-dtos": "^0.2.2",
+    "basketry": "^0.2.1",
+    "case": "^1.6.3",
+    "prettier": "^3.3.3"
+  }
+}
