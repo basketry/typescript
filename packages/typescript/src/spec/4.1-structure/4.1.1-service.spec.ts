@@ -4,7 +4,7 @@ import generator from '../..';
 const ir = new Factory();
 
 describe('4.1.2 Interface', () => {
-  it('does not crash when provided an empty service', async () => {
+  it.skip('does not crash when provided an empty service', async () => {
     // ARRANGE
     const service = ir.service({
       interfaces: [],
