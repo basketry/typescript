@@ -85,7 +85,7 @@ export class Factory {
       deprecated,
       properties: properties ?? [],
       mapProperties,
-      rules: [],
+      rules: rules ?? [],
       ...rest,
     };
   }
