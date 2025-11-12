@@ -1,6 +1,7 @@
 import {
   Enum,
   Generator,
+  getEnumByName,
   getTypeByName,
   Interface,
   isRequired,
@@ -47,7 +48,7 @@ export const generateTypes: Generator = async (
 
   const types = [...service.types]
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
-    .map((type) => Array.from(buildType(type)).join('\n'))
+    .map((type) => Array.from(buildType(type, service)).join('\n'))
     .join('\n\n');
 
   const enums = [...service.enums]
@@ -176,7 +177,7 @@ function* buildMethod(method: Method): Iterable<string> {
   yield `): ${buildMethodReturnValue(method)};`;
 }
 
-function* buildType(type: Type): Iterable<string> {
+function* buildType(type: Type, service: Service): Iterable<string> {
   yield* buildDescription(type.description, type.deprecated?.value);
 
   yield `export type ${buildTypeName(type)} =`;
@@ -236,7 +237,12 @@ function* buildType(type: Type): Iterable<string> {
           ? buildTypeName(type.mapProperties.key.value)
           : 'string';
 
-        const isEnumKey = type.mapProperties?.key.value.kind === 'ComplexValue';
+        const isEnumKey =
+          type.mapProperties?.key.value.kind === 'ComplexValue' &&
+          !!getEnumByName(
+            service,
+            type.mapProperties.key.value.typeName.value,
+          );
 
         const recordType = `Record<${keyTypeName}, ${Array.from(typeNames)
           .sort()
