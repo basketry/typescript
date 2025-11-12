@@ -33,24 +33,24 @@ export const generateTypes: Generator = async (
   service,
   options?: NamespacedTypescriptOptions,
 ) => {
-  const interfaces = service.interfaces
+  const interfaces = [...service.interfaces]
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((int) => Array.from(buildInterface(int, options)).join('\n'))
     .join('\n\n');
 
-  const params = service.interfaces
+  const params = [...service.interfaces]
     .flatMap((int) => int.methods)
     .filter((method) => method.parameters.length > 0)
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((method) => Array.from(buildMethodParamsType(method)).join('\n'))
     .join('\n\n');
 
-  const types = service.types
+  const types = [...service.types]
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((type) => Array.from(buildType(type)).join('\n'))
     .join('\n\n');
 
-  const enums = service.enums
+  const enums = [...service.enums]
     .sort((a, b) => a.name.value.localeCompare(b.name.value))
     .map((e) => Array.from(buildEnum(e)).join('\n'))
     .join('\n\n');
