@@ -49,9 +49,7 @@ describe('4.1.11 Map Properties', () => {
       },
     );
 
-    // TODO: fix and unskip this test
-    // https://github.com/basketry/typescript/issues/138
-    it.skip('emites a partial record when an enum is used as the key type', async () => {
+    it('emits a partial record when an enum is used as the key type', async () => {
       // ARRANGE
       const service = ir.service({
         types: [
