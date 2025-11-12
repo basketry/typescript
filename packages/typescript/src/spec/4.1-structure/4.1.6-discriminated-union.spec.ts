@@ -342,9 +342,7 @@ describe('4.1.6 DiscriminatedUnion', () => {
       `);
     });
 
-    // TODO: fix and enable these tests
-    // https://github.com/basketry/typescript/issues/135
-    it.skip('create only one type guard function per member even if used in multiple unions', async () => {
+    it('create only one type guard function per member even if used in multiple unions', async () => {
       // ARRANGE
       const unionA = ir.discriminatedUnion({
         name: ir.stringLiteral('UnionA'),

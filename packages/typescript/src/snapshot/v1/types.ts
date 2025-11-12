@@ -245,6 +245,10 @@ export type WidgetFoo = {
 
 export type Animal = Cat | Dog;
 
+export type SomeTypeNestedUnion = PartA | PartB;
+
+export type TopLevelUnion = PartA | PartB;
+
 export function isCat(obj: Animal): obj is Cat {
   return obj.type === 'cat';
 }
@@ -252,7 +256,3 @@ export function isCat(obj: Animal): obj is Cat {
 export function isDog(obj: Animal): obj is Dog {
   return obj.type === 'dog';
 }
-
-export type SomeTypeNestedUnion = PartA | PartB;
-
-export type TopLevelUnion = PartA | PartB;

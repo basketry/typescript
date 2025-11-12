@@ -1,4 +1,5 @@
 import {
+  DiscriminatedUnion,
   Enum,
   Generator,
   getTypeByName,
@@ -55,7 +56,9 @@ export const generateTypes: Generator = async (
     .map((e) => Array.from(buildEnum(e)).join('\n'))
     .join('\n\n');
 
-  const unions = from(buildUnions(service));
+  const unionsByMember: Map<string, Set<DiscriminatedUnion>> = new Map();
+  const unions = from(buildUnions(service, unionsByMember));
+  const typeGuards = from(buildTypeGuards(service, unionsByMember));
 
   const header = warning(service, require('../package.json'), options);
 
@@ -81,6 +84,7 @@ export const generateTypes: Generator = async (
     enums,
     types,
     unions,
+    typeGuards,
   ].join('\n\n');
 
   return [
@@ -91,16 +95,22 @@ export const generateTypes: Generator = async (
   ];
 };
 
-function* buildUnions(service: Service): Iterable<string> {
+function* buildUnions(
+  service: Service,
+  unionsByMember: Map<string, Set<DiscriminatedUnion>>,
+): Iterable<string> {
   for (const union of [...service.unions].sort((a, b) =>
     a.name.value.localeCompare(b.name.value),
   )) {
     yield '';
-    yield* buildUnion(service, union);
+    yield* buildUnion(union, unionsByMember);
   }
 }
 
-function* buildUnion(service: Service, union: Union): Iterable<string> {
+function* buildUnion(
+  union: Union,
+  unionsByMember: Map<string, Set<DiscriminatedUnion>>,
+): Iterable<string> {
   const name = buildUnionName(union);
 
   yield* buildDescription(union.description, union.deprecated?.value);
@@ -109,37 +119,73 @@ function* buildUnion(service: Service, union: Union): Iterable<string> {
       .map((customValue) => buildTypeName(customValue))
       .join(' | ')}`;
 
-    for (const customValue of union.members) {
-      const type = getTypeByName(service, customValue.typeName.value);
-      if (!type) continue;
-
-      const typeName = buildTypeName(customValue);
-      const methodName = camel(`is_${typeName}`);
-      const property = type.properties.find(
-        (prop) => camel(prop.name.value) === camel(union.discriminator.value),
-      );
-
-      if (property?.value.kind !== 'PrimitiveValue') continue;
-
-      const propertyName = buildPropertyName(property);
-
-      const constant = property.value.constant?.value;
-      if (!constant) continue;
-
-      yield '';
-      yield `export function ${methodName}(obj: ${name}): obj is ${typeName} {`;
-      if (typeof constant === 'string') {
-        yield `  return obj.${propertyName} === '${constant}';`;
-      } else {
-        yield `  return obj.${propertyName} === ${constant};`;
-      }
-      yield '}';
+    for (const member of union.members) {
+      const unions =
+        unionsByMember.get(member.typeName.value) ??
+        new Set<DiscriminatedUnion>();
+      unions.add(union);
+      unionsByMember.set(member.typeName.value, unions);
     }
   } else {
     yield `export type ${name} = ${union.members
       .map((typedValue) => buildTypeName(typedValue))
       .join(' | ')}`;
   }
+}
+
+function* buildTypeGuards(
+  service: Service,
+  unionsByMember: Map<string, Set<DiscriminatedUnion>>,
+): Iterable<string> {
+  for (const [member, unions] of unionsByMember) {
+    yield '';
+    yield* buildTypeGuardFunction(member, unions, service);
+  }
+}
+
+function* buildTypeGuardFunction(
+  memberType: string,
+  unions: Iterable<DiscriminatedUnion>,
+  service: Service,
+): Iterable<string> {
+  const type = getTypeByName(service, memberType);
+  if (!type) return;
+
+  const typeName = buildTypeName(type);
+  const methodName = camel(`is_${typeName}`);
+
+  const discriminators = new Map<string, string>();
+
+  for (const union of unions) {
+    const property = type.properties.find(
+      (prop) => camel(prop.name.value) === camel(union.discriminator.value),
+    );
+    if (property?.value.kind !== 'PrimitiveValue') continue;
+    const constant = property.value.constant;
+    if (!constant) continue;
+
+    const propertyName = buildPropertyName(property);
+
+    const constantString =
+      constant.kind === 'StringLiteral'
+        ? `'${constant.value}'`
+        : `${constant.value}`;
+
+    if (property) discriminators.set(propertyName, constantString);
+  }
+
+  const unionsString = Array.from(unions)
+    .map((u) => buildUnionName(u))
+    .join(' | ');
+
+  yield '';
+  yield `export function ${methodName}(obj: ${unionsString}): obj is ${typeName} {`;
+
+  yield `return ${Array.from(discriminators)
+    .map(([k, v]) => `obj.${k} === ${v}`)
+    .join(' && ')};`;
+
+  yield '}';
 }
 
 function* buildInterface(
