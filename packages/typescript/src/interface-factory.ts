@@ -232,15 +232,17 @@ function* buildType(type: Type): Iterable<string> {
         const mapValueType = buildTypeName(mapValue.value);
         typeNames.add(mapValueType);
 
-        // TODO: prevent this from making each of the enum keys required
-
         const keyTypeName = type.mapProperties
           ? buildTypeName(type.mapProperties.key.value)
           : 'string';
 
-        yield `Record<${keyTypeName}, ${Array.from(typeNames)
+        const isEnumKey = type.mapProperties?.key.value.kind === 'ComplexValue';
+
+        const recordType = `Record<${keyTypeName}, ${Array.from(typeNames)
           .sort()
           .join(' | ')}>`;
+
+        yield isEnumKey ? `Partial<${recordType}>` : recordType;
       }
     }
   }
