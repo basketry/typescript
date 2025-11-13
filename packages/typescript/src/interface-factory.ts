@@ -376,9 +376,7 @@ function* internalBuildParamsType(
   yield '{';
 
   for (const param of sortedParams) {
-    if (param.description) {
-      yield* buildDescription(param.description, param.deprecated?.value);
-    }
+    yield* buildDescription(param.description, param.deprecated?.value);
 
     yield `    ${buildParameterName(param)}${
       isRequired(param.value) ? '' : '?'
