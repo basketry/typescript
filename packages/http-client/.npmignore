@@ -1,0 +1,6 @@
+*.tests.js
+*.tests.js.map
+*.tests.d.ts
+src
+**/snapshot
+/*.*
