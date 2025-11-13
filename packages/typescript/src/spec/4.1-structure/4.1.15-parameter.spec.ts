@@ -132,9 +132,7 @@ describe('4.1.15 Parameter', () => {
     });
   });
 
-  // TODO: fix and enable these tests
-  // https://github.com/basketry/typescript/issues/136
-  describe.skip('deprecated', () => {
+  describe('deprecated', () => {
     it('creates a parameter marked as deprecated', async () => {
       // ARRANGE
       const service = sut(
@@ -174,6 +172,7 @@ describe('4.1.15 Parameter', () => {
           value: ir.primitiveValue({
             typeName: ir.primitiveLiteral('string'),
           }),
+          deprecated: ir.trueLiteral(),
         }),
       );
 
