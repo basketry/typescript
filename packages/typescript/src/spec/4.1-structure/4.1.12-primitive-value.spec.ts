@@ -241,9 +241,7 @@ describe('4.1.12 Primitive Value', () => {
       );
     });
 
-    // TODO: fix and enable these tests
-    // https://github.com/basketry/typescript/issues/139
-    describe.skip('map property value', () => {
+    describe('map property value', () => {
       it.each(typeMap)(
         'emits nullable `%s` as a union of `%s` and null',
         async (primitive, expectedType) => {
@@ -407,9 +405,7 @@ describe('4.1.12 Primitive Value', () => {
       );
     });
 
-    // TODO: fix and enable these tests
-    // https://github.com/basketry/typescript/issues/139
-    describe.skip('map property value', () => {
+    describe('map property value', () => {
       it.each(typeMap)(
         'emits `%s` as a union of `%s` array and null',
         async (primitive, expectedType) => {
@@ -577,9 +573,7 @@ describe('4.1.12 Primitive Value', () => {
       );
     });
 
-    // TODO: fix and enable these tests
-    // https://github.com/basketry/typescript/issues/139
-    describe.skip('map property value', () => {
+    describe('map property value', () => {
       it.each(typeMap)(
         'emits nullable `%s` as a union of `%s` and null',
         async (primitive, expectedType) => {
@@ -665,9 +659,7 @@ describe('4.1.12 Primitive Value', () => {
       );
     });
 
-    // TODO: fix and enable these tests
-    // https://github.com/basketry/typescript/issues/139
-    describe.skip('map property value', () => {
+    describe('map property value', () => {
       it.each(typeMap)(
         'emits `%s` as a union of `%s` array and null',
         async (primitive, expectedType) => {
