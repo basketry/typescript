@@ -289,7 +289,7 @@ function* buildType(type: Type): Iterable<string> {
 
         const recordType = `Record<${keyTypeName}, ${Array.from(typeNames)
           .sort()
-          .join(' | ')}>`;
+          .join(' | ')} ${mapValue.value.isNullable ? ` | null` : ''}>`;
 
         yield isEnumKey ? `Partial<${recordType}>` : recordType;
       }
