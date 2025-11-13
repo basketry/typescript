@@ -5,6 +5,7 @@ import {
   getTypeByName,
   Interface,
   isRequired,
+  MemberValue,
   Method,
   Service,
   StringLiteral,
@@ -113,11 +114,15 @@ function* buildUnion(
 ): Iterable<string> {
   const name = buildUnionName(union);
 
+  const members = union.members.length
+    ? union.members
+        .map((typedValue: MemberValue) => buildTypeName(typedValue))
+        .join(' | ')
+    : 'never';
+
   yield* buildDescription(union.description, union.deprecated?.value);
   if (union.kind === 'DiscriminatedUnion') {
-    yield `export type ${name} = ${union.members
-      .map((customValue) => buildTypeName(customValue))
-      .join(' | ')}`;
+    yield `export type ${name} = ${members}`;
 
     for (const member of union.members) {
       const unions =
@@ -127,9 +132,7 @@ function* buildUnion(
       unionsByMember.set(member.typeName.value, unions);
     }
   } else {
-    yield `export type ${name} = ${union.members
-      .map((typedValue) => buildTypeName(typedValue))
-      .join(' | ')}`;
+    yield `export type ${name} = ${members}`;
   }
 }
 
