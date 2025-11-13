@@ -11,13 +11,7 @@ const typeMap: ['type' | 'enum' | 'union', Type | Enum | Union, string][] = [
     'union',
     ir.simpleUnion({
       name: ir.stringLiteral('OtherUnion'),
-      members: [
-        // TODO: fix memberless unions
-        // https://github.com/basketry/typescript/issues/137
-        ir.primitiveValue({
-          typeName: ir.primitiveLiteral('string'),
-        }),
-      ],
+      members: [],
     }),
     'OtherUnion',
   ],

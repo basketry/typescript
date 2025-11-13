@@ -250,9 +250,7 @@ describe('4.1.5 SimpleUnion', () => {
       `);
     });
 
-    // TODO: fix and enable these tests
-    // https://github.com/basketry/typescript/issues/137
-    it.skip('creates a union without any members', async () => {
+    it('creates a union without any members', async () => {
       // ARRANGE
       const service = ir.service({
         types: [typeA, typeB],
