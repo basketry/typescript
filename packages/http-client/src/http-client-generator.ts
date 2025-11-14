@@ -23,6 +23,7 @@ import {
   buildMethodReturnValue,
   buildParameterName,
   buildTypeName,
+  isStreamingMethod,
 } from '@basketry/typescript';
 import { buildHttpClientName } from './name-factory';
 import { Builder as DtoBuilder } from '@basketry/typescript-dtos/lib/builder';
@@ -81,6 +82,16 @@ function* buildImports(
   service: Service,
   options?: NamespacedTypescriptHttpClientOptions,
 ): Iterable<string> {
+  const httpMethods = service.interfaces
+    .flatMap((int) => int.protocols?.http ?? [])
+    .flatMap((p) => p.methods);
+
+  const hasStreamingMethods = httpMethods.some(isStreamingMethod);
+
+  if (hasStreamingMethods) {
+    yield `import { events } from 'fetch-event-stream';`;
+  }
+
   if (options?.httpClient?.validation === 'zod') {
     yield `import * as z from 'zod';`;
   }
@@ -148,11 +159,11 @@ function* buildStandardTypes(
   yield `}`;
   yield ``;
   yield `export interface FetchLike {`;
-  yield `<T>(resource: string, init?: {`;
+  yield `(resource: string, init?: {`;
   if (methods.size) yield `  method?: ${Array.from(methods).join(' | ')},`;
   yield `  headers?: Record<string, string>,`;
   yield `  body?: string,`;
-  yield `}): Promise<{ json(): Promise<T>, status: number }>;`;
+  yield `}): Promise<Response>;`;
   yield `}`;
   if (includeFormatDate || includeFormatDateTime) {
     yield '';
@@ -185,27 +196,6 @@ function* buildStandardTypes(
     }
   }
 }
-
-// function* buildAuth(
-//   int: Interface,
-//   options: NamespacedTypescriptHttpClientOptions,
-// ): Iterable<string> {
-//   const schemes = getSecuritySchemes(int);
-
-//   if (schemes.length && options?.httpClient?.includeAuthSchemes) {
-//     yield 'private readonly auth: {';
-//     for (const scheme of schemes) {
-//       if (isApiKeyScheme(scheme)) {
-//         yield `'${scheme.name.value}'?: {key: string}`;
-//       } else if (isBasicScheme(scheme)) {
-//         yield `'${scheme.name.value}'?: {username: string, password: string}`;
-//       } else if (isOAuth2Scheme(scheme)) {
-//         yield `'${scheme.name.value}'?: {accessToken: string}`;
-//       }
-//     }
-//     yield '},';
-//   }
-// }
 
 function* buildClasses(
   service: Service,
@@ -310,19 +300,6 @@ function sep(httpParam: HttpParameter): string {
   }
 }
 
-// function getSecuritySchemes(int: Interface): SecurityScheme[] {
-//   return Array.from(
-//     int.methods
-//       .flatMap((m) => m.security)
-//       .flatMap((opt) => opt)
-//       .reduce(
-//         (map, scheme) => map.set(scheme.name.value, scheme),
-//         new Map<string, SecurityScheme>(),
-//       )
-//       .values(),
-//   );
-// }
-
 class MethodFactory {
   private constructor(
     private readonly service: Service,
@@ -363,14 +340,24 @@ class MethodFactory {
   private *buildMethod(
     options: NamespacedTypescriptHttpClientOptions,
   ): Iterable<string> {
+    const isStreaming = isStreamingMethod(this.httpMethod);
     yield* buildDescription(
       this.method.description,
       this.method.deprecated?.value,
     );
-    yield `async ${buildMethodName(this.method)}(`;
+    yield `async ${
+      isStreamingMethod(this.httpMethod) ? '*' : ''
+    }${buildMethodName(this.method)}(`;
     yield* buildMethodParams(this.method, 'types');
-    yield `): ${buildMethodReturnValue(this.method, 'types')} {`;
-    yield ` try {`;
+    yield `): ${buildMethodReturnValue(
+      this.method,
+      this.httpMethod,
+      'types',
+    )} {`;
+
+    if (!isStreaming) {
+      yield ` try {`;
+    }
 
     if (this.method.parameters.length) {
       switch (options?.httpClient?.validation) {
@@ -398,10 +385,12 @@ class MethodFactory {
     yield* this.buildBody();
     yield '';
     yield* this.buildFetch();
-    yield '  } catch (unhandledException) {';
-    yield '    console.error(unhandledException);';
-    yield '    return { errors: this.mapErrors([], unhandledException) } as any;';
-    yield '  }';
+    if (!isStreaming) {
+      yield '  } catch (unhandledException) {';
+      yield '    console.error(unhandledException);';
+      yield '    return { errors: this.mapErrors([], unhandledException) } as any;';
+      yield '  }';
+    }
     yield '}';
   }
 
@@ -441,35 +430,6 @@ class MethodFactory {
         yield '}';
       }
     }
-
-    // if (options?.httpClient?.includeAuthSchemes) {
-    //   for (const scheme of this.schemes) {
-    //     if (isApiKeyScheme(scheme)) {
-    //       if (scheme.in.value === 'header') {
-    //         yield `if(this.auth${safe(scheme.name.value)}) {`;
-    //         yield `  headers${safe(scheme.parameter.value)} = this.auth${safe(
-    //           scheme.name.value,
-    //         )}.key`;
-    //         yield '}';
-    //       }
-    //     } else if (isBasicScheme(scheme)) {
-    //       yield `if(this.auth${safe(scheme.name.value)}) {`;
-    //       yield `// TODO: remove deprecated method for node targets`;
-    //       yield `  headers.authorization = \`Basic $\{ btoa(\`$\{this.auth${safe(
-    //         scheme.name.value,
-    //       )}.username\}:$\{this.auth${safe(
-    //         scheme.name.value,
-    //       )}.password\}\`) \}\``;
-    //       yield '}';
-    //     } else if (isOAuth2Scheme(scheme)) {
-    //       yield `if(this.auth${safe(scheme.name.value)}) {`;
-    //       yield `  headers.authorization = \`Bearer $\{ this.auth${safe(
-    //         scheme.name.value,
-    //       )}.accessToken \}\``;
-    //       yield '}';
-    //     }
-    //   }
-    // }
   }
 
   private *buildQuery(): Iterable<string> {
@@ -525,20 +485,6 @@ class MethodFactory {
 
       yield '}';
     }
-
-    // if (this.options?.httpClient?.includeAuthSchemes) {
-    //   for (const scheme of this.schemes) {
-    //     if (isApiKeyScheme(scheme)) {
-    //       if (scheme.in.value === 'query') {
-    //         yield `if(this.auth${safe(scheme.name.value)}) {`;
-    //         yield `  query.push(\`${scheme.parameter.value}=$\{this.auth${safe(
-    //           scheme.name.value,
-    //         )}.key\}\`);`;
-    //         yield '}';
-    //       }
-    //     }
-    //   }
-    // }
   }
 
   private *buildPath(): Iterable<string> {
@@ -592,12 +538,7 @@ class MethodFactory {
   }
 
   private *buildFetch(): Iterable<string> {
-    const returnType = this.method.returns
-      ? `<dtos.${pascal(this.method.returns.value.typeName.value)}Dto>`
-      : '';
-
-    if (this.method.returns)
-      yield `const res = await this.fetch${returnType}(path`;
+    if (this.method.returns) yield `const res = await this.fetch(path`;
     else {
       yield `await this.fetch(path`;
     }
@@ -625,14 +566,23 @@ class MethodFactory {
         'client-outbound',
       );
 
-      if (this.options?.httpClient?.validation === 'zod') {
-        yield `return mappers.${mapperName}(await res.json());`;
+      if (isStreamingMethod(this.httpMethod)) {
+        yield `if (res.ok) {
+          let stream = events(res);
+          for await (let event of stream) {
+            yield mappers.${mapperName}(JSON.stringify(event.data ?? '') as any);
+          }
+        }`;
       } else {
-        const sanitizerName = camel(
-          `sanitize_${snake(responseTypeName.name.value)}`,
-        );
+        if (this.options?.httpClient?.validation === 'zod') {
+          yield `return mappers.${mapperName}((await res.json()) as any);`;
+        } else {
+          const sanitizerName = camel(
+            `sanitize_${snake(responseTypeName.name.value)}`,
+          );
 
-        yield `return sanitizers.${sanitizerName}(mappers.${mapperName}(await res.json()));`;
+          yield `return sanitizers.${sanitizerName}(mappers.${mapperName}((await res.json()) as any));`;
+        }
       }
     }
   }

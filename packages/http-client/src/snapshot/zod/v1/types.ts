@@ -135,6 +135,7 @@ export type ExhaustiveParamsParams = {
 };
 
 export type GetGizmosParams = {
+  /** @deprecated */
   search?: string;
 };
 
