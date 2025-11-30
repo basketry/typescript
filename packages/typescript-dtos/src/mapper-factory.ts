@@ -243,6 +243,7 @@ export class ExpressMapperFactory extends BaseFactory {
         mode,
       ).input;
 
+      // TODO: remove O(n²) call to reduce
       yield ``;
       yield `return Object.keys(__rest__).reduce((acc, key) => {`;
       yield `const value = ${this.builder.buildValue(mapProperties.value.value, mode, `${paramName}[key]`, asType)};`;
@@ -350,10 +351,12 @@ export class ExpressMapperFactory extends BaseFactory {
       const initialObj = destructure ? '__defined__' : '{}';
 
       yield ``;
-      yield `return Object.keys(${sourceName}).reduce((acc, key) => {`;
-      yield `const value = ${this.builder.buildValue(mapProperties.value.value, mode, `${paramName}[key]`, asType)};`;
-      yield `return value === undefined ? acc : { ...acc, [key]: value };`;
-      yield `}, ${initialObj} as ${this.buildTypeNames(type.name.value, mode).output});`;
+      yield `const result: ${this.buildTypeNames(type.name.value, mode).output} = ${initialObj};`;
+      yield `for (const key of Object.keys(${sourceName})) {`;
+      yield `  const value = ${this.builder.buildValue(mapProperties.value.value, mode, `${paramName}[key]`, asType)};`;
+      yield `  if (value !== undefined) result[key] = value;`;
+      yield `}`;
+      yield `return result;`;
     }
   }
 
@@ -716,6 +719,7 @@ export class ExpressMapperFactory extends BaseFactory {
     this._needsCompact = true;
   }
   private *buildCompact(): Iterable<string> {
+    // TODO: remove O(n²) call to reduce
     if (this._needsCompact) {
       yield `function compact<T extends object>(obj: T): T {
         return Object.keys(obj).reduce((acc, key) => {
