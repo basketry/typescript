@@ -42,10 +42,12 @@ export function mapFromAllMapsDto(dto: dtos.AllMapsDto): types.AllMaps {
 export function mapFromComplexKeyMapADto(
   dto: dtos.ComplexKeyMapADto,
 ): types.ComplexKeyMapA {
-  return Object.keys(dto).reduce((acc, key) => {
+  const result: types.ComplexKeyMapA = {};
+  for (const key of Object.keys(dto)) {
     const value = dto[key];
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, {} as types.ComplexKeyMapA);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapFromExampleMapValueDto(
@@ -177,13 +179,15 @@ export function mapFromMixedMapDDto(dto: dtos.MixedMapDDto): types.MixedMapD {
 }
 
 export function mapFromPureMapADto(dto: dtos.PureMapADto): types.PureMapA {
-  return Object.keys(dto).reduce((acc, key) => {
+  const result: types.PureMapA = {};
+  for (const key of Object.keys(dto)) {
     const value =
       typeof dto[key] === 'undefined'
         ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, {} as types.PureMapA);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapFromPureMapBDto(dto: dtos.PureMapBDto): types.PureMapB {
@@ -194,13 +198,15 @@ export function mapFromPureMapBDto(dto: dtos.PureMapBDto): types.PureMapB {
     objBuzz: mapFromExampleMapValueDto(objBuzz),
   });
 
-  return Object.keys(__rest__).reduce((acc, key) => {
+  const result: types.PureMapB = __defined__;
+  for (const key of Object.keys(__rest__)) {
     const value =
       typeof dto[key] === 'undefined'
         ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, __defined__ as types.PureMapB);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapFromPureMapCDto(dto: dtos.PureMapCDto): types.PureMapC {
@@ -211,13 +217,15 @@ export function mapFromPureMapCDto(dto: dtos.PureMapCDto): types.PureMapC {
     objBuzz: mapFromExampleMapValueDto(objBuzz),
   });
 
-  return Object.keys(__rest__).reduce((acc, key) => {
+  const result: types.PureMapC = __defined__;
+  for (const key of Object.keys(__rest__)) {
     const value =
       typeof dto[key] === 'undefined'
         ? dto[key]
         : mapFromExampleMapValueDto(dto[key] as dtos.ExampleMapValueDto);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, __defined__ as types.PureMapC);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapFromPureMapDDto(dto: dtos.PureMapDDto): types.PureMapD {
@@ -253,13 +261,15 @@ export function mapFromWidgetDataDto(
     buzz: mapFromGizmoMapValueDto(buzz),
   });
 
-  return Object.keys(__rest__).reduce((acc, key) => {
+  const result: types.WidgetData = __defined__;
+  for (const key of Object.keys(__rest__)) {
     const value =
       typeof dto[key] === 'undefined'
         ? dto[key]
         : mapFromGizmoMapValueDto(dto[key] as dtos.GizmoMapValueDto);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, __defined__ as types.WidgetData);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapFromWidgetFooDto(dto: dtos.WidgetFooDto): types.WidgetFoo {
@@ -286,10 +296,12 @@ export function mapToAllMapsDto(obj: types.AllMaps): dtos.AllMapsDto {
 export function mapToComplexKeyMapADto(
   obj: types.ComplexKeyMapA,
 ): dtos.ComplexKeyMapADto {
-  return Object.keys(obj).reduce((acc, key) => {
+  const result: dtos.ComplexKeyMapADto = {};
+  for (const key of Object.keys(obj)) {
     const value = obj[key];
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, {} as dtos.ComplexKeyMapADto);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapToCreateWidgetBodyDto(
@@ -386,13 +398,15 @@ export function mapToMixedMapDDto(obj: types.MixedMapD): dtos.MixedMapDDto {
 }
 
 export function mapToPureMapADto(obj: types.PureMapA): dtos.PureMapADto {
-  return Object.keys(obj).reduce((acc, key) => {
+  const result: dtos.PureMapADto = {};
+  for (const key of Object.keys(obj)) {
     const value =
       typeof obj[key] === 'undefined'
         ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, {} as dtos.PureMapADto);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapToPureMapBDto(obj: types.PureMapB): dtos.PureMapBDto {
@@ -403,13 +417,15 @@ export function mapToPureMapBDto(obj: types.PureMapB): dtos.PureMapBDto {
     'obj-buzz': mapToExampleMapValueDto(objBuzz),
   });
 
-  return Object.keys(__rest__).reduce((acc, key) => {
+  const result: dtos.PureMapBDto = __defined__;
+  for (const key of Object.keys(__rest__)) {
     const value =
       typeof obj[key] === 'undefined'
         ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, __defined__ as dtos.PureMapBDto);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapToPureMapCDto(obj: types.PureMapC): dtos.PureMapCDto {
@@ -420,13 +436,15 @@ export function mapToPureMapCDto(obj: types.PureMapC): dtos.PureMapCDto {
     'obj-buzz': mapToExampleMapValueDto(objBuzz),
   });
 
-  return Object.keys(__rest__).reduce((acc, key) => {
+  const result: dtos.PureMapCDto = __defined__;
+  for (const key of Object.keys(__rest__)) {
     const value =
       typeof obj[key] === 'undefined'
         ? obj[key]
         : mapToExampleMapValueDto(obj[key] as types.ExampleMapValue);
-    return value === undefined ? acc : { ...acc, [key]: value };
-  }, __defined__ as dtos.PureMapCDto);
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
 }
 
 export function mapToPureMapDDto(obj: types.PureMapD): dtos.PureMapDDto {
