@@ -16,7 +16,7 @@ const schemasModule = 'schemas';
 export abstract class BaseFactory {
   constructor(
     protected readonly service: Service,
-    protected readonly options: NamespacedExpressOptions,
+    protected readonly options?: NamespacedExpressOptions,
   ) {}
 
   abstract build(): Promise<File[]>;
@@ -50,7 +50,7 @@ export abstract class BaseFactory {
   private *buildTypesImport(): Iterable<string> {
     if (this._needsTypesImport) {
       yield `import type * as ${typesModule} from "${
-        this.options.express?.typesImportPath || '../types'
+        this.options?.express?.typesImportPath || '../types'
       }"`;
     }
   }
@@ -63,7 +63,7 @@ export abstract class BaseFactory {
   private *buildValidatorsImport(): Iterable<string> {
     if (this._needsValidatorsImport) {
       yield `import * as ${validatorsModule} from "${
-        this.options.express?.validatorsImportPath || '../validators'
+        this.options?.express?.validatorsImportPath || '../validators'
       }"`;
     }
   }
@@ -76,7 +76,7 @@ export abstract class BaseFactory {
   private *buildSchemasImport(): Iterable<string> {
     if (this._needsSchemasImport) {
       yield `import * as ${schemasModule} from "${
-        this.options.express?.schemasImportPath || '../schemas'
+        this.options?.express?.schemasImportPath || '../schemas'
       }"`;
     }
   }
