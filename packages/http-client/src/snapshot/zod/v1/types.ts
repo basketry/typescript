@@ -137,6 +137,8 @@ export type ExhaustiveParamsParams = {
 export type GetGizmosParams = {
   /** @deprecated */
   search?: string;
+  filter?: GetGizmosFilter;
+  page?: GetGizmosPage;
 };
 
 export type GetWidgetFooParams = {
@@ -198,6 +200,15 @@ export type ExampleMapValue = {
 export type ExhaustiveParamsBody = {
   foo?: string;
   bar?: string;
+};
+
+/** Dynamic map filter for getGizmos (deepObject). */
+export type GetGizmosFilter = Record<string, string>;
+
+/** Pagination object for getGizmos (deepObject). */
+export type GetGizmosPage = {
+  number?: number;
+  size?: number;
 };
 
 /** @deprecated */

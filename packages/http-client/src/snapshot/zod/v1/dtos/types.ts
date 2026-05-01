@@ -48,6 +48,15 @@ export type ExhaustiveParamsBodyDto = {
   foo?: string;
 };
 
+/** The over-the-wire representation of the {@link types.GetGizmosFilter|GetGizmosFilter} type. */
+export type GetGizmosFilterDto = Record<string, string>;
+
+/** The over-the-wire representation of the {@link types.GetGizmosPage|GetGizmosPage} type. */
+export type GetGizmosPageDto = {
+  number?: number;
+  size?: number;
+};
+
 /** The over-the-wire representation of the {@link types.Gizmo|Gizmo} type. */
 export type GizmoDto = {
   id?: string;

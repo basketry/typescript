@@ -2,33 +2,58 @@
   "$schema": "../../node_modules/@basketry/ir/lib/schema.json",
   "kind": "Service",
   "basketry": "0.2",
-  "title": { "kind": "StringLiteral", "value": "BasketryExample" },
-  "majorVersion": { "kind": "IntegerLiteral", "value": 1 },
-  "sourcePaths": ["source/path.ext"],
+  "title": {
+    "kind": "StringLiteral",
+    "value": "BasketryExample"
+  },
+  "majorVersion": {
+    "kind": "IntegerLiteral",
+    "value": 1
+  },
+  "sourcePaths": [
+    "source/path.ext"
+  ],
   "interfaces": [
     {
       "kind": "Interface",
-      "name": { "kind": "StringLiteral", "value": "gizmo" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "gizmo"
+      },
       "description": [
         {
           "kind": "StringLiteral",
           "value": "Single paragraph description"
         }
       ],
-      "deprecated": { "kind": "TrueLiteral", "value": true },
+      "deprecated": {
+        "kind": "TrueLiteral",
+        "value": true
+      },
       "methods": [
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "getGizmos" },
-          "deprecated": { "kind": "TrueLiteral", "value": true },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "getGizmos"
+          },
+          "deprecated": {
+            "kind": "TrueLiteral",
+            "value": true
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "OAuth2Scheme",
-                  "type": { "value": "oauth2" },
-                  "name": { "kind": "StringLiteral", "value": "oauth2Auth" },
+                  "type": {
+                    "value": "oauth2"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "oauth2Auth"
+                  },
                   "flows": [
                     {
                       "kind": "OAuth2ImplicitFlow",
@@ -63,13 +88,66 @@
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "search" },
-              "deprecated": { "kind": "TrueLiteral", "value": true },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "search"
+              },
+              "deprecated": {
+                "kind": "TrueLiteral",
+                "value": true
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isPrimitive": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isPrimitive": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "filter"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "getGizmosFilter"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "rules": []
+              }
+            },
+            {
+              "kind": "Parameter",
+              "name": {
+                "kind": "StringLiteral",
+                "value": "page"
+              },
+              "value": {
+                "kind": "ComplexValue",
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "getGizmosPage"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             }
@@ -88,22 +166,33 @@
                 "kind": "StringLiteral",
                 "value": "gizmosResponse"
               },
-              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "isOptional": {
+                "kind": "TrueLiteral",
+                "value": true
+              },
               "rules": []
             }
           }
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "createGizmo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "createGizmo"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "OAuth2Scheme",
-                  "type": { "value": "oauth2" },
-                  "name": { "kind": "StringLiteral", "value": "oauth2Auth" },
+                  "type": {
+                    "value": "oauth2"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "oauth2Auth"
+                  },
                   "flows": [
                     {
                       "kind": "OAuth2ImplicitFlow",
@@ -138,7 +227,10 @@
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "size" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "size"
+              },
               "description": [
                 {
                   "kind": "StringLiteral",
@@ -151,7 +243,10 @@
                   "kind": "StringLiteral",
                   "value": "createGizmoSize"
                 },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             }
@@ -170,22 +265,33 @@
             "kind": "ReturnValue",
             "value": {
               "kind": "ComplexValue",
-              "typeName": { "kind": "StringLiteral", "value": "gizmo" },
+              "typeName": {
+                "kind": "StringLiteral",
+                "value": "gizmo"
+              },
               "rules": []
             }
           }
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "updateGizmo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "updateGizmo"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "OAuth2Scheme",
-                  "type": { "value": "oauth2" },
-                  "name": { "kind": "StringLiteral", "value": "oauth2Auth" },
+                  "type": {
+                    "value": "oauth2"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "oauth2Auth"
+                  },
                   "flows": [
                     {
                       "kind": "OAuth2ImplicitFlow",
@@ -233,7 +339,10 @@
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "factors" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "factors"
+              },
               "description": [
                 {
                   "kind": "StringLiteral",
@@ -242,19 +351,34 @@
               ],
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": [
                   {
                     "kind": "ValidationRule",
                     "id": "ArrayMaxItems",
-                    "max": { "kind": "NonNegativeIntegerLiteral", "value": 6 }
+                    "max": {
+                      "kind": "NonNegativeIntegerLiteral",
+                      "value": 6
+                    }
                   },
                   {
                     "kind": "ValidationRule",
                     "id": "ArrayMinItems",
-                    "min": { "kind": "NonNegativeIntegerLiteral", "value": 2 }
+                    "min": {
+                      "kind": "NonNegativeIntegerLiteral",
+                      "value": 2
+                    }
                   },
                   {
                     "kind": "ValidationRule",
@@ -272,8 +396,14 @@
             "kind": "ReturnValue",
             "value": {
               "kind": "ComplexValue",
-              "typeName": { "kind": "StringLiteral", "value": "gizmo" },
-              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "typeName": {
+                "kind": "StringLiteral",
+                "value": "gizmo"
+              },
+              "isOptional": {
+                "kind": "TrueLiteral",
+                "value": true
+              },
               "rules": []
             }
           }
@@ -284,16 +414,50 @@
         "http": [
           {
             "kind": "HttpRoute",
-            "pattern": { "kind": "StringLiteral", "value": "/gizmos" },
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/gizmos"
+            },
             "methods": [
               {
                 "kind": "HttpMethod",
-                "name": { "kind": "StringLiteral", "value": "getGizmos" },
-                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "getGizmos"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "search" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "search"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "filter"
+                    },
+                    "location": {
+                      "kind": "HttpLocationLiteral",
+                      "value": "query"
+                    }
+                  },
+                  {
+                    "kind": "HttpParameter",
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "page"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "query"
@@ -301,21 +465,39 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
               },
               {
                 "kind": "HttpMethod",
-                "name": { "kind": "StringLiteral", "value": "createGizmo" },
-                "verb": { "kind": "HttpVerbLiteral", "value": "post" },
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "createGizmo"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "post"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "size" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "size"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "query"
@@ -323,21 +505,39 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 201 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 201
+                }
               },
               {
                 "kind": "HttpMethod",
-                "name": { "kind": "StringLiteral", "value": "updateGizmo" },
-                "verb": { "kind": "HttpVerbLiteral", "value": "put" },
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "updateGizmo"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "put"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "factors" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "factors"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "query"
@@ -349,12 +549,21 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
               }
             ]
           }
@@ -363,7 +572,10 @@
     },
     {
       "kind": "Interface",
-      "name": { "kind": "StringLiteral", "value": "widget" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "widget"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -377,17 +589,30 @@
       "methods": [
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "getWidgets" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "getWidgets"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
-                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
-                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
-                  "in": { "value": "header" }
+                  "type": {
+                    "value": "apiKey"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             }
@@ -397,25 +622,44 @@
             "kind": "ReturnValue",
             "value": {
               "kind": "ComplexValue",
-              "typeName": { "kind": "StringLiteral", "value": "widget" },
-              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "typeName": {
+                "kind": "StringLiteral",
+                "value": "widget"
+              },
+              "isOptional": {
+                "kind": "TrueLiteral",
+                "value": true
+              },
               "rules": []
             }
           }
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "createWidget" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "createWidget"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
-                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
-                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
-                  "in": { "value": "header" }
+                  "type": {
+                    "value": "apiKey"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             }
@@ -423,7 +667,10 @@
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "body" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "body"
+              },
               "description": [
                 {
                   "kind": "StringLiteral",
@@ -436,7 +683,10 @@
                   "kind": "StringLiteral",
                   "value": "createWidgetBody"
                 },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             }
@@ -444,17 +694,30 @@
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "putWidget" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "putWidget"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
-                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
-                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
-                  "in": { "value": "header" }
+                  "type": {
+                    "value": "apiKey"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             }
@@ -463,17 +726,30 @@
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "getWidgetFoo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "getWidgetFoo"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
-                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
-                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
-                  "in": { "value": "header" }
+                  "type": {
+                    "value": "apiKey"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             }
@@ -481,7 +757,10 @@
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "id" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "id"
+              },
               "description": [
                 {
                   "kind": "StringLiteral",
@@ -490,7 +769,10 @@
               ],
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
                 "rules": [
                   {
                     "kind": "ValidationRule",
@@ -508,25 +790,44 @@
             "kind": "ReturnValue",
             "value": {
               "kind": "ComplexValue",
-              "typeName": { "kind": "StringLiteral", "value": "widget" },
-              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "typeName": {
+                "kind": "StringLiteral",
+                "value": "widget"
+              },
+              "isOptional": {
+                "kind": "TrueLiteral",
+                "value": true
+              },
               "rules": []
             }
           }
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "deleteWidgetFoo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "deleteWidgetFoo"
+          },
           "security": [
             {
               "kind": "SecurityOption",
               "schemes": [
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
-                  "name": { "kind": "StringLiteral", "value": "apiKeyAuth" },
-                  "parameter": { "kind": "StringLiteral", "value": "x-apikey" },
-                  "in": { "value": "header" }
+                  "type": {
+                    "value": "apiKey"
+                  },
+                  "name": {
+                    "kind": "StringLiteral",
+                    "value": "apiKeyAuth"
+                  },
+                  "parameter": {
+                    "kind": "StringLiteral",
+                    "value": "x-apikey"
+                  },
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             }
@@ -534,7 +835,10 @@
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "id" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "id"
+              },
               "description": [
                 {
                   "kind": "StringLiteral",
@@ -543,7 +847,10 @@
               ],
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
                 "rules": [
                   {
                     "kind": "ValidationRule",
@@ -564,29 +871,56 @@
         "http": [
           {
             "kind": "HttpRoute",
-            "pattern": { "kind": "StringLiteral", "value": "/widgets" },
+            "pattern": {
+              "kind": "StringLiteral",
+              "value": "/widgets"
+            },
             "methods": [
               {
                 "kind": "HttpMethod",
-                "name": { "kind": "StringLiteral", "value": "getWidgets" },
-                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "getWidgets"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
                 "parameters": [],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
               },
               {
                 "kind": "HttpMethod",
-                "name": { "kind": "StringLiteral", "value": "createWidget" },
-                "verb": { "kind": "HttpVerbLiteral", "value": "post" },
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "createWidget"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "post"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "body" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "body"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "body"
@@ -594,25 +928,49 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 204 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 204
+                }
               },
               {
                 "kind": "HttpMethod",
-                "name": { "kind": "StringLiteral", "value": "putWidget" },
-                "verb": { "kind": "HttpVerbLiteral", "value": "put" },
+                "name": {
+                  "kind": "StringLiteral",
+                  "value": "putWidget"
+                },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "put"
+                },
                 "parameters": [],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
               }
             ]
           },
@@ -629,11 +987,17 @@
                   "kind": "StringLiteral",
                   "value": "getWidgetFoo"
                 },
-                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "id" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "id"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "path"
@@ -641,12 +1005,21 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 200 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 200
+                }
               },
               {
                 "kind": "HttpMethod",
@@ -654,11 +1027,17 @@
                   "kind": "StringLiteral",
                   "value": "deleteWidgetFoo"
                 },
-                "verb": { "kind": "HttpVerbLiteral", "value": "delete" },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "delete"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "id" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "id"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "path"
@@ -666,12 +1045,21 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 204 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 204
+                }
               }
             ]
           }
@@ -680,7 +1068,10 @@
     },
     {
       "kind": "Interface",
-      "name": { "kind": "StringLiteral", "value": "exhaustive" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustive"
+      },
       "methods": [
         {
           "kind": "Method",
@@ -698,18 +1089,33 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "string-date" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "string-date"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "date" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "date"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": [
                   {
                     "kind": "ValidationRule",
@@ -734,7 +1140,10 @@
                   "kind": "PrimitiveLiteral",
                   "value": "date-time"
                 },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": [
                   {
                     "kind": "ValidationRule",
@@ -755,8 +1164,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -768,8 +1183,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -781,8 +1202,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -794,8 +1221,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -807,8 +1240,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -820,8 +1259,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             }
@@ -829,39 +1274,66 @@
         },
         {
           "kind": "Method",
-          "name": { "kind": "StringLiteral", "value": "exhaustiveParams" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "exhaustiveParams"
+          },
           "security": [],
           "parameters": [
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "query-string" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-string"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "query-enum" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-enum"
+              },
               "value": {
                 "kind": "ComplexValue",
                 "typeName": {
                   "kind": "StringLiteral",
                   "value": "exhaustiveParamsQueryEnum"
                 },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "query-number" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "query-number"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -873,8 +1345,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -886,8 +1364,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "boolean"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -899,9 +1383,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -917,8 +1410,14 @@
                   "kind": "StringLiteral",
                   "value": "exhaustiveParamsQueryEnumArray"
                 },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -930,9 +1429,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -944,9 +1452,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -958,24 +1475,42 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "boolean"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "path-string" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-string"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "path-enum" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-enum"
+              },
               "value": {
                 "kind": "ComplexValue",
                 "typeName": {
@@ -987,28 +1522,46 @@
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "path-number" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-number"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "path-integer" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-integer"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
                 "rules": []
               }
             },
             {
               "kind": "Parameter",
-              "name": { "kind": "StringLiteral", "value": "path-boolean" },
+              "name": {
+                "kind": "StringLiteral",
+                "value": "path-boolean"
+              },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "boolean"
+                },
                 "rules": []
               }
             },
@@ -1020,8 +1573,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1037,7 +1596,10 @@
                   "kind": "StringLiteral",
                   "value": "exhaustiveParamsPathEnumArray"
                 },
-                "isArray": { "kind": "TrueLiteral", "value": true },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1049,8 +1611,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1062,8 +1630,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1075,8 +1649,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "boolean"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1088,8 +1668,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1105,7 +1691,10 @@
                   "kind": "StringLiteral",
                   "value": "exhaustiveParamsHeaderEnum"
                 },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1117,8 +1706,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1130,8 +1725,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1143,8 +1744,14 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "boolean"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1156,9 +1763,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "string"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1174,8 +1790,14 @@
                   "kind": "StringLiteral",
                   "value": "exhaustiveParamsHeaderEnumArray"
                 },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1187,9 +1809,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "number"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1201,9 +1832,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "integer" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "integer"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1215,9 +1855,18 @@
               },
               "value": {
                 "kind": "PrimitiveValue",
-                "typeName": { "kind": "PrimitiveLiteral", "value": "boolean" },
-                "isArray": { "kind": "TrueLiteral", "value": true },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "PrimitiveLiteral",
+                  "value": "boolean"
+                },
+                "isArray": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             },
@@ -1233,7 +1882,10 @@
                   "kind": "StringLiteral",
                   "value": "exhaustiveParamsBody"
                 },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             }
@@ -1362,12 +2014,21 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
-                "successCode": { "kind": "HttpStatusCodeLiteral", "value": 204 }
+                "successCode": {
+                  "kind": "HttpStatusCodeLiteral",
+                  "value": 204
+                }
               }
             ]
           },
@@ -1781,7 +2442,10 @@
                   },
                   {
                     "kind": "HttpParameter",
-                    "name": { "kind": "StringLiteral", "value": "body" },
+                    "name": {
+                      "kind": "StringLiteral",
+                      "value": "body"
+                    },
                     "location": {
                       "kind": "HttpLocationLiteral",
                       "value": "body"
@@ -1789,10 +2453,16 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "successCode": {
                   "kind": "HttpStatusCodeLiteral",
@@ -1823,7 +2493,9 @@
               "schemes": [
                 {
                   "kind": "BasicScheme",
-                  "type": { "value": "basic" },
+                  "type": {
+                    "value": "basic"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "basicAuth"
@@ -1836,7 +2508,9 @@
               "schemes": [
                 {
                   "kind": "BasicScheme",
-                  "type": { "value": "basic" },
+                  "type": {
+                    "value": "basic"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "alternate-basic-auth"
@@ -1849,7 +2523,9 @@
               "schemes": [
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
+                  "type": {
+                    "value": "apiKey"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "apiKeyAuth"
@@ -1858,7 +2534,9 @@
                     "kind": "StringLiteral",
                     "value": "x-apikey"
                   },
-                  "in": { "value": "header" }
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             },
@@ -1867,7 +2545,9 @@
               "schemes": [
                 {
                   "kind": "OAuth2Scheme",
-                  "type": { "value": "oauth2" },
+                  "type": {
+                    "value": "oauth2"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "oauth2Auth"
@@ -1917,7 +2597,9 @@
               "schemes": [
                 {
                   "kind": "BasicScheme",
-                  "type": { "value": "basic" },
+                  "type": {
+                    "value": "basic"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "basicAuth"
@@ -1925,7 +2607,9 @@
                 },
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
+                  "type": {
+                    "value": "apiKey"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "apiKeyAuth"
@@ -1934,7 +2618,9 @@
                     "kind": "StringLiteral",
                     "value": "x-apikey"
                   },
-                  "in": { "value": "header" }
+                  "in": {
+                    "value": "header"
+                  }
                 }
               ]
             },
@@ -1943,7 +2629,9 @@
               "schemes": [
                 {
                   "kind": "BasicScheme",
-                  "type": { "value": "basic" },
+                  "type": {
+                    "value": "basic"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "basicAuth"
@@ -1951,7 +2639,9 @@
                 },
                 {
                   "kind": "ApiKeyScheme",
-                  "type": { "value": "apiKey" },
+                  "type": {
+                    "value": "apiKey"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "alternateApiKeyAuth"
@@ -1960,7 +2650,9 @@
                     "kind": "StringLiteral",
                     "value": "apikey"
                   },
-                  "in": { "value": "query" }
+                  "in": {
+                    "value": "query"
+                  }
                 }
               ]
             },
@@ -1969,7 +2661,9 @@
               "schemes": [
                 {
                   "kind": "BasicScheme",
-                  "type": { "value": "basic" },
+                  "type": {
+                    "value": "basic"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "alternate-basic-auth"
@@ -1977,7 +2671,9 @@
                 },
                 {
                   "kind": "OAuth2Scheme",
-                  "type": { "value": "oauth2" },
+                  "type": {
+                    "value": "oauth2"
+                  },
                   "name": {
                     "kind": "StringLiteral",
                     "value": "oauth2Auth"
@@ -2032,13 +2728,22 @@
                   "kind": "StringLiteral",
                   "value": "all-auth-schemes"
                 },
-                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
                 "parameters": [],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "successCode": {
                   "kind": "HttpStatusCodeLiteral",
@@ -2051,13 +2756,22 @@
                   "kind": "StringLiteral",
                   "value": "combo-auth-schemes"
                 },
-                "verb": { "kind": "HttpVerbLiteral", "value": "put" },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "put"
+                },
                 "parameters": [],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "successCode": {
                   "kind": "HttpStatusCodeLiteral",
@@ -2088,8 +2802,14 @@
             "kind": "ReturnValue",
             "value": {
               "kind": "ComplexValue",
-              "typeName": { "kind": "StringLiteral", "value": "allMaps" },
-              "isOptional": { "kind": "TrueLiteral", "value": true },
+              "typeName": {
+                "kind": "StringLiteral",
+                "value": "allMaps"
+              },
+              "isOptional": {
+                "kind": "TrueLiteral",
+                "value": true
+              },
               "rules": []
             }
           }
@@ -2110,8 +2830,14 @@
               },
               "value": {
                 "kind": "ComplexValue",
-                "typeName": { "kind": "StringLiteral", "value": "allMaps" },
-                "isOptional": { "kind": "TrueLiteral", "value": true },
+                "typeName": {
+                  "kind": "StringLiteral",
+                  "value": "allMaps"
+                },
+                "isOptional": {
+                  "kind": "TrueLiteral",
+                  "value": true
+                },
                 "rules": []
               }
             }
@@ -2134,13 +2860,22 @@
                   "kind": "StringLiteral",
                   "value": "returnMaps"
                 },
-                "verb": { "kind": "HttpVerbLiteral", "value": "get" },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "get"
+                },
                 "parameters": [],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "successCode": {
                   "kind": "HttpStatusCodeLiteral",
@@ -2153,7 +2888,10 @@
                   "kind": "StringLiteral",
                   "value": "sendMaps"
                 },
-                "verb": { "kind": "HttpVerbLiteral", "value": "post" },
+                "verb": {
+                  "kind": "HttpVerbLiteral",
+                  "value": "post"
+                },
                 "parameters": [
                   {
                     "kind": "HttpParameter",
@@ -2168,10 +2906,16 @@
                   }
                 ],
                 "requestMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "responseMediaTypes": [
-                  { "kind": "StringLiteral", "value": "application/json" }
+                  {
+                    "kind": "StringLiteral",
+                    "value": "application/json"
+                  }
                 ],
                 "successCode": {
                   "kind": "HttpStatusCodeLiteral",
@@ -2187,43 +2931,82 @@
   "types": [
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "gizmo" },
-      "deprecated": { "kind": "TrueLiteral", "value": true },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "gizmo"
+      },
+      "deprecated": {
+        "kind": "TrueLiteral",
+        "value": true
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "id" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "id"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "size" },
-          "deprecated": { "kind": "TrueLiteral", "value": true },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "size"
+          },
+          "deprecated": {
+            "kind": "TrueLiteral",
+            "value": true
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "productSize" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "productSize"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2234,13 +3017,22 @@
           "kind": "MapKey",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               },
               {
                 "kind": "ValidationRule",
@@ -2258,9 +3050,14 @@
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "gizmoMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
-
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "gizmoMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2269,34 +3066,55 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "gizmoMapValue" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "gizmoMapValue"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "foo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "foo"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "bar" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "bar"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               },
               {
                 "kind": "ValidationRule",
@@ -2314,41 +3132,68 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectAdditionalProperties",
-          "forbidden": { "kind": "TrueLiteral", "value": true }
+          "forbidden": {
+            "kind": "TrueLiteral",
+            "value": true
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "widget" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "widget"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "id" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "id"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               },
               {
                 "kind": "ValidationRule",
@@ -2363,77 +3208,134 @@
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "fiz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "NumberMultipleOf",
-                "value": { "kind": "NonNegativeNumberLiteral", "value": 3 }
+                "value": {
+                  "kind": "NonNegativeNumberLiteral",
+                  "value": 3
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "buzz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "NumberMultipleOf",
-                "value": { "kind": "NonNegativeNumberLiteral", "value": 5 }
+                "value": {
+                  "kind": "NonNegativeNumberLiteral",
+                  "value": 5
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "fizbuzz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "fizbuzz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "NumberMultipleOf",
-                "value": { "kind": "NonNegativeNumberLiteral", "value": 15 }
+                "value": {
+                  "kind": "NonNegativeNumberLiteral",
+                  "value": 15
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "foo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "foo"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "widgetFoo" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "widgetFoo"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "size" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "size"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "productSize" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "productSize"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "data" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "data"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "widgetData" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "widgetData"
+            },
             "rules": []
           }
         }
@@ -2442,13 +3344,19 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectAdditionalProperties",
-          "forbidden": { "kind": "TrueLiteral", "value": true }
+          "forbidden": {
+            "kind": "TrueLiteral",
+            "value": true
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "widgetData" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "widgetData"
+      },
       "properties": [],
       "mapProperties": {
         "kind": "MapProperties",
@@ -2456,13 +3364,22 @@
           "kind": "MapKey",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               },
               {
                 "kind": "ValidationRule",
@@ -2476,15 +3393,27 @@
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "fizz" },
-          { "kind": "StringLiteral", "value": "buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "gizmoMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "gizmoMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2493,20 +3422,35 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "newWidget" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "newWidget"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               },
               {
                 "kind": "ValidationRule",
@@ -2521,68 +3465,119 @@
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "fiz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "NumberMultipleOf",
-                "value": { "kind": "NonNegativeNumberLiteral", "value": 3 }
+                "value": {
+                  "kind": "NonNegativeNumberLiteral",
+                  "value": 3
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "buzz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "NumberMultipleOf",
-                "value": { "kind": "NonNegativeNumberLiteral", "value": 5 }
+                "value": {
+                  "kind": "NonNegativeNumberLiteral",
+                  "value": 5
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "fizbuzz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "fizbuzz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "NumberMultipleOf",
-                "value": { "kind": "NonNegativeNumberLiteral", "value": 15 }
+                "value": {
+                  "kind": "NonNegativeNumberLiteral",
+                  "value": 15
+                }
               }
             ]
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "foo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "foo"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "newWidgetFoo" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "newWidgetFoo"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "size" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "size"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "productSize" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "productSize"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2591,7 +3586,10 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "mixedMapA" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "mixedMapA"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2601,20 +3599,35 @@
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-id"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2626,8 +3639,14 @@
           "value": {
             "kind": "PrimitiveValue",
             "isPrimitive": true,
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
@@ -2636,8 +3655,14 @@
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2646,7 +3671,10 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "mixedMapB" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "mixedMapB"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2656,20 +3684,35 @@
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-id"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2680,21 +3723,39 @@
           "kind": "MapKey",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "obj-fizz" },
-          { "kind": "StringLiteral", "value": "obj-buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "obj-fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "obj-buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2703,7 +3764,10 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "mixedMapC" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "mixedMapC"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2713,20 +3777,35 @@
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-id"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2737,21 +3816,39 @@
           "kind": "MapKey",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "obj-fizz" },
-          { "kind": "StringLiteral", "value": "obj-buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "obj-fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "obj-buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2760,13 +3857,19 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectMaxProperties",
-          "max": { "kind": "NonNegativeIntegerLiteral", "value": 5 }
+          "max": {
+            "kind": "NonNegativeIntegerLiteral",
+            "value": 5
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "mixedMapD" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "mixedMapD"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2776,20 +3879,35 @@
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-id" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-id"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "obj-name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "obj-name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2800,21 +3918,39 @@
           "kind": "MapKey",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "obj-fizz" },
-          { "kind": "StringLiteral", "value": "obj-buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "obj-fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "obj-buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2823,40 +3959,70 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectMaxProperties",
-          "max": { "kind": "NonNegativeIntegerLiteral", "value": 4 }
+          "max": {
+            "kind": "NonNegativeIntegerLiteral",
+            "value": 4
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "exampleMapValue" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exampleMapValue"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "foo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "foo"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "bar" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "bar"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "created-at" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "created-at"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "date-time" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "date-time"
+            },
             "rules": []
           }
         }
@@ -2865,7 +4031,10 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "pureMapA" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "pureMapA"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2880,8 +4049,14 @@
           "value": {
             "kind": "PrimitiveValue",
             "isPrimitive": true,
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
@@ -2890,8 +4065,14 @@
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2900,7 +4081,10 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "pureMapB" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "pureMapB"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2915,21 +4099,39 @@
           "value": {
             "kind": "PrimitiveValue",
             "isPrimitive": true,
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "obj-fizz" },
-          { "kind": "StringLiteral", "value": "obj-buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "obj-fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "obj-buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2938,7 +4140,10 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "pureMapC" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "pureMapC"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2953,21 +4158,39 @@
           "value": {
             "kind": "PrimitiveValue",
             "isPrimitive": true,
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "obj-fizz" },
-          { "kind": "StringLiteral", "value": "obj-buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "obj-fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "obj-buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -2976,13 +4199,19 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectMaxProperties",
-          "max": { "kind": "NonNegativeIntegerLiteral", "value": 3 }
+          "max": {
+            "kind": "NonNegativeIntegerLiteral",
+            "value": 3
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "pureMapD" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "pureMapD"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -2997,21 +4226,39 @@
           "value": {
             "kind": "PrimitiveValue",
             "isPrimitive": true,
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         "requiredKeys": [
-          { "kind": "StringLiteral", "value": "obj-fizz" },
-          { "kind": "StringLiteral", "value": "obj-buzz" }
+          {
+            "kind": "StringLiteral",
+            "value": "obj-fizz"
+          },
+          {
+            "kind": "StringLiteral",
+            "value": "obj-buzz"
+          }
         ],
         "value": {
           "kind": "MapValue",
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "exampleMapValue" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "exampleMapValue"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -3020,13 +4267,19 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectMaxProperties",
-          "max": { "kind": "NonNegativeIntegerLiteral", "value": 2 }
+          "max": {
+            "kind": "NonNegativeIntegerLiteral",
+            "value": 2
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "complexKeyMapA" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "complexKeyMapA"
+      },
       "description": [
         {
           "kind": "StringLiteral",
@@ -3040,18 +4293,30 @@
           "kind": "MapKey",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": [
               {
                 "kind": "ValidationRule",
                 "id": "StringMinLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 12 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 12
+                }
               },
               {
                 "kind": "ValidationRule",
                 "id": "StringMaxLength",
-                "length": { "kind": "NonNegativeIntegerLiteral", "value": 30 }
+                "length": {
+                  "kind": "NonNegativeIntegerLiteral",
+                  "value": 30
+                }
               }
             ]
           }
@@ -3061,8 +4326,14 @@
           "kind": "MapValue",
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -3071,15 +4342,27 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "gizmosResponse" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "gizmosResponse"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "data" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "data"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "gizmo" },
-            "isArray": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "gizmo"
+            },
+            "isArray": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -3088,14 +4371,23 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "createWidgetBody" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "createWidgetBody"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "name" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "name"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
             "rules": []
           }
         }
@@ -3104,31 +4396,55 @@
         {
           "kind": "ObjectValidationRule",
           "id": "ObjectAdditionalProperties",
-          "forbidden": { "kind": "TrueLiteral", "value": true }
+          "forbidden": {
+            "kind": "TrueLiteral",
+            "value": true
+          }
         }
       ]
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "exhaustiveParamsBody" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsBody"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "foo" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "foo"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "bar" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "bar"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -3137,24 +4453,42 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "widgetFoo" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "widgetFoo"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "fiz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "buzz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
             "rules": []
           }
         }
@@ -3163,24 +4497,42 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "newWidgetFoo" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "newWidgetFoo"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "fiz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "fiz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
-            "isOptional": { "kind": "TrueLiteral", "value": true },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "buzz" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "buzz"
+          },
           "value": {
             "kind": "PrimitiveValue",
-            "typeName": { "kind": "PrimitiveLiteral", "value": "number" },
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "number"
+            },
             "rules": []
           }
         }
@@ -3189,86 +4541,246 @@
     },
     {
       "kind": "Type",
-      "name": { "kind": "StringLiteral", "value": "allMaps" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "allMaps"
+      },
       "properties": [
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "complexKeyMapA" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "complexKeyMapA"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "complexKeyMapA" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "complexKeyMapA"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "pureMapA" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "pureMapA"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "pureMapA" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "pureMapA"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "pureMapB" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "pureMapB"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "pureMapB" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "pureMapB"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "pureMapC" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "pureMapC"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "pureMapC" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "pureMapC"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "pureMapD" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "pureMapD"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "pureMapD" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "pureMapD"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "mixedMapA" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "mixedMapA"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "mixedMapA" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "mixedMapA"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "mixedMapB" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "mixedMapB"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "mixedMapB" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "mixedMapB"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "mixedMapC" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "mixedMapC"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "mixedMapC" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "mixedMapC"
+            },
             "rules": []
           }
         },
         {
           "kind": "Property",
-          "name": { "kind": "StringLiteral", "value": "mixedMapD" },
+          "name": {
+            "kind": "StringLiteral",
+            "value": "mixedMapD"
+          },
           "value": {
             "kind": "ComplexValue",
-            "typeName": { "kind": "StringLiteral", "value": "mixedMapD" },
+            "typeName": {
+              "kind": "StringLiteral",
+              "value": "mixedMapD"
+            },
+            "rules": []
+          }
+        }
+      ],
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "getGizmosFilter"
+      },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Dynamic map filter for getGizmos (deepObject)."
+        }
+      ],
+      "properties": [],
+      "mapProperties": {
+        "kind": "MapProperties",
+        "key": {
+          "kind": "MapKey",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
+            "rules": []
+          }
+        },
+        "requiredKeys": [],
+        "value": {
+          "kind": "MapValue",
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "string"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
+            "rules": []
+          }
+        }
+      },
+      "rules": []
+    },
+    {
+      "kind": "Type",
+      "name": {
+        "kind": "StringLiteral",
+        "value": "getGizmosPage"
+      },
+      "description": [
+        {
+          "kind": "StringLiteral",
+          "value": "Pagination object for getGizmos (deepObject)."
+        }
+      ],
+      "properties": [
+        {
+          "kind": "Property",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "number"
+          },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "integer"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
+            "rules": []
+          }
+        },
+        {
+          "kind": "Property",
+          "name": {
+            "kind": "StringLiteral",
+            "value": "size"
+          },
+          "value": {
+            "kind": "PrimitiveValue",
+            "typeName": {
+              "kind": "PrimitiveLiteral",
+              "value": "integer"
+            },
+            "isOptional": {
+              "kind": "TrueLiteral",
+              "value": true
+            },
             "rules": []
           }
         }
@@ -3279,43 +4791,76 @@
   "enums": [
     {
       "kind": "Enum",
-      "name": { "kind": "StringLiteral", "value": "createGizmoSize" },
-      "deprecated": { "kind": "TrueLiteral", "value": true },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "createGizmoSize"
+      },
+      "deprecated": {
+        "kind": "TrueLiteral",
+        "value": true
+      },
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "small" },
-          "deprecated": { "kind": "TrueLiteral", "value": true }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "small"
+          },
+          "deprecated": {
+            "kind": "TrueLiteral",
+            "value": true
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "medium" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "medium"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "big" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "big"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "XL" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "XL"
+          }
         }
       ]
     },
     {
       "kind": "Enum",
-      "name": { "kind": "StringLiteral", "value": "exhaustiveParamsQueryEnum" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsQueryEnum"
+      },
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "one" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "one"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "two" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "two"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "three" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "three"
+          }
         }
       ]
     },
@@ -3328,33 +4873,54 @@
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "one" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "one"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "two" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "two"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "three" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "three"
+          }
         }
       ]
     },
     {
       "kind": "Enum",
-      "name": { "kind": "StringLiteral", "value": "exhaustiveParamsPathEnum" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "exhaustiveParamsPathEnum"
+      },
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "one" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "one"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "two" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "two"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "three" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "three"
+          }
         }
       ]
     },
@@ -3367,15 +4933,24 @@
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "one" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "one"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "two" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "two"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "three" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "three"
+          }
         }
       ]
     },
@@ -3388,15 +4963,24 @@
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "one" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "one"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "two" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "two"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "three" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "three"
+          }
         }
       ]
     },
@@ -3409,33 +4993,54 @@
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "one" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "one"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "two" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "two"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "three" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "three"
+          }
         }
       ]
     },
     {
       "kind": "Enum",
-      "name": { "kind": "StringLiteral", "value": "productSize" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "productSize"
+      },
       "members": [
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "small" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "small"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "medium" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "medium"
+          }
         },
         {
           "kind": "EnumMember",
-          "content": { "kind": "StringLiteral", "value": "large" }
+          "content": {
+            "kind": "StringLiteral",
+            "value": "large"
+          }
         }
       ]
     }
@@ -3443,19 +5048,37 @@
   "unions": [
     {
       "kind": "SimpleUnion",
-      "name": { "kind": "StringLiteral", "value": "example-union" },
+      "name": {
+        "kind": "StringLiteral",
+        "value": "example-union"
+      },
       "members": [
         {
           "kind": "ComplexValue",
-          "typeName": { "kind": "StringLiteral", "value": "gizmo" },
-          "isOptional": { "kind": "TrueLiteral", "value": true },
+          "typeName": {
+            "kind": "StringLiteral",
+            "value": "gizmo"
+          },
+          "isOptional": {
+            "kind": "TrueLiteral",
+            "value": true
+          },
           "rules": []
         },
         {
           "kind": "PrimitiveValue",
-          "typeName": { "kind": "PrimitiveLiteral", "value": "string" },
-          "isArray": { "kind": "TrueLiteral", "value": true },
-          "isOptional": { "kind": "TrueLiteral", "value": true },
+          "typeName": {
+            "kind": "PrimitiveLiteral",
+            "value": "string"
+          },
+          "isArray": {
+            "kind": "TrueLiteral",
+            "value": true
+          },
+          "isOptional": {
+            "kind": "TrueLiteral",
+            "value": true
+          },
           "rules": []
         }
       ]

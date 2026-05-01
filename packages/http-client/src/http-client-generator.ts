@@ -505,11 +505,41 @@ class MethodFactory {
           break;
         }
         case undefined: {
-          yield `query.push(\`${
-            httpParam.name.value
-          }=$\{encodeURIComponent(${this.accessor(param, {
-            includeOptionalChaining: false,
-          })})\}\`)`;
+          // style:deepObject — object-typed query params (types with properties or
+          // mapProperties) cannot be serialized with a single encodeURIComponent
+          // call. Expand as bracket notation:
+          //   map type    → paramName[key]=value   (for each entry)
+          //   object type → paramName[prop]=value  (for each defined property)
+          // Enum and primitive complex values fall through to the standard path.
+          const deepObjectType =
+            param.value.kind === 'ComplexValue'
+              ? getTypeByName(this.service, param.value.typeName.value)
+              : undefined;
+
+          if (deepObjectType?.mapProperties) {
+            const accessor = this.accessor(param, {
+              includeOptionalChaining: false,
+            });
+            yield `Object.entries(${accessor}).forEach(([key, value]) => {`;
+            yield `  query.push(\`${httpParam.name.value}[$\{encodeURIComponent(key)\}]=$\{encodeURIComponent(value)\}\`);`;
+            yield `});`;
+          } else if (deepObjectType?.properties?.length) {
+            const accessor = this.accessor(param, {
+              includeOptionalChaining: false,
+            });
+            for (const property of deepObjectType.properties) {
+              const propName = property.name.value;
+              yield `if (${accessor}.${propName} !== undefined) {`;
+              yield `  query.push(\`${httpParam.name.value}[${propName}]=$\{encodeURIComponent(${accessor}.${propName})\}\`);`;
+              yield `}`;
+            }
+          } else {
+            yield `query.push(\`${
+              httpParam.name.value
+            }=$\{encodeURIComponent(${this.accessor(param, {
+              includeOptionalChaining: false,
+            })})\}\`)`;
+          }
           break;
         }
         default: {

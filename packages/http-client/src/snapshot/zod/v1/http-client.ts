@@ -96,6 +96,25 @@ export class HttpGizmoService implements types.GizmoService {
       if (typeof sanitizedParams?.search !== 'undefined') {
         query.push(`search=${encodeURIComponent(sanitizedParams.search)}`);
       }
+      if (typeof sanitizedParams?.filter !== 'undefined') {
+        Object.entries(sanitizedParams.filter).forEach(([key, value]) => {
+          query.push(
+            `filter[${encodeURIComponent(key)}]=${encodeURIComponent(value)}`,
+          );
+        });
+      }
+      if (typeof sanitizedParams?.page !== 'undefined') {
+        if (sanitizedParams.page.number !== undefined) {
+          query.push(
+            `page[number]=${encodeURIComponent(sanitizedParams.page.number)}`,
+          );
+        }
+        if (sanitizedParams.page.size !== undefined) {
+          query.push(
+            `page[size]=${encodeURIComponent(sanitizedParams.page.size)}`,
+          );
+        }
+      }
 
       let prefix = '';
       if (this.options?.root) {
