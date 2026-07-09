@@ -1,34 +1,37 @@
-function getRouteScore(route: string): number {
-  return route
-    .split('/')
-    .filter(Boolean)
-    .reduce((acc, seg) => acc * 3 + (seg.startsWith(':') ? 1 : 2), 0);
-}
-
 export function compareRoutes(a: string, b: string): number {
-  const scoreA = getRouteScore(a);
-  const scoreB = getRouteScore(b);
-
   const aSegs = a.split('/').filter(Boolean);
   const bSegs = b.split('/').filter(Boolean);
-  const steps = Math.min(aSegs.length, bSegs.length);
+
+  const steps = Math.max(aSegs.length, bSegs.length);
 
   for (let i = 0; i < steps; i++) {
+    if (i >= aSegs.length) {
+      return -1;
+    }
+
+    if (i >= bSegs.length) {
+      return 1;
+    }
+
     const aSeg = aSegs[i];
     const bSeg = bSegs[i];
+    const aParam = aSeg.startsWith(':');
+    const bParam = bSeg.startsWith(':');
 
-    if (!aSeg.startsWith(':') && !bSeg.startsWith(':')) {
+    if (!aParam && !bParam) {
       const cmp = aSeg.localeCompare(bSeg);
 
       if (cmp !== 0) {
         return cmp;
       }
-    } else if (aSeg.startsWith(':') && bSeg.startsWith(':')) {
+    } else if (aParam && bParam) {
       continue;
+    } else if (!aParam) {
+      return -1;
     } else {
-      break;
+      return 1;
     }
   }
 
-  return scoreB - scoreA;
+  return 0;
 }

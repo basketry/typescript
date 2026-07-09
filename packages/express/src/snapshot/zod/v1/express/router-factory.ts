@@ -68,13 +68,11 @@ export function getRouter({
     .all(methodNotAllowed('GET, HEAD, OPTIONS, PUT'));
 
   router
-    .route(
-      '/exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array}',
-    )
+    .route('/exhaustive')
     .get(
       handlersFor(
-        'exhaustiveParams',
-        handlers.handleExhaustiveParams(getExhaustiveService),
+        'exhaustiveFormats',
+        handlers.handleExhaustiveFormats(getExhaustiveService),
       ),
     )
     .options((_, res) => {
@@ -83,11 +81,13 @@ export function getRouter({
     .all(methodNotAllowed('GET, HEAD, OPTIONS'));
 
   router
-    .route('/exhaustive')
+    .route(
+      '/exhaustive/{path-string}/{path-enum}/{path-number}/{path-integer}/{path-boolean}/{path-string-array}/{path-enum-array}/{path-number-array}/{path-integer-array}/{path-boolean-array}',
+    )
     .get(
       handlersFor(
-        'exhaustiveFormats',
-        handlers.handleExhaustiveFormats(getExhaustiveService),
+        'exhaustiveParams',
+        handlers.handleExhaustiveParams(getExhaustiveService),
       ),
     )
     .options((_, res) => {
@@ -121,6 +121,21 @@ export function getRouter({
     .all(methodNotAllowed('GET, HEAD, OPTIONS, POST'));
 
   router
+    .route('/widgets')
+    .get(handlersFor('getWidgets', handlers.handleGetWidgets(getWidgetService)))
+    .post(
+      handlersFor(
+        'createWidget',
+        handlers.handleCreateWidget(getWidgetService),
+      ),
+    )
+    .put(handlersFor('putWidget', handlers.handlePutWidget(getWidgetService)))
+    .options((_, res) => {
+      res.set('Allow', 'GET, HEAD, OPTIONS, POST, PUT').sendStatus(204);
+    })
+    .all(methodNotAllowed('GET, HEAD, OPTIONS, POST, PUT'));
+
+  router
     .route('/widgets/:id/foo')
     .get(
       handlersFor(
@@ -138,21 +153,6 @@ export function getRouter({
       res.set('Allow', 'DELETE, GET, HEAD, OPTIONS').sendStatus(204);
     })
     .all(methodNotAllowed('DELETE, GET, HEAD, OPTIONS'));
-
-  router
-    .route('/widgets')
-    .get(handlersFor('getWidgets', handlers.handleGetWidgets(getWidgetService)))
-    .post(
-      handlersFor(
-        'createWidget',
-        handlers.handleCreateWidget(getWidgetService),
-      ),
-    )
-    .put(handlersFor('putWidget', handlers.handlePutWidget(getWidgetService)))
-    .options((_, res) => {
-      res.set('Allow', 'GET, HEAD, OPTIONS, POST, PUT').sendStatus(204);
-    })
-    .all(methodNotAllowed('GET, HEAD, OPTIONS, POST, PUT'));
 
   router
     .route('/')
