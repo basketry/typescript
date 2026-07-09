@@ -31,6 +31,15 @@ type Handler = {
   expression: Iterable<string>;
 };
 
+// TODO: use the one from typescript name-factory once that'
+function isStreamingMethod(httpMethod: HttpMethod | undefined): boolean {
+  if (!httpMethod) return false;
+
+  return httpMethod.responseMediaTypes.some(
+    (mt) => mt.value === 'text/event-stream',
+  );
+}
+
 export class ExpressHandlerFactory extends BaseFactory {
   constructor(service: Service, options: NamespacedExpressOptions) {
     super(service, options);
@@ -110,6 +119,10 @@ export class ExpressHandlerFactory extends BaseFactory {
     const isEnvelope = returnType?.properties.find(
       (prop) => prop.name.value === 'errors',
     );
+    
+    // Detect if this is a streaming response
+    const isStreaming = isStreamingMethod(httpMethod);
+    
     yield `/** ${upper(httpMethod.verb.value)} ${this.builder.buildExpressRoute(
       path,
     )} ${method.deprecated?.value ? '@deprecated ' : ''}*/`;
@@ -124,9 +137,26 @@ export class ExpressHandlerFactory extends BaseFactory {
     )}): ${this.expressTypesModule}.${buildRequestHandlerTypeName(
       method.name.value,
     )} => async (req, res, next) => {`;
+    
+    // Add streaming setup if needed
+    if (isStreaming) {
+      yield `  // Set response headers for streaming`;
+      yield `  res.setHeader('Content-Type', 'text/event-stream');`;
+      yield `  res.setHeader('Cache-Control', 'no-cache');`;
+      yield `  res.setHeader('Connection', 'keep-alive');`;
+      yield '';
+      yield `  const closeHandler = () => {`;
+      yield `    res.end();`;
+      yield `  };`;
+      yield `  `;
+      yield `  req.on('close', closeHandler);`;
+      yield `  req.on('finish', closeHandler);`;
+      yield '';
+    }
+    
     yield '  try {';
     if (hasParams) {
-      switch (this.options.express?.validation) {
+      switch (this.options?.express?.validation) {
         case 'zod':
         default: {
           const paramsRequired = method.parameters.some((p) =>
@@ -144,6 +174,93 @@ export class ExpressHandlerFactory extends BaseFactory {
     }
     yield '    // Execute service method';
     yield `    const service = getService(req, res);`;
+    
+    if (isStreaming) {
+      yield* this.buildStreamingServiceCall(method, httpMethod, returnType, isEnvelope, hasParams);
+    } else {
+      yield* this.buildStandardServiceCall(method, httpMethod, returnType, isEnvelope, hasParams);
+    }
+    yield '  } catch (err) {';
+    switch (this.options?.express?.validation) {
+      case 'zod':
+      default: {
+        this.touchZodErrorImport();
+        yield `if (err instanceof ZodError) {`;
+        yield `  const statusCode = res.headersSent ? 500 : 400;`;
+        yield `  return next(${this.errorsModule}.validationErrors(statusCode, err.errors));`;
+        yield `} else {`;
+        yield `  next(${this.errorsModule}.unhandledException(err));`;
+        yield `}`;
+        break;
+      }
+    }
+    yield '  }';
+    
+    // Add finally block for streaming cleanup
+    if (isStreaming) {
+      yield '  finally {';
+      yield `    closeHandler();`;
+      yield `    // Ensure handlers are removed`;
+      yield `    req.off('close', closeHandler);`;
+      yield `    req.off('finish', closeHandler);`;
+      yield '  }';
+    }
+    
+    yield '}';
+  }
+
+  private *buildStreamingServiceCall(
+    method: Method,
+    httpMethod: HttpMethod,
+    returnType: Type | undefined,
+    isEnvelope: any,
+    hasParams: boolean,
+  ): Iterable<string> {
+    yield '';
+    yield `    const stream = service.${buildMethodName(method)}(${
+      hasParams ? 'params' : ''
+    });`;
+    if (returnType) {
+      yield `    for await (const event of stream) {`;
+      
+      // Handle validation based on responseValidation option
+      if (this.options?.express?.responseValidation === 'strict') {
+        yield* this.buildStreamingResponseValidationStanza(returnType);
+      }
+      
+      yield `      // Respond`;
+      yield `      const responseDto = ${
+        this.mappersModule
+      }.${this.builder.buildMapperName(
+        returnType?.name.value,
+        'output',
+      )}(event);`;
+      yield `      res.write(\`data: \${JSON.stringify(responseDto)}\\n\\n\`);`;
+      yield `    }`;
+    }
+  }
+
+  private *buildStreamingResponseValidationStanza(
+    returnType: Type,
+  ): Iterable<string> {
+    switch (this.options?.express?.validation) {
+      case 'zod':
+      default: {
+        yield `      // Validate response`;
+        yield `${this.schemasModule}.${buildTypeName(returnType)}ResponseSchema.parse(event);`;
+        break;
+      }
+    }
+    yield '';
+  }
+
+  private *buildStandardServiceCall(
+    method: Method,
+    httpMethod: HttpMethod,
+    returnType: Type | undefined,
+    isEnvelope: any,
+    hasParams: boolean,
+  ): Iterable<string> {
     if (returnType) {
       yield `    const result = await service.${buildMethodName(method)}(${
         hasParams ? 'params' : ''
@@ -166,7 +283,7 @@ export class ExpressHandlerFactory extends BaseFactory {
       yield '} else {';
     }
     if (returnType) {
-      switch (this.options.express?.responseValidation) {
+      switch (this.options?.express?.responseValidation) {
         case 'none': {
           // Only build respond stanza
           yield* this.buildRespondStanza(returnType);
@@ -193,22 +310,6 @@ export class ExpressHandlerFactory extends BaseFactory {
     if (isEnvelope) {
       yield '}';
     }
-    yield '  } catch (err) {';
-    switch (this.options.express?.validation) {
-      case 'zod':
-      default: {
-        this.touchZodErrorImport();
-        yield `if (err instanceof ZodError) {`;
-        yield `  const statusCode = res.headersSent ? 500 : 400;`;
-        yield `  return next(${this.errorsModule}.validationErrors(statusCode, err.errors));`;
-        yield `} else {`;
-        yield `  next(${this.errorsModule}.unhandledException(err));`;
-        yield `}`;
-        break;
-      }
-    }
-    yield '  }';
-    yield '}';
   }
 
   private *buildRespondStanza(returnType: Type): Iterable<string> {
@@ -224,7 +325,7 @@ export class ExpressHandlerFactory extends BaseFactory {
   }
 
   private *buildResponseValidationStanza(returnType: Type): Iterable<string> {
-    switch (this.options.express?.validation) {
+    switch (this.options?.express?.validation) {
       case 'zod':
       default: {
         yield `// Validate response`;

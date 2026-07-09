@@ -31,14 +31,14 @@ export interface BasketryExampleOptions {
 }
 
 export interface FetchLike {
-  <T>(
+  (
     resource: string,
     init?: {
       method?: 'DELETE' | 'POST' | 'PUT';
       headers?: Record<string, string>;
       body?: string;
     },
-  ): Promise<{ json(): Promise<T>; status: number }>;
+  ): Promise<Response>;
 }
 
 function lpad(n: number, len: number): string {
@@ -110,11 +110,11 @@ export class HttpGizmoService implements types.GizmoService {
 
       const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-      const res = await this.fetch<dtos.GizmosResponseDto>(path, {
+      const res = await this.fetch(path, {
         headers,
       });
 
-      return mappers.mapFromGizmosResponseDto(await res.json());
+      return mappers.mapFromGizmosResponseDto((await res.json()) as any);
     } catch (unhandledException) {
       console.error(unhandledException);
       return { errors: this.mapErrors([], unhandledException) } as any;
@@ -158,12 +158,12 @@ export class HttpGizmoService implements types.GizmoService {
 
       const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-      const res = await this.fetch<dtos.GizmoDto>(path, {
+      const res = await this.fetch(path, {
         method: 'POST',
         headers,
       });
 
-      return mappers.mapFromGizmoDto(await res.json());
+      return mappers.mapFromGizmoDto((await res.json()) as any);
     } catch (unhandledException) {
       console.error(unhandledException);
       return { errors: this.mapErrors([], unhandledException) } as any;
@@ -204,12 +204,12 @@ export class HttpGizmoService implements types.GizmoService {
 
       const path = [`${prefix}/gizmos`, query.join('&')].join('?');
 
-      const res = await this.fetch<dtos.GizmoDto>(path, {
+      const res = await this.fetch(path, {
         method: 'PUT',
         headers,
       });
 
-      return mappers.mapFromGizmoDto(await res.json());
+      return mappers.mapFromGizmoDto((await res.json()) as any);
     } catch (unhandledException) {
       console.error(unhandledException);
       return { errors: this.mapErrors([], unhandledException) } as any;
@@ -272,11 +272,11 @@ export class HttpWidgetService implements types.WidgetService {
 
       const path = [`${prefix}/widgets`, query.join('&')].join('?');
 
-      const res = await this.fetch<dtos.WidgetDto>(path, {
+      const res = await this.fetch(path, {
         headers,
       });
 
-      return mappers.mapFromWidgetDto(await res.json());
+      return mappers.mapFromWidgetDto((await res.json()) as any);
     } catch (unhandledException) {
       console.error(unhandledException);
       return { errors: this.mapErrors([], unhandledException) } as any;
@@ -391,11 +391,11 @@ export class HttpWidgetService implements types.WidgetService {
         query.join('&'),
       ].join('?');
 
-      const res = await this.fetch<dtos.WidgetDto>(path, {
+      const res = await this.fetch(path, {
         headers,
       });
 
-      return mappers.mapFromWidgetDto(await res.json());
+      return mappers.mapFromWidgetDto((await res.json()) as any);
     } catch (unhandledException) {
       console.error(unhandledException);
       return { errors: this.mapErrors([], unhandledException) } as any;
@@ -858,11 +858,11 @@ export class HttpMapDemoService implements types.MapDemoService {
 
       const path = [`${prefix}/mapDemo`, query.join('&')].join('?');
 
-      const res = await this.fetch<dtos.AllMapsDto>(path, {
+      const res = await this.fetch(path, {
         headers,
       });
 
-      return mappers.mapFromAllMapsDto(await res.json());
+      return mappers.mapFromAllMapsDto((await res.json()) as any);
     } catch (unhandledException) {
       console.error(unhandledException);
       return { errors: this.mapErrors([], unhandledException) } as any;

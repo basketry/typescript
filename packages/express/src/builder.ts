@@ -15,7 +15,7 @@ const openAPIVariableRegex = /\{(\w+)\}/g;
 export class Builder {
   constructor(
     private readonly service: Service,
-    private readonly options: NamespacedExpressOptions,
+    private readonly options?: NamespacedExpressOptions,
   ) {}
 
   buildAccessor(
