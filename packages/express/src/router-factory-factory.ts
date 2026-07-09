@@ -4,6 +4,7 @@ import { NamespacedExpressOptions } from './types';
 import { format } from '@basketry/typescript/lib/utils';
 import { buildFilePath, buildInterfaceName } from '@basketry/typescript';
 import { camel, pascal, snake } from 'case';
+import { compareRoutes } from './route-utils';
 
 export class ExpressRouterFactoryFactory extends BaseFactory {
   constructor(service: Service, options: NamespacedExpressOptions) {
@@ -227,39 +228,4 @@ function getHandlers<TRequestHandler extends RequestHandler>(
     yield `.options((_, res) => { res.set('Allow', 'GET, HEAD, OPTIONS').sendStatus(204); })`;
     yield `.all(methodNotAllowed('GET, HEAD, OPTIONS'))`;
   }
-}
-
-function getRouteScore(route: string): number {
-  return route
-    .split('/')
-    .filter(Boolean)
-    .reduce((acc, seg) => acc * 3 + (seg.startsWith(':') ? 1 : 2), 0);
-}
-
-function compareRoutes(a: string, b: string): number {
-  const scoreA = getRouteScore(a);
-  const scoreB = getRouteScore(b);
-
-  const aSegs = a.split('/').filter(Boolean);
-  const bSegs = b.split('/').filter(Boolean);
-  const steps = Math.min(aSegs.length, bSegs.length);
-
-  for (let i = 0; i < steps; i++) {
-    const aSeg = aSegs[i];
-    const bSeg = bSegs[i];
-
-    if (!aSeg.startsWith(':') && !bSeg.startsWith(':')) {
-      const cmp = aSeg.localeCompare(bSeg);
-
-      if (cmp !== 0) {
-        return cmp;
-      }
-    } else if (aSeg.startsWith(':') && bSeg.startsWith(':')) {
-      continue;
-    } else {
-      break;
-    }
-  }
-
-  return scoreB - scoreA;
 }
