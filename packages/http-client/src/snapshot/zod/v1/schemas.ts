@@ -100,8 +100,11 @@ export const ExhaustiveParamsQueryEnumArraySchema = z.enum([
   'three',
 ]);
 
-export const GetGizmosParamsSchema = z.object({
-  search: z.string().optional(),
+export const GetGizmosFilterSchema = z.record(z.string());
+
+export const GetGizmosPageSchema = z.object({
+  number: z.number().int().optional(),
+  size: z.number().int().optional(),
 });
 
 export const GetWidgetFooParamsSchema = z.object({
@@ -180,6 +183,12 @@ export const ExhaustiveParamsParamsSchema = z.object({
   headerIntegerArray: z.coerce.number().int().array().optional(),
   headerBooleanArray: booleanFromString.array().optional(),
   body: ExhaustiveParamsBodySchema.optional(),
+});
+
+export const GetGizmosParamsSchema = z.object({
+  search: z.string().optional(),
+  filter: GetGizmosFilterSchema.optional(),
+  page: GetGizmosPageSchema.optional(),
 });
 
 const __gizmoKeys = new Set(['id', 'name', 'size']);

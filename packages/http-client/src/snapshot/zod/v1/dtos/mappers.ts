@@ -331,6 +331,26 @@ export function mapToExhaustiveParamsBodyDto(
   });
 }
 
+export function mapToGetGizmosFilterDto(
+  obj: types.GetGizmosFilter,
+): dtos.GetGizmosFilterDto {
+  const result: dtos.GetGizmosFilterDto = {};
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
+    if (value !== undefined) result[key] = value;
+  }
+  return result;
+}
+
+export function mapToGetGizmosPageDto(
+  obj: types.GetGizmosPage,
+): dtos.GetGizmosPageDto {
+  return compact({
+    number: obj.number,
+    size: obj.size,
+  });
+}
+
 export function mapToMixedMapADto(obj: types.MixedMapA): dtos.MixedMapADto {
   const { objId, objName, ...__rest__ } = obj;
 
